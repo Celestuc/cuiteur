@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les chaînes de caractères</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<h3>Sous-chaînes</h3>
+		<section>
+			<p>Trois fonctions standards permettent de travailler sur des parties de
+				chaînes.</p>
+			<ul class="fp-ul-1em">
+				<li><a
+					href="https://www.php.net/manual/en/function.substr.php" target="_blank">substr()</a>
+					renvoie une partie de chaîne. Cette fonction est très souvent
+					utilisée et offre de nombreuses façons différentes pour se
+					positionner et sélectionner les parties de chaînes. Le recours à la
+					doc PHP est très important pour ne pas passer à côté
+					d'une fonctionnalité quand on débute.
+				<li><a
+					href="https://www.php.net/manual/en/function.substr-count.php" target="_blank">substr_count()</a>
+					compte combien d'occurence d'une chaîne se trouve dans une autre.
+				<li><a
+					href="https://www.php.net/manual/en/function.substr-replace.php" target="_blank">substr_replace()</a>
+					remplace une chaîne à l'intérieur d'une autre chaîne.
+			</ul>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : parties de chaînes (sans erreur)
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Parties de chaînes (sans accents)');
+
+$x = 'Le langage PHP est un langage facile à apprendre';
+
+echo '&lt;h4&gt;Chaîne de test&lt;/h4&gt;', $x;
+
+echo '&lt;h4&gt;Position 3, 7 octets&lt;/h4&gt;',
+     substr($x, 3 , 7);
+
+echo '&lt;h4&gt;Position 11, jusqu\'à la fin de la chaîne&lt;/h4&gt;',
+     substr($x, 11);
+
+echo '&lt;h4&gt;Les 7 derniers octets&lt;/h4&gt;',
+     substr($x, -7);
+
+echo '&lt;h4&gt;Nombre de caractère "a"&lt;/h4&gt;',
+     substr_count($x, 'a');
+
+echo '&lt;h4&gt;Nombre de mot "langage"&lt;/h4&gt;',
+     substr_count($x, 'langage');
+
+htmlFin();</textarea>
+			</form>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : parties de chaînes (avec des erreurs)
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Parties de chaînes (avec accents)');
+
+$x = 'Où êtes-vous là ?';
+
+echo '&lt;h4&gt;Chaîne de test&lt;/h4&gt;', $x;
+
+echo '&lt;h4&gt;Position 0, 2 octets&lt;/h4&gt;',
+     substr($x, 0 , 2);
+
+echo '&lt;h4&gt;Position 5, jusqu\'à la fin de la chaîne&lt;/h4&gt;',
+     substr($x, 5);
+
+echo '&lt;h4&gt;Nombre de mot "Où"&lt;/h4&gt;',
+     substr_count($x, 'Où');
+
+htmlFin();</textarea>
+			</form>
+
+			<p>
+				Les erreurs qui se produisent lors de l'exécution du script précédent sont dues à des découpages
+				de la chaîne au milieu d'une séquence de plusieurs octets codant le même caractère accentué.
+			</p>
+
+		<p>
+			Vous l'aurez déjà compris, toutes les <strong>fonctions standard</strong> de PHP,
+			<a href="https://www.php.net/manual/en/function.strlen.php" target="_blank">strlen()</a>,
+			<a href="https://www.php.net/manual/en/function.substr.php" target="_blank">substr()</a>,
+			<a
+					href="https://www.php.net/manual/en/function.substr-count.php" target="_blank">substr_count()</a>,
+			<a href="https://www.php.net/manual/en/function.substr.php" target="_blank">strpos()</a>, etc.,
+			"voient" les chaînes comme étant <b>constituées d'octets</b>, ce qui peut poser des problèmes étant donné que
+			nous travaillons en UTF-8, encodage dans lequel des caractères peuvent être codés sur plusieurs octets.
+			Pour les résoudre, nous serons souvent amenés à utiliser les fonctions
+			correspondantes de l'extension
+			<a href="http://www.php.net/manual/en/ref.mbstring.php" target="_blank"><b>mb_string</b></a>, qui, elles, "voient" les
+			chaînes comme étant <b>constituées de caractères</b>.
+		</p>
+
+		<p>
+			L'utilisation de
+			<a href="https://www.php.net/manual/en/function.mb-substr.php" target="_blank">mb_substr()</a>
+			permet de corriger les erreurs du script précédent.<br>
+			Lors de son second appel, l'utilisation du paramètre nommé
+			permet d'éviter d'avoir à spécifier la valeur <span class="fp-code">null</span> pour le paramètre <span class="fp-code">$length</span>
+			(<span class="fp-code">null</span> est la valeur par défaut du paramètre <span class="fp-code">$length</span>).
+		</p>
+
+		<p>
+		Ici, l'utilisation de <a
+					href="https://www.php.net/manual/en/function.substr-count.php" target="_blank">substr_count()</a>
+		ne pose pas de problème : <a
+					href="https://www.php.net/manual/en/function.substr-count.php" target="_blank">substr_count()</a>
+		compte et renvoie le nombre d'occurences de la séquence de <strong>3 octets</strong> codant la chaîne
+		<span class="fp-code">'Où'</span>.
+		</p>
+
+
+		<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : parties de chaînes (correction des erreurs)
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Parties de chaînes (avec accents)');
+
+$x = 'Où êtes-vous là ?';
+
+echo '&lt;h4&gt;Chaîne de test&lt;/h4&gt;', $x;
+
+echo '&lt;h4&gt;Position 0, 2 caractères&lt;/h4&gt;',
+     mb_substr($x, 0 , 2, encoding: 'UTF-8');
+
+echo '&lt;h4&gt;Position 5, jusqu\'à la fin de la chaîne&lt;/h4&gt;',
+     mb_substr($x, 5, encoding: 'UTF-8');
+
+echo '&lt;h4&gt;Nombre de mot "Où"&lt;/h4&gt;',
+     substr_count($x, 'Où');
+
+htmlFin();</textarea>
+			</form>
+
+			<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : accès à tous les caractères d'une chaine
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Caractères d\'une chaine');
+
+$x = 'ériçc';
+echo strlen($x), ' octets dans la chaîne "', $x, '"';
+$l = mb_strlen($x, encoding: 'UTF-8');
+echo '&lt;br&gt;', $l, ' caractères dans la chaîne "', $x, '"';
+for ($i = 0; $i &lt; $l; $i++) {
+	echo '&lt;br&gt;Position ', $i, ' = ',
+		  mb_substr($x, $i , 1, encoding: 'UTF-8');
+}
+
+htmlFin();</textarea>
+		</form>
+
+
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : remplacement de chaîne
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Remplacement de chaîne');
+
+// Le caractère "à" est codé sur 2 octets en UTF-8
+$x = 'Là langage PHP';
+
+echo '&lt;h4&gt;Chaîne de test&lt;/h4&gt;', $x;
+
+//------------------------------------------------------
+echo '&lt;h4&gt;Remplace "langage" par "script"&lt;/h4&gt;';
+$x = substr_replace($x, 'script', 4, 7);
+// langage commence à la position 4 et il y a 7 octets
+echo $x;
+
+//------------------------------------------------------
+echo '&lt;h4&gt;Insérer sans remplacer&lt;/h4&gt;';
+$x = substr_replace ($x, ' langage de', 3, 0);
+// " langage de" est inséré à la position 3.
+// Il faut donner 0 comme nombre d'octets à remplacer
+echo $x; 
+
+//------------------------------------------------------
+echo '&lt;h4&gt;Supprimer des octets&lt;/h4&gt;';
+$x = substr_replace ($x, '', 11, 10);
+// ' de script' commence à la position 11
+// il faut placer une chaîne vide à cette position
+echo $x;
+
+//------------------------------------------------------
+echo '&lt;h4&gt;Position négative&lt;/h4&gt;';
+$x = substr_replace ($x, 'HTML', -3, 3);
+// On peut travailler à partir de la fin de la chaîne
+// en donnant une position négative
+echo $x;
+
+//------------------------------------------------------
+echo '&lt;h4&gt;Remplace "à" par "e"&lt;/h4&gt;';
+$x = substr_replace ($x, 'e', 1, 2);
+// Le caractère "à" occupe 2 octets
+echo $x;
+
+htmlFin();</textarea>
+			</form>
+
+		<p>
+			A partir du moment où les indices et les longueurs (en nombre d'octets)
+			sont "maitrisés", nous pouvons utiliser les fonctions standard de PHP
+			pour manipuler les chaînes.
+		</p>
+		</section>
+
+		<h3>Transformer une chaîne en tableau</h3>
+		<section>
+			<p>
+				Si un même délimiteur est utilisé pour séparer les parties d'une
+				chaîne, elle peut être transformée en tableau très facilement avec
+				la fonction <a
+					href="https://www.php.net/manual/en/function.explode.php" target="_blank">explode()</a>.
+			</p>
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : transformer une chaîne en tableau
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Transformer une chaîne en tableau');
+
+echo '&lt;h4&gt;Exemple séparateur "-"&lt;/h4&gt;';
+
+$x = 'François-Piat-407C';
+$t = explode('-', $x);
+
+foreach($t as $cle =&gt; $valeur) {
+  echo '&lt;br&gt;', $cle, ' = ', $valeur;
+}
+
+
+echo '&lt;h4&gt;Exemple séparateur espace&lt;/h4&gt;';
+
+$x = 'Je m\'appelle François Piat';
+$t = explode(' ', $x);
+
+for ($i = 0; $i &lt; count($t); $i++) {
+  echo '&lt;br&gt;', $i, ' = ', $t[$i];
+}
+
+htmlFin();</textarea>
+			</form>
+
+		</section>
+
+		<h3>Décomposer une URL</h3>
+		<section>
+			<p>
+				La fonction <a
+					href="https://www.php.net/manual/en/function.parse-url.php" target="_blank">parse_url()</a>
+				retourne un tableau des composants d'une URL. Les clés possibles du
+				tableau sont : <span class="fp-code">scheme</span>, <span
+					class="fp-code">host</span>, <span class="fp-code">port</span>, <span
+					class="fp-code">user</span>, <span class="fp-code">pass</span>, <span
+					class="fp-code">path</span>, <span class="fp-code">query</span> et
+				<span class="fp-code">fragment</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : décomposer une URL
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Décomposer une URL');
+
+$x = 'http://www.site.com/repert/page.html?a=100&amp;b=200';
+$t = parse_url($x);
+
+echo 'Parties de l\'URL "', $x, '"&lt;pre&gt;';
+print_r($t);
+echo '&lt;/pre&gt;';
+
+htmlFin();</textarea>
+			</form>
+
+		</section>
+	</div>
+	<footer></footer>
+</body>
+</html>

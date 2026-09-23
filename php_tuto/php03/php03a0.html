@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les chaînes de caractères</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p class="fp-puce">
+			En PHP, une chaîne de caractères est une série de caractères (0, 1 ou plusieurs), où un caractère
+			est un <strong>octet</strong>. Un octet dans une chaîne de caractères PHP peut avoir n'importe quelle valeur (256
+			valeurs possibles). On peut donc trouver dans une chaîne de caractères PHP des octets valant 0,
+			des sauts de ligne, des tabulations, etc.
+		</p>
+
+		<p class="fp-puce">
+			Le type <span class="fp-code">string</span> en PHP est implémenté sous la forme d'un
+			tableau d'octets accompagné d'un entier indiquant la taille du
+			tableau.
+		</p>
+
+		<p class="fp-puce">
+			L'encodage utilisé est celui du script. Il est <strong>recommandé d'encoder les scripts PHP en UTF-8</strong>.
+			(Les scripts de ce toturiel sont encodés en UTF-8). Comme
+			PHP ne supporte pas nativement l'Unicode, nous serons amenés à utiliser l'extension
+			<a href="http://www.php.net/manual/en/ref.mbstring.php" target="_blank">mb_string</a> (<strong>mb</strong> pour multi bytes, c'est à dire
+			multi octets).
+		</p>
+
+		<p class="fp-puce">
+			Nous allons, dans cette partie, faire quelques rappels sur le codage des caractères.
+		</p>
+
+
+
+		<h3>Le codage ASCII</h3>
+		<section>
+			<p>
+			L'ASCII (American Standard Code for Information Interchange) utilise <strong>7 bits</strong> pour représenter un caractère : ils
+sont donc numérotés en décimal de <strong>0</strong> à <strong>127</strong> et codés en binaire de 0000000 à 1111111.
+Le coadge ASCII ne permet donc de représenter que 128 caractères.
+			</p>
+
+			<figure>
+				<img src="../phpimg/ascii7bits.png" width="523" height="560">
+				<figcaption>codage ASCII sur 7 bits</figcaption>
+			</figure>
+
+
+			<p>
+			Les caractères de numéro 0 à 31 et le 127 ne sont pas affichables : ils correspondent à des commandes de
+contrôle de terminal informatique. Le caractère numéro 32 est l'espace. Les autres caractères sont les chiffres
+arabes, les lettres latines majuscules et minuscules sans accent et quelques symboles de ponctuation.
+			</p>
+		</section>
+
+		<h3>Extension du codage ASCII sur 8 bits</h3>
+		<section>
+			<p class="fp-ul-puce">Comme les ordinateurs travaillent sur huit bits (un octet), chaque caractère d'un texte en ASCII est donc stocké
+dans un octet, d’où l’idée d’utiliser ce 8ème bit pour définir des caractères numérotés de 128 à 255.</p>
+
+			<p class="fp-puce">
+				Il existe différentes pages de codes qui étendent sur 8 bits le code ASCII 7 bits, d’où des problèmes de
+compatibilité souvent rendus visibles par le fait que les caractères comme les « lettres accentuées » (éÈ...) et
+des lettres comme ‘ç’ s'affichent mal.
+			</p>
+
+			<p class="fp-bottom0">
+				On peut citer à titre d'exemples quelques pages parmi les 16 pages de codes de la norme ISO/CEI 8859 :
+			</p>
+			<ul class="fp-ul-puce">
+				<li> ISO/CEI 8859-1 (latin-1 ou européen occidental) — probablement la partie la plus largement utilisée de ISO 8859, couvrant la plupart des langues européennes occidentales : l'allemand, l'anglais, le basque, le catalan, le danois, l'écossais, l'espagnol, le féroïen, le finnois (partiellement), le français (partiellement, il manque notamment l’e dans l'o œ et le Ÿ), etc.
+				<li> ISO/CEI 8859-2 (latin-2 ou européen central) — prend en charge celles des langues d'Europe centrale ou de l'Est basées sur un alphabet romain. Ceci inclut le bosnien, le croate, le polonais, le tchèque, le slovaque, le slovène et le hongrois.
+				<li> ISO/CEI 8859-15 (latin-9 ou parfois de façon impropre latin-0) — une révision de 8859-1 qui abandonne quelques symboles peu utilisés, les remplaçant avec le symbole de l'euro € (remplaçant le signe de monnaie ¤) et les lettres Š, š, Ž, ž, Œ, œ, et Ÿ, ce qui complète la couverture du français, du finnois et de l'estonien.
+			</ul>
+
+			<figure>
+				<img src="../phpimg/iso8859-2.png" width="565" height="639">
+				<figcaption>codage ISO 8859-2</figcaption>
+			</figure>
+
+			<figure>
+				<img src="../phpimg/iso8859-1.png" width="578" height="349">
+				<figcaption>codage ISO 8859-1</figcaption>
+			</figure>
+
+			<figure>
+				<img src="../phpimg/diff-iso8859-1-15.png" width="563" height="112">
+				<figcaption>différences ISO 8859-15 — ISO 8859-1</figcaption>
+			</figure>
+
+			<p class="fp-remarque">
+				Bien entendu, tous ces encodages ASCII étendus sur 8 bits sont comptatibles avec le codage ASCII sur 7 bits (i.e. :
+				les codes allant de 0 à 127 en décimal représentent le même caractère).
+			</p>
+
+		<h3>La norme Unicode</h3>
+		<section>
+			<p class="fp-puce">
+				Unicode est un standard informatique qui permet des échanges de textes dans différentes langues, à un niveau
+				mondial. Elle est développée par le <em>Consortium Unicode</em>, qui vise à permettre le codage de texte écrit en
+				donnant à tout caractère de n’importe quel système d'écriture un nom et un identifiant numérique, et ce de
+				manière unifiée, quelle que soit la plate-forme informatique ou le logiciel.
+			</p>
+
+			<p class="fp-puce">
+			Le répertoire Unicode peut contenir plus d'un <strong>million de caractères</strong>, ce qui est bien trop grand pour être codé
+			par un seul octet (limité à des valeurs entre 0 et 255).
+			</p>
+
+			<p class="fp-puce">
+			Chaque caractère est repéré dans cet ensemble par un <strong>index entier</strong> aussi appelé <strong>« point de code »</strong>.
+			Par exemple
+			le caractère "€" (euro) est le 8365e caractère du répertoire Unicode. Son index, ou point de code, est donc 8364
+			(on commence à compter à partir de 0).
+			</p>
+
+			<p class="fp-puce">
+			La norme Unicode définit donc des méthodes standardisées pour <strong>coder cet index (ou point de code) sous forme de
+séquence d'octets</strong> : <strong>UTF-8</strong> est l'une d'entre elles, avec UTF-16, UTF-32.
+			</p>
+
+
+		</section>
+
+		<h3>Le codage UTF-8</h3>
+		<section>
+			<p class="fp-puce">
+			<strong>UTF-8</strong> (<strong>U</strong>niversal Character Set <strong>T</strong>ransformation <strong>Format</strong> 8 bits) est un codage de caractères informatiques
+			conçu pour coder l'ensemble des caractères internationaux d'Unicode en restant <strong>compatible avec la norme
+			ASCII</strong>. Son usage est de plus en plus courant sur l’Internet, et dans les systèmes devant échanger de
+			l'information.
+			</p>
+
+			<p class="fp-puce">
+			En UTF-8, les caractères Unicode sont codés sous forme de séquences de <strong>1 à 4 octets</strong> chacun.
+			</p>
+
+			<p class="fp-puce">
+			Les caractères ayant un point de code compris entre 00 et 7F (en hexadécimal) sont codés sur <strong>un seul octet</strong> dont le bit de poids
+			fort est nul, ce qui assure la <strong>compatibilité avec le codage ASCII</strong>.
+			</p>
+
+			<p class="fp-puce">
+			Les caractères avec un point de code (strictement) supérieur à 7F sont codés sur plusieurs octets. Les bits de poids fort du
+premier octet forment une suite de 1 de longueur égale au nombre d'octets utilisés pour coder le caractère, les
+octets suivants ayant 10 comme bits de poids fort.
+			</p>
+
+<table>
+    <tr>
+        <td colspan="2" style="text-align: center">Définition du nombre d'octets utilisés</td>
+    </tr>
+    <tr>
+        <td><b>Representation binaire en UTF-8</b></td>
+        <td><b>Signification</b></td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">0<span style="color:green">xxxxxxx</span></span></td>
+        <td>1 octet codant 1 à <span style="color:green">7</span> bits</td>
+    </tr>
+    <tr>
+        <td><span class="fp-code"><span style="color:red">11</span>0<span style="color:green">xxxxx</span>&nbsp;&nbsp;10<span style="color:green">xxxxxx</span></span></td>
+        <td><span style="color:red">2</span> octets codant 8 à <span style="color:green">11</span> bits</td>
+    </tr>
+    <tr>
+        <td><span class="fp-code"><span style="color:red">111</span>0<span style="color:green">xxxx</span>&nbsp;&nbsp;10<span style="color:green">xxxxxx</span>&nbsp;&nbsp;10<span style="color:green">xxxxxx</span></span></td>
+        <td><span style="color:red">3</span> octets codant 12 à <span style="color:green">16</span> bits</td>
+    </tr>
+    <tr>
+        <td><span class="fp-code"><span style="color:red">1111</span>0<span style="color:green">xxx</span>&nbsp;&nbsp;10<span style="color:green">xxxxxx</span>&nbsp;&nbsp;10<span style="color:green">xxxxxx</span>&nbsp;&nbsp;10<span style="color:green">xxxxxx</span></span></td>
+        <td><span style="color:red">4</span> octets codant 17 à <span style="color:green">21</span> bits</td>
+    </tr>
+</table>
+
+<p>
+	Dans le tableau ci-dessus, le nombre de <span class="fp-code">x</span> correspond au nombre maximal de bits d'un point de code
+	qu'on peut placer dans un code UTF-8 sur <span class="fp-code">N</span> octets (avec <span class="fp-code">N</span> compris entre
+	1 et 4).
+</p>
+
+<p>
+	Exemples :
+</p>
+
+<table>
+    <tr>
+        <td style="width:120px"><b>Caractère</b></td>
+        <td><b>Point de code (en décimal)</b></td>
+        <td><b>Code UTF-8 (en hexadécimal)</b></td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">'A'</span></td>
+        <td>65</td>
+        <td>0x41</td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">'é'</span></td>
+        <td>233</td>
+        <td>0xC3 0xA9</td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">'€' (euro)</span></td>
+        <td>8364</td>
+        <td>0xE2 0x82 0xAC</td>
+    </tr>
+</table>
+
+<p class="fp-puce">
+	Le point de code du caractère 'A' est égal à 65 en décimal, 0x41 en hexadécimal, et donc 01000001 en binaire.<br>
+	Donc, le code binaire de ce point de code tient sur <b>7</b> bits; et par conséquent, son code UTF-8 est constitué d'<b>un seul octet</b>
+	égal à <span class="fp-code"><b>0</b>1000001</span> en binaire, et <span class="fp-code">0x41</span> en hexadécimal.
+</p>
+
+<p class="fp-puce">
+	Le point de code du caractère accentuée 'é' est égal à 233 en décimal, 0xE9 en hexadécimal, et donc 11101001 en binaire.<br>
+	Donc, le code binaire de ce point de code tient sur <b>8</b> bits; et par conséquent, son code UTF-8 est constitué de <b>2 octets</b>.
+	Pour obtenir, ces 2 octets, on part du "patron" <span class="fp-code">110xxxxx&nbsp;10xxxxxx</span>, et on remplace les
+	<span class="fp-code">x</span> par les bits du point de code en binaire en commençant par la droite, ce qui donne le
+	code binaire <span class="fp-code"><b>110</b>00011&nbsp;<b>10</b>101001</span>, et donc <span class="fp-code">C3&nbsp;A9</span>
+	en hexadécimal.
+</p>
+
+<p class="fp-puce">
+	Le point de code du caractère '€' est égal à 8364 en décimal, 0x20AC en hexadécimal, et donc 0010;&nbsp;0000;&nbsp;1010;&nbsp;1100 en binaire.<br>
+	Donc, le code binaire de ce point de code tient sur <b>14</b> bits; et par conséquent, son code UTF-8 est constitué de <b>3 octets</b>.
+	Pour obtenir, ces 3 octets, on part du "patron" <span class="fp-code">1110xxxx&nbsp;10xxxxxx&nbsp;10xxxxxx</span>, et on remplace les
+	<span class="fp-code">x</span> par les bits du point de code en binaire en commençant par la droite, ce qui donne le
+	code binaire <span class="fp-code"><b>1110</b>0010&nbsp;<b>10</b>000010&nbsp;<b>10</b>101100</span>, et donc <span class="fp-code">E2&nbsp;82&nbsp;AC</span>
+	en hexadécimal.
+</p>
+
+<p class="fp-remarque">
+	Dans une suite d'octets représentant une chaîne en UTF-8,
+	un octet a son bit de poids fort égal à 0 (i.e. une valeur décimale inférieure ou égale à 127),
+	si et seulement si il correspond au code d'un caractère codé sur un seul octet.
+	Dit autrement, tout octet avec un bit de poids fort égal à 1 (i.e. une valeur décimale supérieure ou égale à 128) fait partie du code UTF-8 d'un caractère qui est codé sur plus d'un octet (au moins 2).
+</p>
+
+
+		</section>
+	</div>
+	<footer></footer>
+</body>
+</html>

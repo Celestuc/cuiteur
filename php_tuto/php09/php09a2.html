@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Informations sur un fichier</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<div class="fp-remarque">
+			<img src="../phpimg/test_fichiers.png" width="149" height="131"
+				border="0" class="fp-f-right" style="margin-left: 10px">
+			<p>
+				Pour les exemples, nous utiliserons le dossier <span class="fp-code">test_fichiers</span>
+				avec le contenu et l'arborescence ci-contre.
+			</p>
+			<p>
+				Ce dossier se trouve dans le dossier test du tutoriel. Vous pouvez
+				voir son contenu avec le bouton <img
+					src="../_core/images/__arbo.png" width="32" height="32"
+					style="display: table-cell; vertical-align: middle"> dans la
+				barre de menu du tutoriel.
+			</p>
+			<p class="fp-bottom0">
+				Si vous ne voyez pas ce dossier, ou si vous voulez le ré-initialiser
+				<a onclick="top.FP.Voir.showPLUS('exemple/init_chap09.php?x=f')">utilisez
+					ce script</a>.
+			</p>
+		</div>
+
+		<p class="fp-puce fp-inter2 fp-bottom0">Pour obtenir des informations sur un fichier, nous pouvons
+		utiliser les fonctions :</p>
+		<ul class="fp-ul-puce">
+			<li> <a
+				href="https://www.php.net/manual/en/function.stat.php" target="_blank">stat()</a>
+				renvoie un tableau contenant de nombreuses informations à propos d'un fichier,
+			</li>
+			<li> <a
+				href="https://www.php.net/manual/en/function.filesize.php" target="_blank">filesize()</a>
+				donne la taille du fichier en octets,
+			</li>
+			<li><a
+				href="https://www.php.net/manual/en/function.filemtime.php" target="_blank">filemtime()</a>
+				renvoie la date de dernière modification (sous la forme d'un timestamp),
+			</li>
+			<li><a
+				href="https://www.php.net/manual/en/function.fileperms.php" target="_blank">fileperms()</a>
+				renvoie un entier permettant de connaitre le type du fichier et ses permissions,
+			</li>
+			<li><a
+				href="https://www.php.net/manual/en/function.is-readable.php" target="_blank">is_readable()</a>
+				renvoie true si le fichier existe et est accessible en lecture,
+			</li>
+			<li><a
+				href="https://www.php.net/manual/en/function.is-writable.php" target="_blank">is_writable()</a>
+				renvoie true si le fichier existe et est accessible en écriture.
+			</li>
+		</ul>
+
+		<p class="fp-remarque">
+			Remarque : pour une liste exhaustives des fonctions d'information,
+			voir <a
+				href="https://www.php.net/manual/en/ref.filesystem.php" target="_blank">la
+				documentation technique</a>.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : informations fichier avec stat()
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Information sur un fichier avec stat()');
+
+$fichier = 'test_fichiers/images/diapo1.jpg';
+htmlInfo($fichier);
+$f = stat($fichier);
+infoTableau($f);
+
+$fichier = 'test_fichiers/images';
+htmlInfo($fichier);
+$f = stat($fichier);
+infoTableau($f);
+
+htmlFin();
+</textarea>
+		</form>
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : informations fichier
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+//======================================================
+/**
+ * Renvoie des informations sur un fichier
+ *
+ * @param string	$fichier	chemin vers le fichier
+ *
+ * @return array	Tableau associatif d'informations
+ */
+function fichierInfos(string $fichier): array {
+	$t = ['file' =&gt; '---'];
+ 	if (!file_exists($fichier)) {
+		return $t;
+	}
+	$t['file'] = is_file($fichier) ?  'oui' : 'non';
+	$t['size'] = filesize($fichier);
+	$t['date'] = filemtime($fichier);
+	$t['perm'] = fileperms($fichier);
+	$t['read'] = is_readable($fichier) ? 'oui' : 'non';
+	$t['write'] = is_writable($fichier) ? 'oui' : 'non';	
+	return $t;
+}
+//======================================================
+
+htmlDebut('Information sur un fichier');
+
+$fichier = 'test_fichiers/images/diapo1.jpg';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+$fichier = 'test_fichiers/images';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-remarque">
+			On remarquera que la fonction <a
+				href="https://www.php.net/manual/en/function.filesize.php" target="_blank">filesize()</a>
+			appliquée à un dossier ne renvoie pas sa taille, mais la taille d'un bloc de données sur les systèmes Unix, et 0 sur les
+			systèmes Windows.
+		</p>
+
+		<p class="fp-puce">
+			L'exemple suivant illustre comment on peut afficher les permissions en octal d'un fichier.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : permissions en octal
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Permissions en octal');
+
+$fichier = 'test_fichiers/images/diapo1.jpg';
+htmlInfo($fichier);
+echo substr(sprintf('%o', fileperms($fichier)), -4);
+
+$fichier = 'test_fichiers/images';
+htmlInfo($fichier);
+echo substr(sprintf('%o', fileperms($fichier)), -4);
+
+htmlFin();
+</textarea>
+		</form>
+
+
+		<p class="fp-puce">
+			La date de dernière modification est un timestamp qui peut être
+			formaté avec la fonction <a
+				href="https://www.php.net/manual/en/function.date.php" target="_blank">date()</a>
+			(par exemple : <span class="fp-code">date('d/m/Y
+				H:i:s',filemtime($fichier));</span>).
+		</p>
+
+
+
+		<p class="fp-puce">
+			Les permissions symboliques (i.e. au format donné par la commande <span class="fp-code">ls -l</span> sous Unix)  peuvent être obtenues en utilisant l'opérateur
+			bit à bit <span class="fp-code">&amp;</span> comme dans l'exemple ci-dessous.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : informations fichier
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+//======================================================
+/**
+ * Type et permissions d'un fichier sous forme ls -l unix/linux
+ *
+ * @param int		$perm	infos (permissions et type)
+ *                          renvoyées par fileperms()
+ *
+ * @return string	type et permissions comme le début de ls -l
+ */
+function fichierTypePerms(int $perm) : string {
+	// Determine le type
+	switch ($perm &amp; 0xF000) {
+    case 0xC000: // socket
+        $info = 's';
+        break;
+    case 0xA000: // lien symbolique
+        $info = 'l';
+        break;
+    case 0x8000: // fichier régulier
+        $info = '-';
+        break;
+    case 0x6000: // fichier de périphérique en mode bloc
+        $info = 'b';
+        break;
+    case 0x4000: // répertoire
+        $info = 'd';
+        break;
+    case 0x2000: // fichier de périphérique en mode caractère
+        $info = 'c';
+        break;
+    case 0x1000: // tube nommé (FIFO)
+        $info = 'p';
+        break;
+    default: // type inconnu
+        $info = 'u';
+}
+
+	// permissions de l'utilisateur propriétaire
+	$info .= (($perm &amp; 0x0100) ? 'r' : '-');
+	$info .= (($perm &amp; 0x0080) ? 'w' : '-');
+	$info .= (($perm &amp; 0x0040) ?
+				(($perm &amp; 0x0800) ? 's' : 'x' ) :
+				(($perm &amp; 0x0800) ? 'S' : '-'));
+
+	// permissions des membres du groupe propriétaire
+	$info .= (($perm &amp; 0x0020) ? 'r' : '-');
+	$info .= (($perm &amp; 0x0010) ? 'w' : '-');
+	$info .= (($perm &amp; 0x0008) ?
+				(($perm &amp; 0x0400) ? 's' : 'x' ) :
+				(($perm &amp; 0x0400) ? 'S' : '-'));
+
+	// permissions des autres
+	$info .= (($perm &amp; 0x0004) ? 'r' : '-');
+	$info .= (($perm &amp; 0x0002) ? 'w' : '-');
+	$info .= (($perm &amp; 0x0001) ?
+				(($perm &amp; 0x0200) ? 't' : 'x' ) :
+				(($perm &amp; 0x0200) ? 'T' : '-'));
+
+	return $info;
+}
+//======================================================
+/**
+ * Renvoie des informations sur un fichier
+ *
+ * @param string	$fichier	Fichier
+ *
+ * @return array	Tableau associatif d'informations
+ */
+function fichierInfos(string $fichier): array {
+	$t = array('file' =&gt; '---');
+ 	if (!file_exists($fichier)) {
+		return $t;
+	}
+	$t['file'] = is_file($fichier) ?  'oui' : 'non';
+	$t['size'] = filesize($fichier);
+	$t['date'] = date('d/m/Y H:i:s', filemtime($fichier));
+	$t['typePerm'] = fichierTypePerms(fileperms($fichier));
+	$t['read'] = is_readable($fichier) ? 'oui' : 'non';
+	$t['write'] = is_writable($fichier) ? 'oui' : 'non';	
+	return $t;
+}
+//======================================================
+htmlDebut('Information sur un fichier');
+
+$fichier = 'test_fichiers/images/diapo1.jpg';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+$fichier = 'test_fichiers/images';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<footer></footer>
+	</div>
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Objets : les exceptions</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p>Les exceptions sont une autre façon de traiter le déclenchement des erreurs et leur
+			traitement.</p>
+
+		<p>
+			Pour signaler qu'une erreur s'est produite, une méthode <strong>lance une exception</strong> (ou
+			lève une exception). Le code appelant la méthode doit <strong>capturer l'exception</strong> et
+			traiter le problème s'il en est capable.
+		</p>
+
+		<h3>Principe</h3>
+		<section>
+			<div class="fp-cadre">
+				<p>
+					Quand une exception est lancée (mot-clé <code>throw</code>), l'interpréteur PHP arrête
+					l'exécution normale du script et transmet l'exception de bloc de code appelant en bloc de code
+					appelant.
+				</p>
+				<p class="fp-puce">
+					Si PHP trouve un bloc capturant l'exception (mot-clé <code>catch</code>), l'exception est
+					traitée dans le code de ce bloc puis le script continue son exécution juste après le bloc
+					catch.
+				</p>
+				<p class="fp-puce fp-bottom0">Si aucun bloc catch n'est rencontré, l'interpréteur PHP
+					affiche le message d'erreur de l'exception et arrête le script.</p>
+			</div>
+
+			<p class="fp-puce" style="margin-top: 1em">
+				La classe native
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a>
+				est la <b>classe de base</b> de toutes les exceptions utilisateur en PHP.<br>
+				Par exemple, la classe
+				<a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank"><code>mysqli_sql_exception</code></a>
+				, utilisée dans nos fonctions <code>bdConnect()</code> et <code>bdSendRequest()</code>,
+				dérive de la classe
+				<a href="https://www.php.net/manual/en/class.runtimeexception.php" target="_blank"><code>RuntimeException</code></a>,
+				qui elle même dérive de la classe
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a>.
+			</p>
+
+			<h4>Lancer une exception</h4>
+			<section>
+				<p class="fp-puce">
+					Pour lancer une exception on utilise le mot-clé <code>throw</code> suivi de l'instanciation
+					d'une nouvelle <code>Exception</code>.
+					<br>
+				<pre data-code="PHP">
+throw new Exception("Le message d'erreur à afficher");</pre>
+
+
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : lancer une exception
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+class Guitare {
+	private string $modele;
+	private float $prix;
+	private int $cordes;
+	private int $remise;
+
+	public function __construct(string $p1, float $p2, int $p3) {
+		$p1 = trim($p1);
+		if ($p1 == '') {
+			throw new Exception('Modèle invalide');
+		}
+		$this-&gt;modele = $p1;
+						
+		$ok = array(4, 6, 12);
+		if (! in_array($p3, $ok)) {
+			throw new Exception('Nombre de cordes invalide');
+		}
+		$this-&gt;cordes = $p3;
+		
+		$this-&gt;setPrix($p2);
+
+		$this-&gt;remise = 0;
+	}
+	
+	public function setPrix(float $val) : void {
+		if ($val &lt; 0) {
+			throw new Exception('Valeur de prix invalide');
+		}		
+		$this-&gt;prix = $val;
+	}
+
+	public function getPrix() : float {
+		return round($this-&gt;prix *
+		             (1 - $this-&gt;remise / 100), 2);
+	}
+
+	public function decrire() : void {
+		echo '&lt;h4&gt;Instance de la classe ', __CLASS__, '&lt;/h4&gt;',
+				$this-&gt;modele, '&lt;br&gt;',
+				$this-&gt;cordes, ' cordes&lt;br&gt;',
+				$this-&gt;getPrix(), ' &amp;euro;';
+	}
+}	// Fin de la définition de la classe Guitare
+
+htmlDebut('Lancer une exception');
+
+// Essayez de commenter la première instanciation
+// puis les 2 premières instanciations
+$guitare = new Guitare('', 758, 12);
+$guitare = new Guitare('Gretsch Falcon', -2, 12);
+$guitare = new Guitare('Gretsch Falcon', 758, 24);
+htmlInfo('Après les instanciations');
+htmlFin();
+</textarea>
+				</form>
+
+				<p>Comme vous le voyez en testant le code, nous avons une erreur qui nous dit que nous avons
+					lancé une exception sans la capturer. Voyons donc comment traiter cette exception
+					en la capturant (ou en l'attrapant).</p>
+			</section>
+
+			<h4>Capturer une exception</h4>
+			<section>
+				<p class="fp-puce">
+					Pour capturer une exception on utilise une structure de contrôle <code>try</code>, <code>catch</code>
+					(et éventuellement <code>finally</code>).
+				</p>
+
+				<figure>
+					<img src="../phpimg/poo_26.png" width="520" height="228">
+					<figcaption>capturer une exception</figcaption>
+				</figure>
+
+				<p class="fp-puce">
+					A noter la syntaxe particulière du bloc <code>catch</code> où <code>catch</code> est
+					pratiquement considéré comme une fonction à laquelle on passe en paramètre une référence sur
+					l'instance de l'<code>Exception</code> à traiter, ... qui permet d'accéder à des informations
+					sur l'exception attrapée.
+					<br>
+					A l'intérieur de ce bloc, on va donc pouvoir invoquer diverses méthodes de la classe <code>Exception</code>
+					si on veut réaliser des affichages sur les causes de l'erreur.
+				</p>
+
+				<p class="fp-puce">
+					L'exemple suivant utilise les méthodes <a
+						href="https://www.php.net/manual/en/exception.getmessage.php" target="_blank">getMessage()</a>,
+					<a href="https://www.php.net/manual/en/exception.getline.php" target="_blank">getLine()</a>,
+					<a href="https://www.php.net/manual/en/exception.getfile.php" target="_blank">getFile()</a>,
+					<a href="https://www.php.net/manual/en/exception.gettrace.php" target="_blank">getTrace()</a>
+					et <a href="https://www.php.net/manual/en/exception.tostring.php" target="_blank">__toString()</a>
+					de la classe prédéfinie <a
+						href="https://www.php.net/manual/en/class.exception.php" target="_blank">Exception</a>.
+				</p>
+
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : capturer une exception
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+class Guitare {
+	private string $modele;
+	private float $prix;
+	private int $cordes;
+	private int $remise;
+
+	public function __construct(string $p1, float $p2, int $p3) {
+		$p1 = trim($p1);
+		if ($p1 == '') {
+			throw new Exception('Modèle invalide');
+		}
+		$this-&gt;modele = $p1;
+
+		$ok = array(4, 6, 12);
+		if (! in_array($p3, $ok)) {
+			throw new Exception('Nombre de cordes invalide');
+		}
+		$this-&gt;cordes = $p3;
+
+		$this-&gt;setPrix($p2);
+
+		$this-&gt;remise = 0;
+	}
+
+	public function setPrix(float $val) : void {
+		if ($val &lt; 0) {
+			throw new Exception('Valeur de prix invalide');
+		}
+		$this-&gt;prix = $val;
+	}
+
+	public function getPrix() : float {
+		return round($this-&gt;prix *
+		             (1 - $this-&gt;remise / 100), 2);
+	}
+
+	public function decrire() : void {
+		echo '&lt;h4&gt;Instance de la classe ', __CLASS__, '&lt;/h4&gt;',
+				$this-&gt;modele, '&lt;br&gt;',
+				$this-&gt;cordes, ' cordes&lt;br&gt;',
+				$this-&gt;getPrix(), ' &amp;euro;';
+	}
+}	// Fin de la définition de la classe Guitare
+
+htmlDebut('Capturer une exception');
+
+htmlInfo('... Déroulement du script ...');
+
+try {
+	// Essayez de commenter la première instanciation
+	// puis les 2 premières instanciations
+	// et enfin les 3 instanciations
+	$guitare = new Guitare('', 758, 12);
+	$guitare = new Guitare('Gretsch Falcon', -2, 12);
+	$guitare = new Guitare('Gretsch Falcon', 758, 24);
+	htmlInfo('A la fin du bloc try');
+} catch (Exception $e) {
+	echo '&lt;hr&gt;&lt;h4&gt;Exception capturée !&lt;/h4&gt;',
+		'&lt;br&gt;&lt;b&gt;Message : &lt;/b&gt;',$e-&gt;getMessage(),
+		'&lt;br&gt;&lt;b&gt;Ligne : &lt;/b&gt;', $e-&gt;getLine(),
+		'&lt;br&gt;&lt;b&gt;Fichier : &lt;/b&gt;', $e-&gt;getFile(),
+		'&lt;br&gt;&lt;b&gt;Appels : &lt;/b&gt;', infoTableau($e-&gt;getTrace()),
+		'&lt;br&gt;&lt;b&gt;Texte : &lt;/b&gt;', $e-&gt;__toString(), '&lt;hr&gt;';	
+}
+
+htmlInfo('... Le script continue son exécution ...');
+
+htmlFin();
+</textarea>
+				</form>
+
+			<p class="fp-bottom0">
+				Conclusions :
+
+			</p>
+			<ul class="fp-ul-puce">
+				<li> Il faut placer dans un bloc <code>try</code> les instructions succeptibles de lever une exception.
+				<ul class="fp-ul-puce">
+					<li> Si une instruction du bloc <code>try</code> lève l'exception, les instructions suivantes du bloc <code>try</code>
+					ne sont pas exécutées, et celles du bloc <code>catch</code> le sont.
+					<li> Sinon (i.e. le point d'exécution du script arrive à la fin du bloc <code>try</code> sans qu'une exception soit levée),
+					les instructions du bloc <code>catch</code> ne sont pas exécutées.
+				</ul>
+				</li>
+				<li>Les instructions situées après le bloc <code>catch</code> sont toujours exécutées (à condition que
+				les instructions du bloc <code>catch</code>
+				n'entraînent pas l'arrêt du script).
+			</ul>
+
+			</section>
+
+
+
+		<h3>Etendre la classe Exception de PHP</h3>
+		<section>
+			<p class="fp-puce">
+				Bien souvent, pour mettre en place une gestion "fine" des exceptions et différencier les traitements effectués
+				suivant l'exception attrapée, on est amené à définir des classes qui héritent de la classe
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a>.
+			</p>
+
+			<p class="fp-puce">
+				L'exemple suivant, à vocation "pédagogique", définit 3 classes dérivées de la classe
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a>.
+				Chaque classe fille de
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a>
+				est utilisée pour valider un des paramètres du constructeur de la classe Guitare.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : étendre la classe Exception
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+class ModeleException extends Exception{
+}
+
+class PrixException extends Exception{
+}
+
+class CordesException extends Exception{
+}
+
+class Guitare {
+	private string $modele;
+	private float $prix;
+	private int $cordes;
+	private int $remise;
+
+	public function __construct(string $p1, float $p2, int $p3) {
+		$p1 = trim($p1);
+		if ($p1 == '') {
+			throw new ModeleException('Modèle invalide');
+		}
+		$this-&gt;modele = $p1;
+
+		$ok = array(4, 6, 12);
+		if (! in_array($p3, $ok)) {
+			throw new CordesException('Nombre de cordes invalide');
+		}
+		$this-&gt;cordes = $p3;
+
+		$this-&gt;setPrix($p2);
+
+		$this-&gt;remise = 0;
+	}
+
+	public function setPrix(float $val) : void {
+		if ($val &lt; 0) {
+			throw new PrixException('Valeur de prix invalide');
+		}
+		$this-&gt;prix = $val;
+	}
+
+	public function getPrix() : float {
+		return round($this-&gt;prix *
+		             (1 - $this-&gt;remise / 100), 2);
+	}
+
+	public function decrire() : void {
+		echo '&lt;h4&gt;Instance de la classe ', __CLASS__, '&lt;/h4&gt;',
+				$this-&gt;modele, '&lt;br&gt;',
+				$this-&gt;cordes, ' cordes&lt;br&gt;',
+				$this-&gt;getPrix(), ' &amp;euro;';
+	}
+}	// Fin de la définition de la classe Guitare
+
+htmlDebut('Lancer une exception');
+
+htmlInfo('... Déroulement du script ...');
+
+try {
+	// Essayez de commenter la première instanciation
+	// puis les 2 premières instanciations
+	// et enfin les 3 instanciations
+	$guitare = new Guitare('', 758, 12);
+	$guitare = new Guitare('Gretsch Falcon', -2, 12);
+	$guitare = new Guitare('Gretsch Falcon', 758, 24);
+	htmlInfo('A la fin du bloc try');
+// Essayez de commenter le bloc catch suivant
+// et refaire les tests permettant de lever chaque exception
+} catch (Exception $e) {
+	echo '&lt;hr&gt;&lt;h4&gt;Exception attrapée !&lt;/h4&gt;',
+		'&lt;br&gt;&lt;b&gt;Message : &lt;/b&gt;',$e-&gt;getMessage(), '&lt;hr&gt;';
+} catch (ModeleException $e) {
+	echo '&lt;hr&gt;&lt;h4&gt;ModeleException attrapée !&lt;/h4&gt;',
+		'&lt;br&gt;&lt;b&gt;Message : &lt;/b&gt;',$e-&gt;getMessage(), '&lt;hr&gt;';
+}
+catch (PrixException | CordesException $e) {
+	echo '&lt;hr&gt;&lt;h4&gt;PrixException ou CordesException attrapée',
+		'!&lt;/h4&gt;',
+		'&lt;br&gt;&lt;b&gt;Message : &lt;/b&gt;',$e-&gt;getMessage(), '&lt;hr&gt;';
+}
+
+htmlInfo('... Le script continue son exécution ...');
+
+htmlFin();
+</textarea>
+				</form>
+
+		<p class="fp-bottom0">
+				Conclusions :
+
+			</p>
+			<ul class="fp-ul-puce">
+				<li> On peut placer plusieurs blocs <code>catch</code> à la suite d'un bloc <code>try</code> pour assurer une gestion
+				différenciée des exceptions pouvant être levées dans le bloc <code>try</code>.
+				<li> Dans ce cas, si une exception est levée, les instructions du premier bloc <code>catch</code>, qui la
+				capture, sont exécutées. Si aucun bloc <code>catch</code> ne capture l'exception, elle est propagée au prochain bloc englobant
+				(methode, fonction, niveau global du script, interpréteur PHP).
+				<li> Un bloc <code>catch(MonException $e)</code> permet de capturer les exceptions de type <code>MonException</code>, <b>ET
+				de toutes les classes dérivées</b> de <code>MonException</code>.
+				<li> Un bloc <code>catch(Exception $e)</code> permet donc de capturer toutes les exceptions qui peuvent être levées. Pour
+				pouvoir assurer une gestion différenciée des exceptions, il faut donc définir des classes filles de la classe
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a>.
+				<li> Dans l'exemple ci-dessus, on utilise le fait qu'en PHP, si la classe fille ne définit pas de constructeur, et que la classe mère en définit un, alors le constructeur de la classe mère est automatiquement appelé lors de l'instanciation de la classe fille. Donc, quand la classe
+				<code>ModeleException</code> est instanciée avec l'instruction
+				<code>throw new ModeleException('Modèle invalide')</code>, le constructeur de la classe
+				<a href="https://www.php.net/manual/en/class.exception.php" target="_blank"><code>Exception</code></a> est automatiquement
+				appelé, et il reçoit en paramètre la chaîne <code>'Modèle invalide'</code>, récupérée ensuite dans le bloc <code>catch</code>
+				avec la méthode <code>getMessage()</code>.
+				<li> Remarquez l'utilisation, dans un des blocs <code>catch</code>,de l'opérateur bit à bit <code>|</code> qui permet des capturer
+				plusieurs exceptions dans un seul bloc <code>catch</code>.
+			</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			<!--<p class="fp-puce">
+				Toutes les méthodes de la classe <code>Exception</code> ne sont pas redéfinissable ou
+				surchargeables. Seules les méthodes non finales peuvent être réécrites, soit <a
+					href="https://www.php.net/manual/en/exception.construct.php" target="_blank">__construct()</a>
+				et <a href="https://www.php.net/manual/en/exception.tostring.php" target="_blank">__toString()</a>.
+			</p>
+
+			<p>
+				Dans l'exemple suivant, notre classe <code>MonException</code> surchage le <a
+					href="https://www.php.net/manual/en/exception.construct.php" target="_blank">constructeur</a>
+				de la classe <code>Exception</code> pour accepter 2 paramètres :
+				<br>
+				- le 1er paramètre peut être soit un numéro, soit un texte. Le numéro donnera accès à un message
+				d'erreur (attribut de notre classe <code>MonException</code>). Procéder ainsi permet de stocker
+				les messages d'erreur dans un endroit bien repéré et facilite par exemple les traductions des
+				textes. En acceptant malgré tout un texte comme paramètre, on laisse une ouverture aux
+				utilisateurs de notre classe.
+				<br>
+				- le 2éme paramètre est un booléen qui indique si l'exception est bloquante ou non. Par défaut
+				il a la valeur <code>true</code> et arrête le script après affichage du message d'erreur.
+				<br>
+				La méthode <a href="https://www.php.net/manual/en/exception.tostring.php" target="_blank">__toString()</a>
+				est redéfinie pour afficher les messages d'erreur de 2 façons :
+				<br>
+				- si nous sommes en phase de développement et de debuggage, l'affichage sera détaillé.
+				<br>
+				- si nous sommes en phase de production, l'affichage sera très réduit.
+			</p>
+
+			<p class="fp-remarque">
+				Il ne faut jamais lancer d'exception dans la classe qui étend <code>Exception</code> car on
+				provoquerait alors une boucle infinie. Si c'est le cas, le script s'arrête avec une erreur
+				fatale "Exception thrown without a stack frame in Unknown on line 0"
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : étendre la classe Exception
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+class Guitare {
+	private $modele, $prix, $cordes, $remise = 0;
+
+	public function __construct($p1, $p2, $p3){
+		$p1 = trim($p1);
+		if ($p1 == '') {
+			throw new MonException(1);
+		}
+		$this-&gt;modele = $p1;
+						
+		$ok = array(4, 6, 12);
+		if (!estEntier($p3) || !in_array($p3, $ok)) {
+			throw new MonException(2);
+		}
+		$this-&gt;cordes = $p3;
+		
+		$this-&gt;setPrix($p2);
+	}
+	
+	public function setPrix($val) {
+		if (!is_numeric($val) || $val &lt; 0) {
+			throw new MonException(3, false);
+		}		
+		$this-&gt;prix = $val;
+	}
+}			// Fin de la classe Guitare	
+
+class MonException extends Exception {
+
+	public static bool $is_dev = false;
+
+	private bool $stop;
+
+	private array $textes = [
+						'Erreur inconnue',
+						'Modèle invalide',
+						'Nombre de cordes invalide',
+						'Prix invalide'];
+
+	public function __construct(string|int $p1, bool $p2 = true) {
+		// Pour simplifier, pas de vérif des paramètres
+		$msg = (is_numeric($p1)) ? $this-&gt;textes[$p1] : $p1;
+		parent::__construct($msg);
+		$this-&gt;stop = $p2;
+	}
+	public function __toString() : string {
+		if (! self::$is_dev) {
+			if ($this-&gt;stop) {
+				ob_end_clean();
+				exit ('&lt;hr&gt;Site inaccessible&lt;hr&gt;');
+			}
+			return '';
+		}
+
+		echo '&lt;hr&gt;&lt;b&gt;Exception capturée : &lt;/b&gt;',
+			$this-&gt;getMessage(),
+		str_replace('#', '&lt;br&gt;#', $this-&gt;getTraceAsString()),
+		'&lt;hr&gt;';
+
+		if ($this-&gt;stop) {
+			exit;
+		}
+		return '';
+	}
+} // fin de la définition de la classe MonException
+
+htmlDebut('Etendre la classe Exception');
+
+MonException::$is_dev = true;
+
+echo '... Déroulement du script ...';
+
+try {
+	$guitare = new Guitare('', 758, 12);
+	// Essayer les instanciations suivantes :
+	// $guitare = new Guitare('Gretsch Falcon', 'prix', 12);
+	// $guitare = new Guitare('Gretsch Falcon', 758, 24);
+	// Essayer aussi en commentant la ligne 64
+} catch (MonException $e) {
+	$e-&gt;__toString();	
+}
+
+echo '&lt;br&gt;... Le script continue son exécution ...';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>
+				Le code de la classe <code>MonException</code>
+				sera placé dans le fichier <code>monexception.class.php</code> et inclus avec <a
+					href="https://www.php.net/manual/en/function.require.php" target="_blank">require</a> dans le
+				script principal.
+			</p>
+		</section>-->
+
+		<a id="exoException"></a>
+		<h3>Exercice : exceptions</h3>
+		<section>
+			<p class="fp-bottom0">Dans, cet exercice, vous devez définir :
+			</p>
+			<ul class="fp-ul-puce">
+			<li> une classe <code>Stream</code> simplifiée qui encapsule un attribut de type <code>resource</code> dans le but de lire un fichier
+			ligne par ligne. Cette classe disposera des méthodes suivantes :
+				<ul class="fp-ul-puce">
+					<li> un constructeur qui recevra en paramètre un chemin vers le fichier à lire, et ouvrira le flux;
+					<li> un destructeur qui fermera le flux et affichera un message signalant son appel;
+					<li> une méthode readLine() qui lira et renverra une ligne du fichier.
+				</ul>
+			<li> une classe <code>StreamException</code> permettant de gérer les erreurs pouvant se produire dans la classe <code>Stream</code>
+			<li> une classe <code>Guitare</code> avec un constructeur recevant en paramètre <b>un tableau</b>, et succeptible de lever une exception
+			<code>GuitareException</code> lorsque le tableau contient des erreurs.
+			</ul>
+
+			<p> Pour la classe <code>Guitare</code>, vous pouvez partir du code ci-dessous qui définit les critères de validité des
+			attributs d'une guitare :
+			</p>
+
+
+
+			<pre data-code="PHP" class="fp-petit">
+// définition de la classe Guitare
+class Guitare {
+	private string $modele;
+	private float $prix;
+	private int $cordes;
+	private int $remise;
+
+	// en-tête du constructeur à modifier
+	public function __construct(string $p1, float $p2, int $p3) {
+		$p1 = trim($p1);
+		if ($p1 == '') {
+			throw new Exception('Modèle invalide');
+		}
+		$this-&gt;modele = $p1;
+
+		$ok = array(4, 6, 12);
+		if (! in_array($p3, $ok)) {
+			throw new Exception('Nombre de cordes invalide');
+		}
+		$this-&gt;cordes = $p3;
+
+		$this-&gt;setPrix($p2);
+
+		$this-&gt;remise = 0;
+	}
+
+	public function setPrix(float $val) : void {
+		if ($val &lt; 0) {
+			throw new Exception('Valeur de prix invalide');
+		}
+		$this-&gt;prix = $val;
+	}
+
+	public function getPrix() : float {
+		return round($this-&gt;prix *
+		             (1 - $this-&gt;remise / 100), 2);
+	}
+
+	public function decrire() : void {
+		echo '&lt;h4&gt;Instance de la classe ', __CLASS__, '&lt;/h4&gt;',
+				$this-&gt;modele, '&lt;br&gt;',
+				$this-&gt;cordes, ' cordes&lt;br&gt;',
+				$this-&gt;getPrix(), ' &amp;euro;';
+	}
+}	// Fin de la définition de la classe Guitare
+</pre>
+			<p>
+			Le script doit lire le fichier <code>stock/guitaresAvecErr.txt</code> dont le contenu est reproduit ci-dessous :
+			</p>
+
+			<pre>
+Guild D120|639|6
+
+Fender Villager|444|12
+Fender Villager|444|12|3
+Fender Villager|prix|nb
+Gibson Hummingbird|2033|6
+  |2033|6
+Ibanez PCBE12-OPN|229|4
+Ibanez PCBE12-OPN|prix|4
+Ibanez PCBE12-OPN| 10.m|4
+Epiphone EJ-200CE| 334 |6
+Epiphone EJ-200CE| -1 |6
+Gretsch Falcon|599|9
+Gretsch Falcon|599|12
+
+</pre>
+
+<p class="fp-bottom0"> Ce fichier contient des lignes avec des erreurs. <br>
+Le script doit lire le fichier ligne par ligne, et tenter de construire une
+guitare à partir de chaque ligne :
+</p>
+<ul class="fp-ul-puce">
+<li>
+Si la ligne contient des erreurs, la première erreur détectée entraîne la levée d'une exception <code>GuitareException</code> et l'affichage
+d'un message indiquant la ligne erronée, et l'erreur détectée (cf. ci-dessous).
+<li> Sinon, une référence sur l'objet créé est mémorisée afin d'afficher, à la fin du script, la description de toutes les guitares créées.
+</ul>
+
+
+			<figure>
+				<img src="../phpimg/poo-37.png" width="454" height="1063">
+				<figcaption>affichage partiel</figcaption>
+			</figure>
+
+		<p> Le script détecte donc les erreurs suivantes :
+		</p>
+<pre>
+Nombre de champs égal à 1 au lieu de 3
+Nombre de champs égal à 4 au lieu de 3
+'nb' est un nombre de cordes invalide
+Le modèle est une chaine vide
+'prix' est un prix invalide
+' 10.m' est un prix invalide
+'-1' est un prix invalide
+'9' est un nombre de cordes invalide
+</pre>
+
+<p class="fp-remarque"> Vous ne pourrez pas spécifier le type de l'attribut de la classe <code>Stream</code> car
+le "type <code>resource</code> is not a supported builtin type".
+</p>
+
+<p>
+Lors d'une tentative de lecture d'un fichier inexistant, la page affichée par le script peut être la suivante :
+</p>
+<figure>
+				<img src="../phpimg/poo-38.png" width="449" height="186">
+				<figcaption>tentative d'ouverture d'un fichier inexistant</figcaption>
+			</figure>
+
+			<p class="fp-solution">
+				<a onclick="top.FP.Voir.showSolution('exoException_solu', 1)">Une solution possible</a>
+			</p>
+
+			<div id="exoException_solu" class="BLOC-solution">
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+						title="Afficher la bibliothéque de fonctions"></a> <a class="TEST-class"
+						onclick="top.FP.Voir.showPLUS('exemple/classes_01.html')"
+						title="Afficher les classes incluses"></a>
+					<div class="TEST-titre">
+						<strong>Exercice</strong> : exceptions
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require_once 'bib_fonctions.php';
+
+class StreamException extends Exception {
+}
+
+class GuitareException extends Exception {
+}
+
+class Stream {
+    private $f;
+
+    public function __construct(string $path,
+							    string $mode = 'r'){
+        if (! is_file($path)){
+            throw new StreamException("'$path' n'existe pas ou n'est pas un fichier régulier");
+        }
+        $f = @fopen($path, $mode);
+        if (! $f){
+            throw new StreamException("Erreur lors de l'ouverture de '$path'");
+        }
+        $this-&gt;f = $f;
+    }
+
+    public function __destruct(){
+        $r = fclose($this-&gt;f);
+        if (! $r){
+            throw new StreamException('Erreur lors de la fermeture du flux');
+        }
+        echo '&lt;h4&gt;Fin du destructeur de la classe Stream&lt;/h4&gt;';
+    }
+
+    public function readLine() : string|false {
+        return fgets($this-&gt;f);
+    }
+}
+
+class Guitare {
+	private string $modele;
+	private float $prix;
+	private int $cordes;
+	private int $remise;
+
+	public function __construct(array $p) {
+        $n = count($p);
+        if ($n != 3){
+            throw new GuitareException("Nombre de champs égal à $n au lieu de 3");
+        }
+		$p[0] = trim($p[0]);
+		if ($p[0] == '') {
+			throw new GuitareException('Le modèle est une chaine vide');
+		}
+		$this-&gt;modele = $p[0];
+
+        if (! estEntier($p[2])){
+            throw new GuitareException("'{$p[2]}' est un nombre de cordes invalide");
+        }
+        $p[2] =  (int) $p[2];
+		$ok = array(4, 6, 12);
+		if (! in_array($p[2], $ok)) {
+			throw new GuitareException("'{$p[2]}' est un nombre de cordes invalide");
+		}
+		$this-&gt;cordes = $p[2];
+
+        if (! is_numeric($p[1])){
+            throw new GuitareException("'{$p[1]}' est un prix invalide");
+        }
+		$this-&gt;setPrix($p[1]);
+
+		$this-&gt;remise = 0;
+	}
+
+	public function setPrix(float $val) : void {
+		if ($val &lt; 0) {
+			throw new GuitareException("'$val' est un prix invalide");
+		}
+		$this-&gt;prix = $val;
+	}
+
+	public function getPrix() : float {
+		return round($this-&gt;prix *
+		             (1 - $this-&gt;remise / 100), 2);
+	}
+
+	public function decrire() : void {
+		echo '&lt;h4&gt;Instance de la classe ', __CLASS__,
+			  '&lt;/h4&gt;',
+			  htmlentities($this-&gt;modele, ENT_QUOTES, 'UTF-8'),
+			  '&lt;br&gt;',
+			  $this-&gt;cordes, ' cordes&lt;br&gt;',
+			  $this-&gt;getPrix(), ' &amp;euro;';
+	}
+}	// Fin de la définition de la classe Guitare
+
+
+htmlDebut('Classe Stream pour lire un fichier texte');
+
+$stock = []; // tableau contenant les guitares
+
+try{
+
+    $flux = new Stream('stock/guitaresAvecErr.txt');
+
+    do{
+        $line = $flux-&gt;readLine();
+        if ($line !== false){
+            try{
+                $stock[] = new Guitare(explode('|', trim($line)));
+            }
+            catch(GuitareException $e){
+                echo '&lt;hr&gt; La ligne suivante est invalide :',
+					 '&lt;br&gt;', '\'',
+					 htmlentities($line, ENT_QUOTES,
+					              'UTF-8'),
+					 '\'&lt;br&gt;',
+					 htmlentities($e-&gt;getMessage(),
+					              ENT_QUOTES, 'UTF-8'),
+					 '&lt;hr&gt;';
+            }
+        }
+    } while ($line !== false);
+
+    $flux = null;
+}catch(StreamException $e){
+    htmlInfo("StreamException attrapée : {$e-&gt;getMessage()}");
+}
+
+// Affichage des guitares
+foreach ($stock as $guitare) {
+	$guitare-&gt;decrire();
+}
+
+htmlFin();
+</textarea>
+				</form>
+			</div>
+		</section>
+
+		<footer></footer>
+	</div>
+</body>
+</html>

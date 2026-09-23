@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Informations sur un fichier</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p>Si le stockage et l'accès à des données se fait très souvent
+			par l'intermédiaire de bases de données, le recours à de simples
+			fichiers est parfois utile, voire nécessaire.</p>
+		<p>
+			Comme à son habitude, PHP fournit un grand nombre de <a
+				href="https://www.php.net/manual/en/ref.filesystem.php" target="_blank">
+				fonctions pour traiter les fichiers</a>.
+		</p>
+
+		<div class="fp-remarque">
+			<img src="../phpimg/test_fichiers.png" width="149" height="131"
+				border="0" class="fp-f-right" style="margin-left: 10px">
+			<p>
+				Pour les exemples, nous utiliserons le dossier <span class="fp-code">test_fichiers</span>
+				avec le contenu et l'arborescence ci-contre.
+			</p>
+			<p>
+				Ce dossier se trouve dans le dossier test du tutoriel. Vous pouvez
+				voir son contenu avec le bouton <img
+					src="../_core/images/__arbo.png" width="32" height="32"
+					style="display: table-cell; vertical-align: middle"> dans la
+				barre de menu du tutoriel.
+			</p>
+			<p class="fp-bottom0">
+				Si vous ne voyez pas ce dossier, ou si vous voulez le ré-initialiser
+				<a onclick="top.FP.Voir.showPLUS('exemple/init_chap09.php?x=f')">utilisez
+					ce script</a>.
+			</p>
+		</div>
+
+		<h3>Existence d'un fichier</h3>
+		<section>
+			<p>
+				Nous commencerons par <b>déterminer si un fichier existe</b> avec la
+				fonction <a
+					href="https://www.php.net/manual/en/function.file-exists.php" target="_blank">file_exists()</a>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : existence d'un fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Existence d\'un fichier');
+
+//------------------------------------------------------
+$fichier = 'test_fichiers/commentaires.txt';
+
+htmlInfo($fichier);
+
+if (file_exists($fichier)) {
+	echo 'Existe';
+} else {
+	echo 'N\'existe pas';
+}
+
+//------------------------------------------------------
+$fichier = 'test_fichiers/remarques.txt';
+
+htmlInfo($fichier);
+
+echo (file_exists($fichier)) ? 'Existe' : 'N\'existe pas';
+
+htmlFin();
+</textarea>
+			</form>
+
+
+			<p>
+				La fonction <a
+					href="https://www.php.net/manual/en/function.file-exists.php" target="_blank">file_exists()</a>
+				ne <b>différencie pas les fichiers ordinaires des dossiers</b>. Si nous
+				l'utilisons avec un chemin vers un dossier, elle renverra aussi <span
+					class="fp-code">TRUE</span> si le dossier existe, <span
+					class="fp-code">FALSE</span> sinon. Notre dossier <span class="fp-code">test_fichiers</span> contient un
+				sous-dossier <span class="fp-code">images</span> et un sous-dossier
+				<span class="fp-code">export</span>. Si nous passons ces dossiers comme
+				paramètre à <a
+					href="https://www.php.net/manual/en/function.file-exists.php" target="_blank">file_exists()</a>,
+				le résultat sera <span class="fp-code">TRUE</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : existence d'un fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Existence d\'un fichier');
+
+//------------------------------------------------------
+$fichier = 'test_fichiers/commentaires.txt';
+
+htmlInfo($fichier);
+echo (file_exists($fichier)) ? 'Existe' : 'N\'existe pas';
+
+//------------------------------------------------------
+$fichier = 'test_fichiers/images';
+
+htmlInfo($fichier);
+echo (file_exists($fichier)) ? 'Existe' : 'N\'existe pas';
+
+//------------------------------------------------------
+$fichier = 'test_fichiers/export';
+
+htmlInfo($fichier);
+echo (file_exists($fichier)) ? 'Existe' : 'N\'existe pas';
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		<h3>Dossier ou fichier ordinaire ?</h3>
+		<section>
+			<p>
+				Heureusement, des fonctions nous indiquent quel est <b>le type
+					d'un fichier</b>, et en particulier : <a
+					href="https://www.php.net/manual/en/function.is-dir.php" target="_blank">is_dir()</a>
+				et <a
+					href="https://www.php.net/manual/en/function.is-file.php" target="_blank">is_file()</a>.
+			</p>
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : existence et type d'un fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+//======================================================
+/**
+ * Renvoie des informations sur un fichier
+ *
+ * @param string	$fichier	chemin vers le fichier
+ *
+ * @return array	Tableau associatif d'informations
+ */
+function fichierInfos(string $fichier) : array {
+	$t = ['file' =&gt; '---'];
+ 	if (!file_exists($fichier)) {
+		return $t;
+	}
+	$t['file'] = is_file($fichier) ?  'oui' : 'non';
+	
+	return $t;
+}
+//======================================================
+
+htmlDebut('Existence d\'un fichier');
+
+$fichier = 'test_fichiers/commentaires.txt';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+$fichier = 'test_fichiers/remarques.txt';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+$fichier = 'test_fichiers/images';
+htmlInfo($fichier);
+$f = fichierInfos($fichier);
+infoTableau($f);
+
+htmlFin();
+</textarea>
+			</form>
+
+		</section>
+
+
+
+		<h3>Chemin d'accès</h3>
+		<section>
+
+			<p class="fp-puce">
+				Sur les systèmes Unix, un chemin <b>absolu</b> est un chemin exprimé à partir de la racine du système de fichiers
+				(<span style="color:red"><b><span class="fp-code">/</span></b></span>), et donc qui commence par un <span style="color:red"><b><span class="fp-code">/</span></b></span>.<br>
+				Exemple : <span class="fp-code">/var/www/html/php_tuto/test/test_fichiers</span>
+			<p>
+
+			<p class="fp-puce">
+				Tout chemin qui ne commence pas par un <b><span class="fp-code">/</span></b> est
+				un chemin <b>relatif</b> exprimé par rapport au répertoire courant; le répertoire <b>courant</b> étant
+				<b>le répertoire dans lequel on se trouve</b>.
+			</p>
+			<p class="fp-puce">
+				Dans tout répertoire, le lien <span class="fp-code">.</span> désigne le répertoire lui-même;
+				et le lien <span class="fp-code">..</span> désigne son répertoire parent.
+			</p>
+			<p class="fp-puce">
+				Tous les scripts que vous lancez depuis ce tutoriel ont pour répertoire courant le répertoire
+				<span class="fp-code">test</span> situé dans le répertoire <span class="fp-code">php_tuto</span>.<br>
+				Tous les chemins suivants sont des chemins relatifs valides  désignant le fichier <span class="fp-code">commentaires.txt</span>,
+				par rapport au répertoire <span class="fp-code">test</span> :<br>
+				<span class="fp-code">test_fichiers/commentaires.txt</span><br>
+				<span class="fp-code">./test_fichiers/commentaires.txt</span><br>
+				<span class="fp-code">../test/test_fichiers/commentaires.txt</span>
+			</p>
+
+			<p class="fp-puce fp-inter2">
+				Nous pouvons obtenir le <b>chemin d'accès canonique absolu d'un
+					fichier</b> avec la fonction <a
+					href="https://www.php.net/manual/en/function.realpath.php" target="_blank">realpath()</a>.<br>
+				Cette fonction résout les liens symboliques.<br>
+				Etant donné qu'elle retourne un chemin <b>canonique</b> absolu, elle supprime les "portions"
+				comme <span class="fp-code">/./</span>, <span class="fp-code">../rep</span>, et l'éventuel
+				<span class="fp-code">/</span> à la fin du chemin.<br>
+				 Cette fonction renvoie <span class="fp-code">false</span> si le fichier n'existe pas.
+			</p>
+
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.dirname.php" target="_blank">dirname()</a> renvoie un chemin après avoir
+				supprimé la composante finale du chemin passé en paramètre. La fonction <a
+					href="https://www.php.net/manual/en/function.basename.php" target="_blank">basename()</a>
+				renvoie la composante finale du chemin passé en paramètre.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : chemin absolu
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Chemin absolu');
+
+//------------------------------------------------------
+htmlInfo('Chemin Absolu du répertoire courant');
+echo realpath('');
+
+echo '&lt;hr&gt;';
+//------------------------------------------------------
+$t = ['test_fichiers/commentaires.txt',
+	  'test_fichiers/remarques.txt',
+	  './test_fichiers/commentaires.txt',
+	  '../test_fichiers/commentaires.txt',
+	  '/test_fichiers/commentaires.txt',
+	  '/php_tuto/test/test_fichiers/commentaires.txt',
+	  'test_fichiers/.././test_fichiers/export/../images/'] ;
+
+for ($i = 0, $n = count($t); $i &lt; $n; ++$i){
+	htmlInfo("Chemin Absolu de '{$t[$i]}'");
+	var_dump(realpath($t[$i]));
+}
+
+echo '&lt;hr&gt;';
+//------------------------------------------------------
+
+$fichier = 'test_fichiers/commentaires.txt';
+
+htmlInfo("Chemin Absolu de '$fichier'");
+$absolu = realpath($fichier );
+echo $absolu;
+
+htmlInfo('Dirname');
+echo dirname($absolu);
+
+htmlInfo('Basename');
+echo basename($absolu);
+
+echo '&lt;hr&gt;';
+//------------------------------------------------------
+
+$fichier = 'test_fichiers/images';
+
+htmlInfo("Chemin Absolu de '$fichier'");
+$absolu = realpath($fichier );
+echo $absolu;
+
+htmlInfo('Dirname');
+echo dirname($absolu);
+
+htmlInfo('Basename');
+echo basename($absolu);
+
+htmlFin();
+
+echo '&lt;hr&gt;';
+//------------------------------------------------------
+
+// dirname() et basename() ne vérifient pas
+// si le chemin désigne un fichier qui existe
+htmlInfo('dirname(\'toto/titi/tata/\')');
+echo dirname('toto/titi/tata/');
+
+htmlInfo('basename(\'toto/titi/tata/\')');
+echo basename('toto/titi/tata/');
+
+htmlFin();
+</textarea>
+			</form>
+
+
+			<p>
+				La fonction <a
+					href="https://www.php.net/manual/en/function.pathinfo.php" target="_blank">pathinfo()</a>
+				renvoie des informations sur un chemin sous la forme d'un tableau
+				associatif de quatre clés : <span class="fp-code">dirname</span>, <span
+					class="fp-code">basename</span>, <span class="fp-code">extension</span>
+					et <span class="fp-code">filename</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : chemin
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Chemin');
+
+//------------------------------------------------------
+$fichier = 'test_fichiers/commentaires.txt';
+htmlInfo("Chemin Absolu de $fichier");
+
+$absolu = realpath($fichier);
+
+echo $absolu;
+
+//------------------------------------------------------
+htmlInfo('Pathinfo');
+$t = pathinfo($absolu);
+
+infoTableau($t);
+
+echo '&lt;hr&gt;';
+//------------------------------------------------------
+
+// pathinfo() ne vérifie pas
+// si le chemin désigne un fichier qui existe
+htmlInfo('pathinfo(\'toto/titi/tata.png\')');
+infoTableau(pathinfo('toto/titi/tata.png'));
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+		<footer></footer>
+	</div>
+</body>
+</html>

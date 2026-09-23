@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Variables et types de données</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<ul id="MENU-page"></ul>
+		<p>Le fait qu'on ne précise pas le type d'une variable lors de sa
+			création ne veut pas dire qu'il n'y a pas de type de données dans PHP.
+			PHP supporte huit types de données et offre de nombreuses fonctions
+			permettant de connaître le type d'une variable et/ou de le changer.</p>
+
+		<h3>8 types de données dans PHP</h3>
+		<section>
+			<ul class="fp-ul">
+				<li>4 types scalaires : booléen, entier, nombre à virgule
+					flottante, chaîne de caractères</li>
+				<li>2 types composés : tableau et objet</li>
+				<li>2 types spéciaux : ressource et null</li>
+			</ul>
+			<table>
+				<tr>
+					<td width="83">
+						<p>Type</p>
+					</td>
+					<td width="204">
+						<p>Remarque</p>
+					</td>
+					<td width="153">
+						<p>Exemple</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Booléen</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>
+							Valeurs possibles : <span class="fp-code">TRUE</span> <span
+								class="fp-code">FALSE</span>
+						</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">$x = TRUE;&nbsp;</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Entier</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>Signés dont la taille dépend de la plate-forme. Valeurs possibles de -2 147 483 648 à +2 147 483 647 sur les systèmes 32 bits,
+						&pm;9E18 sur les systèmes 64 bits
+						</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							$x = 12;<br> $x = -123456;
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Virgule flottante</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>IEEE 754 sur 64 bits, valeurs absolues possibles de 1.7E-308 à 1.7E+308</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							$x = 1.2e-3;<br> $x = -12345.78;
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Chaînes</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>N'importe quelles valeurs entourées par des guillemets
+							doubles ou simples</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							$x = "françois piat";<br> $x = 'is the best';
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Tableaux</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>Un tableau PHP est une association ordonnée : des valeurs
+							correspondent à des clés. Les clés peuvent être numériques
+							et/ou alphabétiques. Les valeurs peuvent être de n'importe quel
+							type.</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							$x[0] = "françois";<br> $x['nom'] = 'piat';<br> $x[1] =
+							25;
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Objets</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>
+							Une classe est définie avec le mot-clé <span class="fp-code">class</span>
+							et instanciée avec le mot-clé <span class="fp-code">new</span>.
+						</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							class&nbsp;Piat&nbsp;{<br />
+							&nbsp;&nbsp;function&nbsp;qui&nbsp;()&nbsp;{<br />
+							&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"François.";<br />
+							&nbsp;&nbsp;}<br /> }<br /> $x&nbsp;=&nbsp;new&nbsp;Piat;<br />
+							$x-&gt;qui();
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>Ressource</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>Une ressource est une référence sur l'extérieur (représentant par
+							exemple un pointeur de fichier).</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							$x = fopen("fic.txt", "r");
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="83">
+						<p>
+							<b>null</b>
+						</p>
+					</td>
+					<td width="204">
+						<p>
+							La valeur <span class="fp-code">NULL</span> représente une
+							variable qui n'a pas de valeur.
+						</p>
+					</td>
+					<td width="153">
+						<p class="fp-code fp-petit">
+							$x = NULL;<br> $x = null;
+						</p>
+					</td>
+				</tr>
+			</table>
+
+			<p class="fp-puce">
+				PHP fournit les mots-clés <span class="fp-code">TRUE</span> et <span
+					class="fp-code">FALSE</span> pour travailler avec les booléens. Ces
+				mots-clés ne sont pas sensibles aux majuscules et aux minuscules
+				(true, True marchent aussi). Même si <span class="fp-code">TRUE</span>
+				et <span class="fp-code">FALSE</span> ont respectivement les valeurs
+				1 et chaîne vide, utilisez TOUJOURS les mots-clés pour tester les
+				valeurs booléennes ou pour assigner une valeur booléenne.
+			</p>
+
+			<p class="fp-puce">
+			PHP ne supporte pas les entiers non-signés. La taille d'un entier peut être déterminée en utilisant la constante <span class="fp-code">PHP_INT_SIZE</span>,
+			la valeur maximale, en utilisant la constante <span class="fp-code">PHP_INT_MAX</span>, et la valeur minimale en utilisant la constante <span class="fp-code">PHP_INT_MIN</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : les entiers sur mon système
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Les entiers sur mon système&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+echo 'Taille d\'un entier : ', PHP_INT_SIZE, ' octets&lt;br&gt;';
+
+echo 'Valeur maximale d\'un entier : ', PHP_INT_MAX, '&lt;br&gt;';
+
+echo 'Valeur minimale d\'un entier  : ', PHP_INT_MIN, '&lt;br&gt;';
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p class="fp-bottom0 fp-puce">
+			 La valeur spéciale <span class="fp-code">NULL</span> représente une variable sans valeur.
+			 <span class="fp-code">NULL</span> est la seule valeur possible du type <span class="fp-code">null</span>.
+			 La constante <span class="fp-code">NULL</span> est insensible à la casse.<br>
+			 Une variable est considérée comme <span class="fp-code">null</span> si :
+			</p>
+			<ul class="fp-ul-puce">
+				<li>elle s'est vue assigner la constante <span class="fp-code">null</span>;
+				<li>elle n'a pas encore reçu de valeur (i.e. elle n'est pas définie);
+				<li>elle a été supprimée avec la fonction <a
+					href="https://www.php.net/manual/en/function.unset.php" target="_blank">unset()</a>
+			</ul>
+
+		<h3>Connaître le type d'une variable</h3>
+			<section>
+
+			<p class="fp-bottom0">
+				Nous pouvons connaître le type d'une variable en utilisant de nombreuses fonctions :
+			</p>
+			<ul class="fp-ul-puce">
+				<li><a href="https://www.php.net/manual/en/function.gettype.php" target="_blank">gettype()</a> :
+				retourne une chaîne décrivant le type de la variable
+				(<span class="fp-code">"boolean"</span>, <span class="fp-code">"integer"</span>, <span class="fp-code">"double"</span>, etc.)
+				<li><a href="https://www.php.net/manual/en/function.is-bool.php" target="_blank">is_bool()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-int.php" target="_blank">is_int()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-float.php" target="_blank">is_float()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-string.php" target="_blank">is_string()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-array.php" target="_blank">is_array()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-object.php" target="_blank">is_object()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-resource.php" target="_blank">is_resource()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-null.php" target="_blank">is_null()</a> : retourne un booleén
+				<li><a href="https://www.php.net/manual/en/function.is-scalar.php" target="_blank">is_scalar()</a> : retourne un booleén.
+				Les variables scalaires sont celles qui contiennent un entier, un nombre décimal, une chaîne de caractères ou un booléen. Les types array, object, resource et null ne sont pas scalaires.
+			</ul>
+
+			<p class="fp-remarque">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.var-dump.php" target="_blank">var_dump()</a>
+					, très utile pour débugguer un script,
+				affiche les informations d'une variable, notamment son type et sa valeur.
+			</p>
+
+			<p class="fp-remarque">
+			L'élément HTML <span class="fp-code">pre</span> (pour PREformatted text) permet de représenter du texte pré-formaté. Le texte contenu dans cet élément est généralement affiché dans une police à espacement fixe. Les "espaces blancs" (espaces, tabulations, sauts de ligne) contenus dans le texte sont affichés tels qu'ils sont dans le code source du document.
+			</p>
+
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : quand is_null() renvoie-t-elle true ?
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Quand is_null() renvoie-t-elle true ?
+&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+
+$a = 1.7;
+$b = 'toto';
+$a = NULL; // $a est « sans valeur »
+unset($b); // $b est supprimée
+
+echo '&lt;pre&gt;';
+var_dump(is_null($a));// bool(true)
+var_dump(is_null($b));// bool(true) (Warning Undefined variable)
+var_dump(is_null($c));// bool(true) (Warning Undefined variable)
+echo '&lt;/pre&gt;';
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : Informations et type d'une variable
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Informations et type d'une variable&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+
+$x = '17';
+$b1 = is_int($x);
+$b2 = is_string($x);
+
+echo '&lt;pre&gt;';
+var_dump($x);  // string(2) "17"
+var_dump($b1); // bool(false)
+var_dump($b2); // bool(true)
+echo '&lt;/pre&gt;';
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p class="fp-remarque">
+				Remarquez bien qu'une chaîne numérique est bien du type <span class="fp-code">string</span>
+				et pas du type <span class="fp-code">int</span>.
+			</p>
+		</section>
+
+
+		<h3>Savoir si une variable existe</h3>
+		<section>
+
+			<p>
+				Nous avons déjà constaté à plusieurs reprises que les tentatives d'accès à des variables
+				non définies, supprimées, ou hors de portée déclenchent une erreur de type
+				<span class="fp-code">warning</span> "Variable non définie".
+			</p>
+
+			<p>
+				La fonction
+				<a href="https://www.php.net/manual/en/function.isset.php" target="_blank">isset()</a>
+				détermine si une variable est définie. Plus précisément, elle renvoie
+				<span class="fp-code">TRUE</span> <b>si et seulement si la variable passée en paramètre est définie
+				ET si elle est différente de <span class="fp-code">null</span></b>.<br>
+				Intérêt de cette fonction : elle ne génère pas de <span class="fp-code">warning</span> si on lui transmet une variable qui n'existe pas.
+			</p>
+
+			<p class="fp-remarque">
+				En réalité,
+				<a href="https://www.php.net/manual/en/function.isset.php" target="_blank">isset()</a>
+				n'est pas vraiment une fonction : il s'agit d'une construction du langage.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : la fonction isset()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;La fonction isset()&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+
+$a = 1.7;
+$b = 'toto';
+$a = NULL; // $a est « sans valeur »
+unset($b); // $b est supprimée
+
+echo '&lt;pre&gt;';
+var_dump(isset($a));// bool(false)
+var_dump(isset($b));// bool(false)
+var_dump(isset($c));// bool(false)
+
+$a = false;
+var_dump(isset($a));// bool(true)
+echo '&lt;/pre&gt;';
+
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p>
+				La fonction
+				<a href="https://www.php.net/manual/en/function.isset.php" target="_blank">isset()</a>
+				nous sera très utile pour tester si un paramètre est transmis dans une URL, et lors du
+				traitement des données soumises par un formulaire.
+			</p>
+
+			<!--<p>L'évaluation d'une variable, générée par un script ou venant
+				de la saisie d'un utilisateur est parfois plus difficile qu'on ne le
+				pense.</p>
+			<p>
+				Nous considérerons les différentes valeurs possibles suivantes :<br>
+				- une chaîne de caractères 'abcd'<br> - une valeur numérique
+				1234<br> - une chaîne vide ''<br> - les entiers 1 et 0<br>
+				- les valeurs booléennes <span class="fp-code">TRUE</span> et <span
+					class="fp-code">FALSE</span><br> - la valeur <span
+					class="fp-code">NULL</span><br> - une valeur non affectée.
+			</p>
+			<p>
+				Les valeurs saisies par un utilisateur dans un formulaire sont <b>toujours
+					considérées comme des chaînes de caractères</b> quand elles sont
+				récupérées par le script PHP au travers des tableaux <span
+					class="fp-code">$_POST</span> ou <span class="fp-code">$_GET</span>.<br>
+				Même si l'utilisateur saisi 0 (zéro), cette valeur sera traitée
+				comme une chaîne de caractères pour l'évaluation.<br> Un
+				tableau ou une variable texte venant d'un formulaire à travers des
+				cases à cocher ou des boutons radio pourra être indéfini (<i>unset</i>)
+				si l'utilisateur n'a pas coché les cases. Par contre une zone texte
+				(<span class="fp-code">&lt;input type="text"&gt;</span> ou <span
+					class="fp-code">&lt;textarea&gt;</span>) ne sera jamais indéfinie.
+				Si l'utilisateur n'y saisit rien, la variable contiendra une chaîne
+				vide ('').<br> Les valeurs TRUE, FALSE et NULL ne peuvent pas
+				venir de la saisie d'un utilisateur.
+			</p>
+			<p>La variables générées par un script peuvent prendre toutes les
+				valeurs énoncées.</p>
+			<p>Nous utiliserons les opérateurs et fonctions suivantes pour
+				tester la valeur des variables :
+			<ul class="fp-ul-puce">
+				<li><span class="fp-code">if (! $var)</span> : $var n'est pas
+					évaluée à TRUE</li>
+				<li><span class="fp-code">if (empty($var))</span> : $var est
+					vide (cf. <a
+					href="https://www.php.net/manual/en/function.empty.php" target="_blank">empty()</a>)</li>
+				<li><span class="fp-code">if ($var == '')</span> : $var est
+					vide</li>
+				<li><span class="fp-code">if ($var === '')</span> : $var est de
+					type chaîne et vide</li>
+				<li><span class="fp-code">if (isset($var))</span> : $var
+					contient une valeur</li>
+				<li><span class="fp-code">if (strlen($var) == 0)</span> : la
+					longueur de $var est de 0</li>
+				<li><span class="fp-code">if (is_string($var))</span> : $var
+					est une chaîne</li>
+			</ul>
+			<p>Le tableau suivant montre le résultat des évaluations des
+				différentes valeurs avec les différentes méthodes :</p>
+			<table>
+				<tr>
+					<td>&nbsp;</td>
+					<td>'abcd'</td>
+					<td>1234</td>
+					<td>''</td>
+					<td>0</td>
+					<td>1</td>
+					<td>FALSE</td>
+					<td>NULL</td>
+					<td>unset</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">! $var</span></td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">empty($var)</span></td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">$var == ''</span></td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">$var === ''</span></td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>faux</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">isset($var)</span></td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>faux</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">strlen($var) == 0</span></td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>vrai</td>
+					<td>vrai</td>
+				</tr>
+				<tr>
+					<td><span class="fp-code">is_string($var)</span></td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>vrai</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>faux</td>
+					<td>faux</td>
+				</tr>
+			</table>
+
+			<p class="fp-bottom0">Le tableau montre des résultats parfois
+				surprenants :</p>
+			<ul class="fp-ul-puce">
+				<li>pour des valeurs comme 0, FALSE ou NULL, les tests de
+					fausseté (<span class="fp-code">! $var</span>) et de vide (<span
+					class="fp-code">empty()</span>) renvoient vrai.
+				</li>
+				<li>un test comme <span class="fp-code">strlen($var) ==
+						0)</span> renvoie faux pour 0, mais vrai pour FALSE
+				</li>
+				<li>les tests de fausseté (<span class="fp-code">! $var</span>)
+					et de vide (<span class="fp-code">empty()</span>) ou (<span
+					class="fp-code">$var == ''</span>) sont totalement interchangeables
+				   : tous retourne vrai pour une variable vide ou
+					non existante (unset), mais aussi pour 0 ou FALSE.
+				</li>
+			</ul>
+
+			<p class="fp-bottom0">Quelques conclusions :</p>
+			<ul class="fp-ul-puce">
+				<li>pour savoir si un utilisateur a bien saisi quelque chose
+					dans une zone de texte d'un formulaire, les seuls tests valables
+					sont <span class="fp-code">$var == ''</span> et <span
+					class="fp-code">empty($var)</span>.
+				</li>
+				<li>quand on teste une variable dont on n'est pas sûr qu'elle
+					soit affectée, il faut d'abord la tester avec <span class="fp-code">isset()</span>
+					ou <span class="fp-code">empty()</span>
+					avant de faire d'autres tests car ces fonctions ne génèrent pas d'alerte si la variable n'existe pas.
+				</li>
+				<li>il faut plutôt faire des comparaisons strictes (avec l'opérateur
+					<span class="fp-code">===</span>) que des comparaisons sans tenir
+					compte du type.
+				</li>
+				<li>il faut toujours utiliser les mots-clés TRUE et FALSE pour
+					les booléens et non les valeurs 0 et 1.</li>
+			</ul>-->
+
+		</section>
+
+		<h3>Savoir si une variable est numérique</h3>
+		<section>
+		<p>
+			La fonction
+				<a href="https://www.php.net/manual/en/function.is-numeric.php" target="_blank">is_numeric()</a>
+				détermine si une variable est un nombre (entier ou réel) ou une chaine numérique. Elle
+				retourne <span class="fp-code">true</span> si c'est le cas, <span class="fp-code">false</span> sinon.
+		</p>
+		<p>
+			Une chaîne numérique est une chaîne contenant uniquement des caractères valides pour représenter un nombre (entier ou réel), avec éventuellement des espaces blancs (caractère espace, tabulation "\t", saut de ligne "\n", etc.) en début et en fin de chaîne.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : la fonction is_numeric()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;La fonction is_numeric()&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+
+echo '&lt;pre&gt;';
+var_dump(is_numeric(17));		    // bool(true)
+var_dump(is_numeric(17.11));        // bool(true)
+var_dump(is_numeric('   1.7  '));   // bool(true)
+var_dump(is_numeric('   1.  7  ')); // bool(false)
+var_dump(is_numeric('100 euros'));  // bool(false)
+var_dump(is_numeric('a100'));       // bool(false)
+echo '&lt;/pre&gt;';
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+		</form>
+
+		<p>
+				La fonction
+				<a href="https://www.php.net/manual/en/function.is-numeric.php" target="_blank">is_numeric()</a>
+				est utilisée pour tester les valeurs des paramètres transmis dans une URL et les données saisies dans un
+				formulaire, car ces valeurs sont toutes reçues par PHP dans des chaînes de caractères.
+			</p>
+
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

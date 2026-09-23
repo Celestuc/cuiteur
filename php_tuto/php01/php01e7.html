@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les fonctions</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+
+</head>
+<body>
+
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<ul id="MENU-page"></ul>
+
+		<p>Des instructions permettent d'inclure du code qui se trouve
+			dans des fichiers externes et sont particulièrement utiles pour la
+			constitution et l'utilisation de bibliothèques de fonctions. Il n'y a
+			pas d'applications PHP qui n'utilisent pas d'inclusion de fichiers
+			externes.</p>
+
+		<h3>4 instructions pour inclure du code</h3>
+		<section>
+			<p class="fp-puce fp-bottom0">Quatre instructions permettent
+				d'inclure des fichiers externes dans un script&nbsp;:</p>
+			<ul class="fp-ul-puce">
+				<li><a
+					href="https://www.php.net/manual/en/function.include.php" target="_blank">include</a>,</li>
+				<li><a
+					href="https://www.php.net/manual/en/function.include-once.php" target="_blank">include_once</a>,</li>
+				<li><a
+					href="https://www.php.net/manual/en/function.require.php" target="_blank">require</a>,</li>
+				<li><a
+					href="https://www.php.net/manual/en/function.require-once.php" target="_blank">require_once</a>.
+				</li>
+			</ul>
+			<p class="fp-puce">Chacune des instructions accepte comme
+				paramètre le chemin du fichier à inclure dans la page appelante :
+			<pre data-code="PHP">
+include('entete.html');
+include_once('fonctions_communes.php');
+require('commun/bib_fonctions.php');
+require_once('../general/mes_fonctions.php');</pre>
+
+			<p class="fp-remarque">
+				<span class="fp-code FP-gras">include</span>, <span
+					class="fp-code FP-gras">include_once</span>, <span
+					class="fp-code FP-gras">require</span> et <span
+					class="fp-code FP-gras">require_once</span> sont des constructions du
+				langage particulières et les parenthèses ne sont pas nécessaires
+				autour du paramètre.<br> <span class="fp-code"><span
+					data-code="PHP">include('entete.html');</span></span> est équivalent à <span
+					class="fp-code"><span data-code="PHP">include 'entete.html';</span></span>
+			</p>
+			<p class="fp-puce">
+				<b>L'extension des fichiers à inclure</b> n'est pas fixée et on peut
+				inclure des fichiers contenant n'importe quel type de code (HTML,
+				CSS, JavaScript et évidemment PHP). Je vous conseille de donner aux
+				fichier à inclure l'extension correspondant à leur contenu : php
+				pour du code PHP, html pour du code HTML, etc. et ne pas utiliser
+				une extension .inc comme c'est parfois le cas.
+			</p>
+			<p class="fp-puce">
+				Quand le fichier inclus est composé de code PHP, ce code est
+				exécuté.</p>
+			<p class="fp-puce">
+				Le fichier n'est inclus que si l'instruction 
+				<a href="https://www.php.net/manual/en/function.include.php" target="_blank">include</a>
+				ou <a href="https://www.php.net/manual/en/function.require.php" target="_blank">require</a>
+				est exécutée. Les inclusions conditionnelles dans des tests if sont
+				donc possibles. Dans ce cas, les blocs du test doivent
+				obligatoirement être entourés d'accolades (<span class="fp-code">{</span>
+				et <span class="fp-code">}</span>).<br> Les inclusions dans des
+				boucles seront faites à chaque itération de la boucle. Si
+				le fichier inclus contient du code PHP qui définit des fonctions,
+				l'inclusion provoquera alors des erreurs dûes à des tentatives de
+				re-définition des fonctions.
+			</p>
+			<p class="fp-puce">
+				Les instructions <a
+					href="https://www.php.net/manual/en/function.include-once.php" target="_blank">include_once</a>
+				et <a
+					href="https://www.php.net/manual/en/function.require-once.php" target="_blank">require_once</a>
+				fonctionnent de la même façon que <a
+					href="https://www.php.net/manual/en/function.include.php" target="_blank">include</a>
+				et <a href="https://www.php.net/manual/en/function.require.php" target="_blank">require</a>,
+				à la différence qu'elles
+				empêchent le même fichier d'être inclus plusieurs fois dans un même
+				script. Cette fonctionnalité est à utiliser par exemple quand des
+				fichier inclus contiennent eux-même d'autres fichiers inclus. Cela
+				évite que des variables, des constantes, ou des fonctions soient
+				définies plusieurs fois provoquant ainsi des erreurs.
+			</p>
+			<p class="fp-puce">
+			Les instructions <a href="https://www.php.net/manual/en/function.include.php" target="_blank">include</a> 
+			et <a href="https://www.php.net/manual/en/function.include-once.php" target="_blank">include_once</a>
+			déclencheront une erreur de niveau warning si elles ne peuvent pas trouver le fichier;
+			alors que <a href="https://www.php.net/manual/en/function.require.php" target="_blank">require</a>
+			et <a href="https://www.php.net/manual/en/function.require-once.php" target="_blank">require_once</a>			
+			déclencheront une erreur de niveau fatal si elles ne peuvent pas trouver le fichier, ce qui arrêtera donc le script.
+			</p>
+		</section>
+
+		<h3>Notre bibliothèque de fonctions</h3>
+		<section>
+			<p>Vous avez pu remarquer que jusqu'à maintenant les
+				exemples de test commencent toujours par la génération du début d'une page HTML.
+				Seul le titre de la page change d'un exemple à l'autre. Pour éviter ces
+				répétitions, nous allons maintenant utiliser une fonction placée
+				dans une bibliothèque (un fichier PHP ne contenant que des définitions de
+				fonctions). De cette façon nous allons simplifier notre code, et,
+				chose extrêmement importante, éviter d'avoir un mélange de langages
+				différents (une couche d'HTML, une couche de PHP, une couche d'HTML,
+				etc.).</p>
+
+			<pre data-code="PHP">
+/**
+ * Envoie à la sortie standard le début du code HTML d'une page
+ *
+ * @param string	$titre	Titre de la page
+ *
+ * @return void
+ */
+function htmlDebut(string $titre) : void {
+	$titre = htmlentities($titre, ENT_COMPAT, 'UTF-8');
+
+	echo '&lt;!DOCTYPE html&gt;',
+		'&lt;html lang=&quot;fr&quot;&gt;',
+			'&lt;head&gt;',
+				'&lt;meta charset="UTF-8"&gt;',
+				'&lt;title&gt;', $titre, '&lt;/title&gt;',
+				'&lt;style&gt;',
+				'body {	font-size: 13px;', 
+						'font-family: Verdana, sans-serif}',
+				'h3 {	font-size: 15px;',
+						'margin: 0 0 15px 0;', 
+						'padding: 5px 0;', 
+						'text-align: center;', 
+						'background: #FFF5AB}',
+				'h4 {	font-size: 13px;',
+						'margin: 1em 0 0 0;',
+						'padding: 3px;',
+						'background: #ebebeb}',
+				'&lt;/style&gt;',
+			'&lt;/head&gt;',
+			'&lt;body&gt;',
+				'&lt;h3&gt;', $titre, '&lt;/h3&gt;';
+}</pre>
+
+			<p class="fp-puce">
+				Le code de la fonction est une simple instruction <a
+					href="https://www.php.net/manual/en/function.echo.php" target="_blank">echo</a>
+				dont les paramètres sont du code HTML sous la forme de chaînes de
+				caractères. Le code HTML est un peu moins simpliste que celui
+				utilisé jusqu'à maintenant car il intégre un minimum de régles de
+				style CSS.
+			</p>
+			<p class="fp-puce">
+				Le code HTML pourrait être écrit dans une seule valeur littérale.
+				C'est à éviter car dans ce cas beaucoup de caractères sans
+				importance pour le navigateur lui seraient transmis (espaces
+				consécutifs, sauts de ligne, tabulations), à moins de perdre en
+				lisibilité (i.e. en écrivant tout le code HTML sur une seule ligne). Ces
+				caractères inutiles transiteraient sur le réseau et seraient transmis au
+				navigateur alors qu'ils ne servent à rien.<br>Utilisée
+				avec comme titre 'Test', la fonction ci-dessus envoie au navigateur 312
+				octets. Si on avait mis le code HTML dans une seule expression
+				littérale, en gardant la mise en forme pour la lisibilité, on
+				enverrait 452 octets, soit 44% de plus. Le nombre de caractères
+				inutilement transmis est à multiplier par le nombre de visites de la
+				page, et à mettre en relation avec le prix payé à l'hébergeur du
+				site qui facture la bande passante.<br> Il est donc
+				particulièrement important de faire transiter sur le réseau des
+				contenus avec la taille la plus petite possible (codes HTML, CSS et
+				JavaScript débarassés des espaces, sauts de ligne et autres tabulations inutiles,
+				fichiers images réduits, etc.). À noter, la description de la
+				fonction sous la forme de commentaires PHPDoc (idem JavaDoc).
+			</p>
+			<p class="fp-puce">
+
+				La fonction se trouve dans le fichier <span class="fp-code">bib_fonctions.php</span>,
+				placé dans <a
+					onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">le
+					dossier de travail</a>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : inclusion de fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Test d\'inclusion de fichier');
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</textarea>
+			</form>
+
+			<p class="fp-inter2">
+				Le fichier <span class="fp-code">bib_fonctions.php</span> est
+				complété par la fonction <span class="fp-code">htmlFin()</span> qui
+				génére et affiche le code HTML de fin de page :
+			</p>
+
+			<pre data-code="PHP">
+/**
+ * Envoie à la sortie standard la fin du code HTML d'une page
+ *
+ * @return void
+ */
+function htmlFin() : void {
+	echo '&lt;/body&gt;&lt;/html&gt;';
+}
+</pre>
+
+<p>
+	En ajoutant l'appel de la fonction <span class="fp-code">htmlFin()</span> dans le script précédent, nous
+	obtenons un script PHP qui ne contient plus que du code PHP :
+	tout le code HTML envoyé au navigateur quand il appelle le script est généré par PHP (en utilisant
+	la construction du langage
+	<a href="https://www.php.net/manual/en/function.echo.php" target="_blank">echo</a>).
+</p>
+
+<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : script PHP avec que du code PHP
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Script PHP avec que du code PHP');
+htmlFin();
+
+</textarea>
+			</form>
+
+		<p>
+			A partir de maintenant, tous les scripts que nous allons écrire ne contiendront plus que du code PHP. Ils débuteront donc
+			par le tag ouvrant <span class="fp-code">&lt;?php</span> (placé au début de la première ligne du script).
+		</p>
+
+		<p class="fp-remarque">
+			Quand un script ne contient que du code PHP, il est préférable de ne pas fermer l'élément PHP, et donc de ne pas écrire
+			le tag de fermeture <span class="fp-code">?&gt;</span>, pour éviter que d'éventuels caractères d'espaces blancs placés
+			après ce tag de fermeture soient "interprétés" comme du code HTML.
+		</p>
+
+		<a id="phpdoc"></a>
+		<h4> Commentaires PHPDoc</h4>
+
+<p>Vous devez d&eacute;crire, dans votre code, <b>toutes</b> les fonctions que vous définissez, avec une documentation PHPDoc. Cette bonne pratique vous permettra de
+savoir ce que fait votre fonction sans avoir à &eacute;plucher le code, et elle vous permettra d'indiquer la signification
+des diff&eacute;rents paramètres et de la valeur de retour.</p>
+
+<p>Une documentation PHPDoc se pr&eacute;sente comme suit : </p>
+
+		<pre data-code="PHP">
+/**
+ * Description courte de la fonction
+ *
+ * Eventuelle description détaillée de la fonction
+ * sur plusieurs lignes
+ *
+ * @param 	type1 	$nom1 	description de $nom1
+ * @param 	type2 	$nom2	description de $nom2
+ *
+ * @return 	typeRetour	description de la valeur de retour
+ */
+function foobar(type1 $nom1,type2 $nom2): typeRetour { … }
+</pre>
+
+<p class="fp-bottom0">
+Un bloc de commentaires PHPDoc commence par un slash suisi de 2 étoiles (<span class="fp-code">/**</span>), et se termine
+par une étoile suivie par un slash (<span class="fp-code">*/</span>).<br>
+Chaque ligne de la documentation PHPDoc entre la première et la dernière ligne commence par une étoile (<span class="fp-code">*</span>).<br>
+<br>
+Le contenu est divisé en 3 ou 4 "parties" séparées par une ligne vide :
+</p>
+<ul class= "fp-ul-puce">
+<li>La première partie, sur une ligne, contient une description courte (i.e. un résumé) de ce que la fonction fait.
+<li>La seconde partie, optionnelle, donne une description détaillée de la fonction.
+<li>Ensuite, on trouve la description des paramètres, un par un, suivant le format indiqué. Notez l'utilisation du tag <span class="fp-code">@param</span>.
+<li>La documentation PHPDoc se termine par la description de la valeur de retour de la fonction suivant le format indiqué.
+Notez l'utilisation du tag <span class="fp-code">@return</span>.
+</ul>
+
+
+		</section>
+
+		<a id="exo_bibli_fonctions"></a>
+		<h3 class="fp-exo">Exercice : bibliothèque de fonctions</h3>
+		<section>
+
+			<p>Ecrivez une bibliothèque avec les fonctions suivantes :</p>
+
+			<p>
+				- la fonction <span class="fp-code">debutHtml()</span> permet de renvoyer tout le code HTML
+				du début d'une page :
+			</p>
+
+			<pre data-code="PHP_HTML">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+  &lt;head&gt;
+    &lt;title&gt;Titre de la page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;		
+		</pre>
+			<p>Cette fonction accepte deux paramètres : le titre de la page
+				(tag TITLE) et la couleur de fond de la page. Si aucune couleur de
+				fond n'est passée, la valeur par défaut du paramètre est '#FFFFFF'.</p>
+			<p>
+				- la fonction <span class="fp-code">tableHtml()</span> renvoie
+				une chaîne de caractères avec le code HTML d'un élément TABLE, contenant (ou encapsulant) les chaînes de
+				caractères qui lui passées en paramètres. Le
+				nombre de colonnes de la TABLE sera variable, et déterminé par un
+				des paramètres. Il faut prévoir aussi des paramètres qui permettent de
+				gérer les couleurs : couleur de fond de la TABLE, couleur de fond de
+				ligne pour faire un affichage différencié une ligne sur deux. Ces
+				paramètres sont obligatoires. La table HTML doit avoir une ligne
+				d'en-tête et au moins une ligne de &quot;données&quot;. Si des
+				paramètres ne sont pas en bon nombre, un message doit
+				être renvoyé pour signaler l'erreur.
+			</p>
+			<p>
+				- la fonction <span class="fp-code">finHtml()</span> renvoie le code HTML qui termine une
+				page. Le pied de page est composé d'une ligne avec le nom de
+				l'auteur de la page (à passer en paramètre à la fonction).
+			</p>
+			<p>
+				Ces trois fonctions doivent se trouver dans le fichier <span
+					class="fp-code">bibli_html.php</span>.
+			</p>
+			<p>
+				Ecrivez le script <span class="fp-code">test.php</span> qui génére
+				une page HTML en utilisant ces trois fonctions.
+			</p>
+
+			<p class="fp-solution">
+				<a onclick="top.FP.Voir.showSolution('exo_bibli_fonctions_solu', 1)">Une
+					solution possible</a>
+			</p>
+
+			<div id="exo_bibli_fonctions_solu" class="BLOC-solution">
+				<p>
+					Le fichier <span class="fp-code">bibli_html.php</span> avec les 3
+					fonctions demandées.
+				<pre data-code="PHP">&lt;?php
+/**
+ * Renvoie le code HTML du début d'une page
+ *
+ * @param string    $titre      Titre de la page
+ * @param string    $couleur    Couleur de fond de la page
+ *
+ * @return string   Code HTML du début d'une page
+ */
+function debutHtml(string $titre,
+				   string $couleur='#FFFFFF') : string {
+  return '&lt;!DOCTYPE html&gt;&lt;html lang="fr"&gt;&lt;head&gt;'
+        .'&lt;title&gt;'.$titre.'&lt;/title&gt;'
+        .'&lt;style&gt;body{background-color:'.$couleur.'}&lt;/style&gt;'
+		.'&lt;/head&gt;&lt;body&gt;';
+}
+
+/**
+ * Renvoie le code HTML d'une table.
+ *
+ * @param integer   $nbCol      Nombre de colonnes
+ * @param string    $coulFond   Couleur de fond de la table
+ * @param string    $coulLigne  Couleur d'une ligne sur 2
+ * @param string ...$chaines	Chaînes à afficher
+ *
+ * @return string   Code HTML de la table ou message d'erreur
+ */
+function tableHtml(int $nbCol, string $coulFond,
+                   string $coulLigne,
+                   string ...$chaines) : string {
+  if ($nbCol &lt; 1) {
+    return 'Mauvais nombre de colonnes';
+  }
+  if ($coulFond ==  '' || $coulLigne == '') {
+    return 'Mauvaise couleur';
+  }
+  //--- Bon nombre d'arguments ?
+  $nbChaines = count($chaines);
+  if ($nbChaines % $nbCol != 0) {
+    return 'Mauvais nombre d\'éléments pour la table';
+  }
+  if ($nbChaines &lt; ($nbCol * 2)) {
+    return 'Pas assez d\'éléments pour faire au moins
+            un en-tête et une ligne';
+  }
+
+  //--- Début table html ------------------------
+  $html = '&lt;table style="text-align:center; background-color:'.
+          $coulFond.'"&gt;';
+  $numLig = 0;
+  //--- Boucle de traitement des arguments -------
+  // on commence au 3 éme
+  for ($i = 0; $i &lt; $nbChaines; $i += $nbCol) {
+    $numLig ++;
+    //--- Nouvelle ligne
+    if ($numLig % 2 == 0) {
+      $html .= '&lt;tr&gt;';
+    } else {
+      $html.= '&lt;tr style="background-color:'.$coulLigne.'"&gt;';
+    }
+    //--- Les celulles
+    for ($j = 0; $j &lt; $nbCol; $j++) {
+      $html .= '&lt;td style="width:'.floor(100/$nbCol).'px"&gt;'
+              .$chaines[$j + $i].'&lt;/td&gt;';
+    }
+    $html .= '&lt;/tr&gt;';
+  }
+  $html .= '&lt;/table&gt;';
+  return $html;
+}
+/**
+ * Renvoie le code HTML de fin d'une page
+ *
+ * @param string    $auteur     Nom de l'auteur
+ *
+ * @return string   Code HTML de fin d'une page
+ */
+function finHtml(string $auteur) : string {
+  return '&lt;hr&gt;&lt;p&gt;'.$auteur.'&lt;/p&gt;'
+        .'&lt;/body&gt;&lt;/html&gt;';
+}</pre>
+				<p class="fp-inter2">
+					Le fichier <span class="fp-code">test.php</span>.
+				<pre data-code="PHP">&lt;?php
+require'bibli_html.php';
+
+echo debutHtml('test'),
+	 tableHtml(3,'#FFFFCE','#FFCC99',
+        'un','deux','trois',
+        1,2,3,4,5,6),
+	 finHtml('Eric Merlet');</pre>
+			</div>
+
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

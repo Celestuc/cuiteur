@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Recherche de caractères ou de sous-chaînes</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<h3>Rerchercher un caractère ou une sous-chaîne</h3>
+		<section>
+		<p>Différentes fonctions permettent de faire des recherches de
+			caractères ou de chaînes à l'intérieur d'une chaîne.
+		<p>Parmi toutes les fonctions de recherche, les fonctions standards de PHP les plus employées
+			sont :</p>
+		<ul class="fp-ul-1em">
+			<li><a
+				href="https://www.php.net/manual/en/function.strpos.php" target="_blank">strpos()</a>
+				qui renvoie la position d'une sous-chaîne à l'intérieur d'une
+				chaîne,
+			<li><a
+				href="https://www.php.net/manual/en/function.strrpos.php" target="_blank">strrpos()</a>
+				qui renvoie la dernière position d'une sous-chaîne à l'intérieur d'une
+				chaîne,
+			<li><a
+				href="https://www.php.net/manual/en/function.strstr.php" target="_blank">strstr()</a>
+				qui renvoie une partie de chaîne à partir de la position d'une
+				sous-chaîne
+			<li><a
+				href="https://www.php.net/manual/en/function.stristr.php" target="_blank">stristr()</a>
+				est identique à <a
+				href="https://www.php.net/manual/en/function.strstr.php" target="_blank">strstr()</a>
+				, mais ignore
+				les différences majuscules/minuscules
+			<li><a
+				href="https://www.php.net/manual/en/function.strrchr.php" target="_blank">strrchr()</a>
+				qui renvoie une partie de chaîne à partir de la dernière position
+				d'un <b>caractère</b> à l'intérieur d'une chaîne.
+		</ul>
+
+		<p class="fp-rouge fp-bottom0 fp-t-center">
+			<strong>ATTENTION IMPORTANT</strong>
+		</p>
+		<p>
+			Toutes les fonctions de recherche retournent <span class="fp-code">FALSE</span>
+			si elles ne trouvent pas ce qu'elles cherchent. Afin d'éviter de
+			confondre le 0 de <span class="fp-code">FALSE</span> et le 0 de la
+			position du premier caractère d'une chaîne, il faut <b>toujours
+				tester le résultat</b> de ces fonctions avec <b>l'opérateur
+				d'identité <span class="fp-code">===</span>
+			</b> et pas avec l'opérateur d'égalité <b><span class="fp-code">==</span></b>.
+		</p>
+		<p class="fp-bottom0">Soit le code suivant :</p>
+		<pre data-code="PHP">$x = 'François';
+$pos = strpos($x, 'F');</pre>
+
+		<p>
+			<span class="fp-code">$pos</span> sera égal à 0, car 'F' est à la
+			position 0 dans la chaîne <span class="fp-code">$x</span>.
+		</p>
+		<p class="fp-bottom0">Le test avec l'opérateur d'égalité simple (non stricte) :
+
+
+		
+		<pre data-code="PHP">if ($pos == false) { ...</pre>
+		<p class="fp-bottom0">
+			ne permettra pas de faire la différence entre le nombre 0 et le
+			booléen <span class="fp-code">FALSE</span>. Le script sera donc faux
+			car il considérera que 'F' n'a pas été trouvé dans 'François'.<br>
+			Pour éviter le transtypage automatique (type juggling) de l'opérateur d'égalité
+			simple et bien différencier le booléen FALSE et le nombre 0, il faut
+			tester la valeur de retour de la fonction avec l'opérateur
+			d'identitié :
+		<pre data-code="PHP">if ($pos === false) { ...</pre>
+
+		<p class="fp-inter2 fp-bottom0">
+			Chacune des fonctions
+			précédentes dispose de son équivalent dans l'extension
+			<a href="http://www.php.net/manual/en/ref.mbstring.php" target="_blank">mb_string</a> :
+		</p>
+		<ul class="fp-ul-puce">
+		<li><a href="https://www.php.net/manual/en/function.mb-strpos.php" target="_blank">mb_strpos()</a>
+		<li><a href="https://www.php.net/manual/en/function.mb-strrpos.php" target="_blank">mb_strrpos()</a>
+		<li><a href="https://www.php.net/manual/en/function.mb-strstr.php" target="_blank">mb_strstr()</a>
+		<li><a href="https://www.php.net/manual/en/function.mb-stristr.php" target="_blank">mb_stristr()</a>
+		<li><a href="https://www.php.net/manual/en/function.mb-strrchr.php" target="_blank">mb_strrchr()</a>
+		</ul>
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : rechercher dans une chaîne
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Recherches');
+
+// fautes d'orthographe volontaires :)
+$x = 'êtré où ne pas êtré';
+
+echo '&lt;h4&gt;Chaîne de test&lt;/h4&gt;', $x;
+
+echo '&lt;h4&gt;Position de "être"&lt;/h4&gt;',
+     strpos($x, 'êtré'), ' ',
+     mb_strpos($x, 'êtré', encoding:'UTF-8');
+
+echo '&lt;h4&gt;Position du premier "r"&lt;/h4&gt;',
+     strpos($x, 'r'), ' ',
+     mb_strpos($x, 'r', encoding:'UTF-8');
+
+echo '&lt;h4&gt;Position du dernier "êtré"&lt;/h4&gt;',
+     strrpos($x, 'êtré'), ' ',
+     mb_strrpos($x, 'êtré', encoding:'UTF-8');
+
+echo '&lt;h4&gt;Renvoie une chaîne à partir de "où"&lt;/h4&gt;#',
+     strstr ($x, 'où'), '#',
+     mb_strstr ($x, 'où', encoding:'UTF-8');
+
+echo '&lt;h4&gt;Renvoie une chaîne à partir du premier "e"&lt;/h4&gt;#',
+     strstr($x, 'e'), '#',
+     mb_strstr ($x, 'e', encoding:'UTF-8');
+
+echo '&lt;h4&gt;Renvoie une chaîne à partie du dernier "ê"&lt;/h4&gt;#',
+     strrchr ($x, 'ê'), '#',
+     mb_strrchr ($x, 'ê', encoding:'UTF-8');
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-bottom0">
+			Conclusions :
+		</p>
+		<ul class="fp-ul-puce">
+		<li> Les fonctions standards de PHP comme <a
+				href="https://www.php.net/manual/en/function.strpos.php" target="_blank">strpos()</a>
+				renvoient le cas échéant une position (ou un indice) en nombre d'octets, alors
+				que les fonctions de l'extension
+				<a href="http://www.php.net/manual/en/ref.mbstring.php" target="_blank">mb_string</a>
+				comme <a href="https://www.php.net/manual/en/function.mb-strpos.php" target="_blank">mb_strpos()</a>
+				renvoient le cas échéant une position (ou un indice) en nombre de caractères.
+		<li> <span class="fp-code">strrchr($x, 'ê')</span> renvoie la sous chaîne commençant à partir
+		du dernier octet égal à <span class="fp-code">C3</span>. L'erreur vient du fait
+		que les caractères 'é' et 'ê' ont respectivement comme codes UTF-8
+		<span class="fp-code">C3&nbsp;A9</span> et <span class="fp-code">C3&nbsp;AA</span>.
+		</ul>
+
+		<!--<p class="fp-inter2">
+			PHP permet de rechercher la dernière position d'un caractère dans une
+			chaîne, mais n'offre pas de fonction permettant de rechercher la
+			dernière position d'une sous-chaîne dans une chaîne. Pour réaliser ce
+			travail, nous pouvons utiliser la fonction <a
+				href="https://www.php.net/manual/en/function.strrev.php" target="_blank">strrev()</a>
+			qui inverse l'ordre des caractères dans une chaîne.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : recherche de la dernière sous-chaîne
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('La dernière sous-chaîne');
+
+$x = 'ce bonbon est bon et même délicieux';
+echo strLastStr($x, 'bon');
+
+//---------------------------------------------------------
+function strLastStr($boteDeFoin, $aiguille) {
+  if ($boteDeFoin == '' || $aiguille == '') {
+    return false;
+  }
+  
+  $pos = strpos(strrev($boteDeFoin), strrev($aiguille));
+  if ($pos === false) {
+    return false;
+  }
+  $pos = strlen($boteDeFoin) - $pos - strlen($aiguille);
+  return $pos;
+}
+
+htmlFin();
+</textarea>
+		</form>-->
+		</section>
+
+		<a id="exo_isAdresseMail"></a>
+		<h3 class="fp-exo">Exercice : tester une adresse e-mail</h3>
+		<section>
+			<p class="fp-bottom0">
+				Ecrivez la fonction <span class="fp-code">isAdresseMail()</span> qui
+				vérifie qu'une adresse email est composée de :
+			<ul class="fp-ul-puce">
+				<li>au moins un caractère alphabétique, suivi éventuellement
+					d'autres caractères alphabétiques, avec éventuellement des point (.)
+					des tirets (-) ou des underscores (_) entre 2 caractères alphabétiques.
+        </li>
+				<li>le caractère @</li>
+				<li>au moins un caractère alphabétique, suivi éventuellement
+					d'autres caractères alphabétiques, avec éventuellement des point (.) ou
+					des tirets (-) entre 2 caractères alphabétiques.
+					</li>
+			</ul>
+			<p class="fp-bottom0">
+				La chaîne ne doit contenir aucun espace.<br>Il ne peut y avoir
+				qu'un seul caractère @<br>Tous les caractères doivent avoir l'un des
+				codes ASCII suivants :
+			</p>
+			<ul class="fp-ul-puce" style="margin-bottom:0">
+				<li>45 : -</li>
+				<li>46 : .</li>
+				<li>48 à 57 : 0 à 9</li>
+				<li>64 à 90 : @, A à Z</li>
+				<li>95 : _</li>
+				<li>97 à 122 : a à z</li>
+			</ul>
+			<p style="margin-top:0">
+        Il ne doit pas y avoir plus d'un seul point, tiret ou underscore entre 2 caractères
+        alphabétiques.
+			</p>
+			<p>
+				Exemples à tester : <br>
+        Adresses valides selon les spécifications :<br>
+&nbsp;&nbsp;&nbsp;piat@univ-fcomte.frfr<br>
+&nbsp;&nbsp;&nbsp;piat@univ-fcomte.fr<br>
+&nbsp;&nbsp;&nbsp;p.iat@univ-fcomte.fr<br>
+&nbsp;&nbsp;&nbsp;p-iat@univ-fcomte.fr<br>
+&nbsp;&nbsp;&nbsp;p_iat@univ-fcomte.fr<br>
+&nbsp;&nbsp;&nbsp;p@u.fc.fr<br>
+&nbsp;&nbsp;&nbsp;p@u-fc.fr<br>
+Adresses non valides d'après les spécifications :<br>
+&nbsp;&nbsp;&nbsp;piatunifc-fcomte.fr<br>
+&nbsp;&nbsp;&nbsp;piat@univfcomte-fr<br>
+&nbsp;&nbsp;&nbsp;piat@univfcomte-fr<br>
+&nbsp;&nbsp;&nbsp;françois@univ-fcomte.fr<br>
+&nbsp;&nbsp;&nbsp;piat@.fr<br>
+&nbsp;&nbsp;&nbsp;p@u-.fr<br>
+&nbsp;&nbsp;&nbsp;p@u..fr<br>
+&nbsp;&nbsp;&nbsp;p@u_fc.fr
+</p>
+
+			<p class="fp-solution">
+				<a onClick="top.FP.Voir.showSolution('exo_isAdresseMail_solu', 1)">Une
+					solution possible</a>
+      </p>
+			<div id="exo_isAdresseMail_solu" class="BLOC-solution">
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exercice</strong> : tester une adresse e-mail
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+/**
+ * Teste si un caractère est alphabétique
+ *
+ * @param string	$c	caractère à tester
+ *
+ * @return bool	true si alphabétique
+*/
+function isAlpha(string $c) : bool {
+  $c = ord($c);
+  if ($c &gt; 64 &amp;&amp; $c &lt; 91) {
+    return true;
+  }
+  if ($c &gt; 96 &amp;&amp; $c &lt; 123) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Teste la validité d'une sous-chaîne d'une adresse email
+ *
+ * Pour être valide, la sous-chaîne doit contenir au moins un
+ * caractère alphabétique, suivi éventuellement d'autres
+ * caractères alphabétiques.
+ * Si $debut est vrai, il peut y avoir des points (.), des
+ * tirets (-) et des underscores (_) entre 2 caractères
+ * alphabétiques. Sinon, il ne peut y avoir que des points
+ * et des tirets entre 2 caractères alphabétiques.
+ * Il ne doit pas y avoir plus d'un seul point, tiret ou
+ * underscore entre 2 caractères alphabétiques.
+ *
+ * @param string	$txt	chaîne à tester
+ *
+ * @return bool 	true si valide
+*/
+function sousChaineEmail(string $s, bool $debut) : bool {
+  $l = strlen($s);
+  if ($s == 0){
+    return false;
+  }
+  for ($i = 0; $i &lt; $l; ++$i){
+    if (isAlpha($s[$i])){
+      continue;
+    }
+    $c = ord($s[$i]);
+    if ($c == 45 || $c == 46 || ($c == 95 &amp;&amp; $debut)){
+      if ($i == 0 || $i == ($l - 1)){
+        return false;
+      }
+      if (! isAlpha($s[$i-1]) || ! isAlpha($s[$i+1])){
+        return false;
+      }
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Teste si une chaîne est une adresse e-mail
+ *
+ * @param string	$txt	chaîne à tester
+ *
+ * @return bool 	true si adresse mail
+*/
+function isAdresseMail(string $txt) : bool {
+  // indice du premier @
+  $pos1 = strpos($txt,'@');
+  // si pas d'@
+  if ($pos1 === false) {
+    return false;
+  }
+  // indice du dernier .
+  $pos2 = strrpos($txt,'.');
+  // si pas d'.
+  if ($pos2 === false) {
+    return false;
+  }
+  // le dernier point doit être
+  // situé après l'@ et il doit
+  // y avoir au moins un caractère entre les 2
+  if ($pos1 &gt;= $pos2 - 1){
+    return false;
+  }
+  $debut = substr($txt, 0, $pos1);
+  $milieu = substr($txt, $pos1+1, $pos2-$pos1-1);
+  $fin = substr($txt, $pos2 + 1);
+
+  $long = strlen($fin);
+  if ($long &lt; 2 || $long &gt; 4) {
+    return false;
+  }
+  for ($i = 0; $i &lt; $long; $i++) {
+    if (!isAlpha($fin[$i])) {
+      return false;
+    }
+  }
+  if (!sousChaineEmail($debut, true)){
+    return false;
+  }
+  if (!sousChaineEmail($milieu, false)){
+    return false;
+  }
+  return true;
+}
+
+
+
+//---------------------------------------------------------
+htmlDebut('Tester une adresse e-mail');
+
+tester('isAdresseMail', true, 'piat@univ-fcomte.frfr');
+tester('isAdresseMail', true, 'piat@univ-fcomte.fr');
+tester('isAdresseMail', true, 'p.iat@univ-fcomte.fr');
+tester('isAdresseMail', true, 'p-iat@univ-fcomte.fr');
+tester('isAdresseMail', true, 'p_iat@univ-fcomte.fr');
+tester('isAdresseMail', true, 'p@u.fc.fr');
+tester('isAdresseMail', true, 'p@u-fc.fr');
+
+tester('isAdresseMail', false, 'piatunifc-fcomte.fr');
+tester('isAdresseMail', false, 'piat@univfcomte-fr');
+tester('isAdresseMail', false, 'piat@univfcomte-fr');
+tester('isAdresseMail', false, 'françois@univ-fcomte.fr');
+tester('isAdresseMail', false, 'piat@.fr');
+tester('isAdresseMail', false, 'p@u-.fr');
+tester('isAdresseMail', false, 'p@u..fr');
+tester('isAdresseMail', false, 'p@u_fc.fr');
+
+htmlFin();
+</textarea>
+				</form>
+
+				<p class='fp-bottom0'>
+					Vous serez sans doute surpris à la lecture du code par
+					l'utilisation de la fonction <span class='fp-code'>tester()</span>.
+					C'est une fonction qui se trouve dans la bibliothèque <span
+						class='fp-code'>bib_fonctions.php</span> et qui permet comme son
+					nom l'indique de tester si une fonction renvoie le résultat
+					attendu.<br> Cette fonction accepte au minimum 2 paramètres :
+				</p>
+				<ul class='fp-ul-puce' style="margin-bottom:0">
+					<li>le nom de la fonction à tester, <span class="fp-code">$nomFct</span>, sous la forme d'une chaîne
+						de caractères</li>
+					<li>la valeur de retour de la fonction à tester <span class="fp-code">$attendu</span></li>
+				</ul>
+				<p style="margin-top:0">
+          Les paramètres supplémentaires sont reçus dans le tableau
+          <span class="fp-code">$params</span> et sont transmis à la fonction <span class="fp-code">$nomFct</span>
+          en utilisant la notation <em>Spread</em>.
+				</p>
+				<p>Si le résultat renvoyé par la fonction à tester, <span class="fp-code">$nomFct</span>, est identique à celui
+					attendu, le nom de la fonction est affiché en vert. Si ça n'est pas
+					le cas, le nom de la fonction est affiché en rouge.</p>
+				<pre data-code='PHP'>
+/**
+ * Testeur de fonction
+ *
+ * @param string	$nomFct		nom de la fonction à tester
+ * @param mixed		$attendu	résultat attendu
+ * @param mixed		$params		paramètres à passer à $nomFct
+ *
+ * @return void
+ */
+function tester(string $nomFct, mixed $attendu,
+                mixed ...$params) : void {
+	$nbParams = count($params);
+	if ($nbParams == 0) {
+		echo '&lt;hr&gt;Il faut au moins un paramètre à transmettre',
+		      ' à la fonction "', $nomFct, '".';
+		return;
+	}
+
+	if (! function_exists($nomFct)) {
+		echo '&lt;hr&gt;La fonction "', $nomFct, '" n\'existe pas.';
+		return;
+	}
+
+	$retour = $nomFct(...$params);
+
+	echo '&lt;hr&gt;&lt;span style="color:',
+	     ($retour === $attendu) ? 'green' : 'red', '"&gt;',
+			'&lt;b&gt;', $nomFct, '&lt;/b&gt;&lt;/span&gt;',
+			'&lt;br&gt;Paramètre', ($nbParams &gt; 1) ? 's : ' : ' : ';
+
+	for ($i = 0; $i &lt; $nbParams; ++$i) {
+		echo '&lt;span style="background-color:#ebebeb; margin:0 5px;"&gt;';
+		var_dump($params[$i]);
+		echo '&lt;/span&gt;';
+	}
+
+	echo '&lt;br&gt;Attendu : ';
+	var_dump($attendu);
+
+	echo '&lt;br&gt;Retourné; : ';
+	var_dump($retour);
+}</pre>
+			</div>
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>URLs - liens</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p>
+			Nous avons vu que le navigateur utilise 2 méthodes privilégiées pour
+			faire une requête au serveur : <span class="fp-code">POST</span> et <span
+				class="fp-code">GET</span>. Ces 2 méthodes permettent de passer des
+			informations au serveur, soit dans le corps du message HTTP (<span
+				class="fp-code">POST</span>), soit à la suite de l'URL demandée (<span
+				class="fp-code">GET</span>). Nous allons voir ici plus en détail le
+			passage d'informations par l'URL et leur récupération dans le tableau <a
+				href="https://www.php.net/manual/en/reserved.variables.get.php" target="_blank">$_GET</a>.
+		</p>
+
+		<h3>Passer des paramètres dans un lien</h3>
+		<section>
+			<h4>Principes</h4>
+			<section>
+				<p class="fp-puce">Une URL est composée des parties suivantes :</p>
+				<figure>
+					<img src="../phpimg/url.png" width="590" height="86">
+					<figcaption>composition d'une URL</figcaption>
+				</figure>
+
+
+				<p class="fp-puce">
+					C'est la partie "query string" qui nous intéresse. Les informations
+					sont passées sous la forme de couples <span class="fp-code">clé=valeur</span>, séparés par le
+					caractère &amp;. Sur le serveur, avec PHP, on retrouve ces couples
+					dans le tableau <a
+						href="https://www.php.net/manual/en/reserved.variables.get.php" target="_blank">$_GET</a>
+					: la <span class="fp-code">clé</span> devient ... la clé d'un élement dont la valeur est égale à
+					<span class="fp-code">valeur</span>.
+				</p>
+
+				<p>
+					Exemple de lien :<br> <span class="fp-code">&lt;a
+						href="lien01_get.php?id=12345&amp;nom=piat"
+						target="_blank"&gt;cliquez ici&lt;/a&gt;</span><br> Rendu :<br>
+					<a href="lien01_get.php?id=12345&nom=piat" target="_blank">cliquez
+						ici</a>
+				</p>
+				<p class="fp-remarque">L'attribut target permet de spécifier la
+					cible dans laquelle va s'afficher le lien (ici un nouvel onglet
+					pour qu'on puisse voir l'URL dans la barre d'URL du navigateur)</p>
+
+				<p>
+					Le code PHP du fichier <span class="fp-code">lien01_get.php</span>
+					est le suivant :
+				</p>
+				<pre data-code="PHP">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Informations transmises dans une URL');
+
+foreach ($_GET as $nom =&gt; $valeur) {
+	htmlInfo($nom);
+	echo $valeur;
+}
+
+echo '&lt;hr&gt;';
+htmlInfo('var_dump($_GET)');
+echo '&lt;pre&gt;';
+var_dump($_GET);
+echo '&lt;/pre&gt;';
+
+htmlFin();</pre>
+
+<p class="fp-remarque">
+	Remarquez, encore une fois, que toutes les valeurs des éléments reçus dans <span class="fp-code">$_GET</span>
+	sont de <b>type <span class="fp-code">string</span></b>, y compris <span class="fp-code">'12345'</span>.
+
+</p>
+			</section>
+			<h4>Protection des chaînes</h4>
+			<section>
+
+				<p class="fp-puce fp-bottom0">Si les valeurs des paramètres
+					passés dans l'URL sont des chaînes de caractères, elles doivent
+					être encodées car les URLs ont un codage spécifiques pour certains
+					caractères (caractères de séparations, caractères accentués, etc).
+					On utilise :</p>
+				<ul class="fp-ul-puce">
+					<li><a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a>
+						du côté de l'émetteur, pour encoder la chaîne avant de la placer
+						dans l'URL,</li>
+					<li>du côté du récepteur, on n'a pas besoin de décoder la
+						chaîne pour retrouver la chaîne originale car PHP le fait
+						automatiquement pour tout ce qu'il stocke dans <a
+						href="https://www.php.net/manual/en/reserved.variables.get.php" target="_blank">$_GET</a>.
+					</li>
+				</ul>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : paramètres dans des liens
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Paramètres dans des liens');
+
+if (count($_GET)&gt;0) {
+	echo '&lt;pre&gt;';
+	var_dump($_GET);
+	echo '&lt;/pre&gt;';
+	htmlFin();
+	exit();
+}
+
+htmlInfo('Emission');
+$lien = $_SERVER['PHP_SELF'];
+$lien .= '?x='.urlencode('éric merlet');
+$lien .= '&y='.urlencode('5=4+1');
+$lien .= '&z=12345'; // pas besoin d'encodage
+
+echo '&lt;a href="', $lien, '" target="_blank"&gt;Cliquez ici&lt;/a&gt;';
+
+htmlFin();
+</textarea>
+				</form>
+
+				<p class="fp-remarque">Le lien de l'exemple s'ouvrira dans un
+					nouvel onglet pour que vous puissiez voir/manipuler l'URL.</p>
+				<p class="fp-puce">Remarquez l'encodage réalisé par <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a> :<br>
+					- le caractère <span class="fp-code">=</span> est remplacé par <span class="fp-code">%3D</span><br>
+					- le caractère espace (<span class="fp-code">&nbsp;</span>) est remplacé par un <span class="fp-code">+</span><br>
+					- les caractères alphanumériques ne sont pas modifiés
+				</p>
+
+
+
+				<p class="fp-puce">
+				Quand on regarde dans la barre d'URL du navigateur, on a l'impression que les lettres accentuées ne sont pas modifiées
+				, mais <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a>
+						les modifie. Démonstration :
+				</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : encodage par urlencode()
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Encodage par urlencode()');
+
+echo '&lt;pre&gt;';
+
+$x = 'abcd1235';
+var_dump($x);
+echo '&lt;hr&gt;';
+var_dump(urlencode($x));
+
+echo '&lt;hr&gt;&lt;hr&gt;';
+
+$x = 'éèçi &amp;';
+var_dump($x);
+echo '&lt;hr&gt;';
+var_dump(urlencode($x));
+echo '&lt;/pre&gt;';
+
+htmlFin();
+</textarea>
+			</form>
+			
+			<p class="fp-remarque">
+					Dans cette section, les lettres accentuées ne sont pas considérées comme des caractères alphanumériques.
+				</p>
+			</section>
+			<h4>Dangers</h4>
+			<section>
+
+
+				<p class="fp-puce">On utilise fréquemment les paramètres dans
+					les URLs pour passer des informations de page en page bien que
+					l'une des faiblesses vienne de la modification manuelle possible
+					de l'URL affichée par le navigateur.</p>
+				<p class="fp-puce fp-bottom0">
+					On peut ainsi facilement passer des informations qui n'étaient pas
+					attendues.</p>
+				<ul class="fp-ul-puce">
+				<li>
+					Modifiez par exemple mon nom puis validez. Le script est
+					exécuté à nouveau, et la valeur modifiée du nom est affichée.</li>
+				<li>On peut de la même façon modifier la clé d'un couple clé=valeur ou en ajouter
+				   un et redemander la page.</li>
+				</ul>				
+					
+				<p class="fp-bottom0 fp-puce">Le passage d'informations par les
+					URLs doit donc être entouré de beaucoup de précautions :</p>
+				<ul class="fp-ul-puce">
+					<li>si le nombre de couples clé=valeur est différent de celui
+						attendu, le script doit être arrêté et, suivant notre "dégré de tolérance", tous les éléments
+						éventuellement rattachés à l'utilisateur (session par exemple)
+						peuvent être supprimés,</li>
+					<li>les clés des couples reçus doivent être vérifiées,
+					<li>les valeurs des couples reçues doivent l'être également.
+				</ul>
+				<p class="fp-remarque">
+				Dans un site en production, lors de la réception des données, il faudrait, dans le script intitulé 'Paramètres dans des liens', protéger
+				les chaînes provenant de la "query string" avec la fonction <a
+					href="https://www.php.net/manual/en/function.htmlentities.php" target="_blank">htmlentities()</a>,
+					avant de les envoyer au navigateur en appelant <a
+					href="https://www.php.net/manual/en/function.var-dump.php" target="_blank">var_dump()</a>
+					.
+				</p>
+			</section>
+		</section>
+		<h3>Chiffrement des paramètres</h3>
+		<section>
+			<p class="fp-puce">Le chiffrement et la signature des données permettent de <b>cacher</b> et de
+				<b>protéger</b> les valeurs passées dans les URLs.</p>
+			<p class="fp-bottom0 fp-puce">
+				Le chiffrement de données n'est pas la même chose que la signature de
+				données (faite avec par exemple la méthode <a
+					href="https://www.php.net/manual/en/function.md5.php" target="_blank">md5</a>
+				bien connue) :
+			</p>
+			<ul class="fp-ul-puce">
+				<li>le chiffrement applique un algorithme de transformation sur
+					une chaîne de caractères en utilisant une clé de chiffrement et donne
+					en résultat la chaîne chiffrée. Celle-ci peut ensuite être déchiffrée
+					(on retrouve la chaîne originale) si on connaît la clé et
+					l'algorithme utilisés.</li>
+				<li>la signature de données applique un algorithme sur une chaîne de caractères 
+				et donne en résultat une autre chaîne de caractères, appelée aussi hash ou empreinte 
+				de la chaîne originale. Cette dernière, en général, ne permet pas de retrouver la chaîne 
+				originale, mais permettra de vérifier qu'elle n'a pas été altérée. 
+				La signature de données permet, par exemple, de vérifier un mot de passe, 
+				ou dans le cas d'une transmission de données de vérifier que la chaîne reçue correspond 
+				bien à la chaîne émise.
+				</li>
+			</ul>
+
+			<p class="fp-remarque">L'étude des différents
+				modes de chiffrement dépassent de loin le cadre de ce tutoriel et nous
+				n'entrerons pas dans les détails de tel ou tel algorithme.</p>
+
+			<h4>Chiffrer / déchiffrer</h4>
+			<section>
+				<p class="fp-puce">
+					Pour réaliser des chiffrements selon différentes méthodes et
+					algorithmes, nous allons utiliser l'extension <a
+						href="https://www.php.net/manual/en/ref.openssl.php" target="_blank">openSSL</a>
+					de PHP qui définit la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+					et son pendant <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a>.
+					
+					
+					Généralement cette extension est compilée avec PHP,
+					mais on peut s'en assurer avec la fonction <a
+						href="https://www.php.net/manual/en/function.function-exists.php" target="_blank">function_exists()</a>
+					très pratique pour savoir ce qui est disponible dans la
+					configuration ou version de PHP.
+				</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : vérification existence des fonctions de chiffrement
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Vérifier l\'existence d\'une fonction');
+
+htmlInfo('Fonction openssl_encrypt()');
+if (function_exists('openssl_encrypt')) {
+	echo 'utilisable';
+} else {
+	echo 'pas dans cette version PHP';
+}
+
+htmlInfo('Fonction htmlFin');
+echo (function_exists('htmlFin')) ? 'ok' : 'ko';
+
+htmlInfo('Fonction francois_piat');
+echo (function_exists('francois_piat')) ? 'ok' : 'ko';
+
+htmlFin();
+</textarea>
+				</form>
+
+
+
+				<p class="fp-puce">
+					Pour chiffrer/déchiffrer des données, on peut donc utiliser ces fonctions
+					<a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+					et <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a>
+					comme dans l'exemple suivant qui utilise l'algorithme AES (Advanced Encryption Standard) en mode CBC.
+				</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : chiffrement / déchiffrement
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Chiffrement / déchiffrement');
+
+htmlInfo('Clé de chiffrement');
+$cle = 'May the force be with you';
+echo $cle;
+
+htmlInfo('Chaîne à chiffrer');
+$val = 'François Piat';
+echo $val;
+
+//-- algorithme de chiffrement
+$cipher='AES-128-CBC';
+
+// -- longueur du vecteur d'initialisation
+$ivlen = openssl_cipher_iv_length($cipher);
+
+// -- génération du vecteur d'initialisation
+$iv = openssl_random_pseudo_bytes($ivlen);
+
+htmlInfo('Vecteur d\'initialisation');
+echo $iv;
+
+// -- chiffrement de $val
+$x = openssl_encrypt($val, $cipher, $cle, 
+                     OPENSSL_RAW_DATA, $iv);
+					 
+htmlInfo('Chaîne chiffrée');
+echo $x;
+
+// -- déchiffrement
+$y = openssl_decrypt($x, $cipher, $cle, 
+                     OPENSSL_RAW_DATA, $iv);
+					 
+htmlInfo('Chaîne déchiffrée');
+echo $y;
+
+htmlFin();
+</textarea>
+				</form>
+				<p class="fp-puce fp-bottom0">
+					Remarques :
+				</p>
+				<ul class="fp-ul-puce">
+				<li>
+				Pour chiffrer <span class="fp-code">$val</span>, la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+				utilise un algorithme (le paramètre <span class="fp-code">$cipher</span>), une clé de chiffrement <span class="fp-code">$cle</span>,
+				et un vecteur d'initialisation nommé <span class="fp-code">$iv</span>,
+				c'est à dire une chaîne pseudo-aléatoire d'octets, dont la longueur
+				<span class="fp-code">$ivlen</span> dépend de l'algorithme utilisé.
+				</li>
+				<li>
+					Avec l'option <span class="fp-code">OPENSSL_RAW_DATA</span>, la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+						renvoie une chaîne chiffrée binaire; cela signifie qu'elle contient des octets qui peuvent prendre n'importe quelle
+						valeur.
+				</li>
+				<li>
+					Pour retrouver la chaîne originale, la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a>
+					a besoin de l'algorithme utilisé, de la chaîne chiffrée, de la clé et du
+					<b>vecteur d'initialisation</b>.
+				</li>
+				<li>
+					A chaque fois qu'on chiffre une nouvelle donnée, il faut générer un nouveau vecteur d'initialisation.
+				</li>
+				<li>
+					Dans une "vraie" application Web, il ne faut pas envoyer directement au navigateur une chaîne binaire pouvant 
+					contenir n'importe quel octet. Si vous testez le code HTML généré avec le <a
+					href="https://validator.w3.org/" target="_blank">validateur W3C</a>, il y détectera des caractères interdits.
+					De même, la chaîne binaire pourrait contenir des caractères '&lt;' et '&gt;' ayant une signification particulière en HTML.
+					Nous le faisons ici uniquement dans un but pédagogique.
+				</li>
+				<li>
+					Le nombre <span class="fp-code">128</span> dans le nom de l'algorithme de chiffrement
+					<span class="fp-code">AES-128-CBC</span> indique la longueur de la clé de chiffrement en nombre de bits qu'il
+					faut utiliser avec cet algorithme :<br>
+					- 128 bits = 16 * 8 bits = 16 octets<br>
+					- si on utilise une clé plus longue, elle sera tronquée et seuls les 128 premiers bits seront utilisés pour chiffrer
+					les données.
+				</li>
+				</ul>
+				
+				<p class="fp-puce">Pour générer une clé de chiffrement "correcte" à utiliser avec l'algorithme
+				<span class="fp-code">AES-128-CBC</span>, on peut utiliser le script suivant :</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : génération d'une clé de chiffrement
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Génération d\'une clé de chiffrement');
+
+htmlInfo('Clé encodée en Base64');
+echo base64_encode(openssl_random_pseudo_bytes(16));
+
+htmlFin();
+</textarea>
+</form>
+		<p class="fp-remarque">
+			La fonction <a
+						href="https://www.php.net/manual/en/function.openssl-random-pseudo-bytes.php" target="_blank">openssl_random_pseudo_bytes()</a>
+			renvoie une chaine binaire qu'il ne faut donc pas afficher telle quelle dans le navigateur. La fonction <a
+						href="https://www.php.net/manual/en/function.base64-encode.php" target="_blank">base64_encode()</a>
+			permet d'encoder cette chaine binaire en <a href="https://fr.wikipedia.org/wiki/Base64" target="_blank">
+			Base64</a>, ce qui permet d'obtenir une chaîne ASCII qui la représente, 
+			qu'on peut envoyer sans problème au navigateur pour pouvoir la copier/coller dans le script qui suit.
+		</p>
+
+
+
+				<p class="fp-puce">Ré-écriture de l'exemple sur le passage de paramètres
+					dans une URL :</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : paramètres chiffrés dans des liens
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+//clé générée avec le script précédent
+define('CLE_CHIFFREMENT', 'ocKSOzNlBxCu1hsziDoUCQ==');
+
+htmlDebut('Paramètres chiffrés dans des liens');
+
+if (count($_GET)&gt; 0) {
+	afficherReception();
+	exit();
+}
+
+htmlInfo('Emission');
+
+$x = chiffrerURL('François Piat');
+
+$lien = $_SERVER['PHP_SELF'];
+$lien .= "?x=$x";
+$lien .= '&y='.chiffrerURL('bonjour les étudiants');
+$lien .= '&z='.chiffrerURL(12345);
+
+echo '&lt;hr&gt; DEBUG : strlen($x) = ', strlen($x) ,'&lt;hr&gt;';
+
+echo '&lt;a href="', $lien, '" target="_blank"&gt;Cliquez ici&lt;/a&gt;';
+
+htmlFin();
+
+/**
+ * Affichage des données reçues.
+ * 
+ * Contrôle de la validité :
+ * - du nombre de couple clé=valeur reçus
+ * - des noms de ces couples
+ *
+ * @return void
+ */
+function afficherReception() : void {
+	if (count($_GET) != 3){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	$t = array('x', 'y', 'z');
+	foreach($_GET as $cle =&gt; $val){
+		if (!in_array($cle, $t)){
+			echo 'Tentative de piratage ?';
+			htmlFin();
+			return;
+		}
+		htmlInfo("Réception $cle");
+		echo dechiffrerURL($val);
+	}
+	htmlFin();
+}
+
+/**
+ * Chiffre une valeur pour la passer dans une URL.
+ *
+ * @param  string		$val	La valeur à chiffrer
+ *
+ * @return string	La valeur chiffrée encodée URL
+ */
+function chiffrerURL(string $val) : string {
+	$cle = base64_decode(CLE_CHIFFREMENT);
+	// -- longueur du vecteur d'initialisation
+	$ivlen = openssl_cipher_iv_length($cipher='AES-128-CBC');
+	// -- génération du vecteur d'initialisation
+	$iv = openssl_random_pseudo_bytes($ivlen);
+	// -- chiffrement de $val
+	$x = openssl_encrypt($val, $cipher, $cle, 
+	                     OPENSSL_RAW_DATA, $iv);
+	$x = $iv.$x;
+	echo '&lt;hr&gt; DEBUG : ', strlen($x);
+	//$x = base64_encode($x); 
+	return urlencode($x);
+}
+
+/**
+ * Déchiffre une valeur chiffrée avec la fonction chiffrerURL()
+ *
+ * @param string	$x	La valeur à déchiffrer
+
+ * @return string|false		La valeur déchiffrée ou false
+ *                          si erreur
+ */
+function dechiffrerURL(string $x) : string|false {
+	$cle = base64_decode(CLE_CHIFFREMENT);
+	$ivlen = openssl_cipher_iv_length($cipher='AES-128-CBC');
+	//$x = base64_decode($x);
+	return @openssl_decrypt(substr($x, $ivlen), $cipher,
+	                       $cle, OPENSSL_RAW_DATA, 
+						   substr($x, 0, $ivlen));
+}
+</textarea>
+				</form>
+				<p class="fp-remarque">Le lien de l'exemple s'ouvrira dans un
+					nouvel onglet pour que vous puissiez voir/manipuler l'URL.</p>
+				<p class="fp-remarque">
+					La longueur de la chaîne chiffrée n'est pas constante.
+				</p>
+				<p class="fp-puce fp-inter2 fp-bottom0">
+					La clé de chiffrement est définie par une constante. <br>Pour être capable de déchiffrer
+					la chaîne chiffrée à la réception des paramètres, il faut transmettre dans l'URL la chaîne chiffrée (retournée
+					par <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>) et
+					le vecteur d'initialisation <span class="fp-code">$iv</span>. Comme le vecteur d'initialisation <span class="fp-code">$iv</span>
+					a toujours la même longueur, nous pouvons les concaténer : on sera capable de séparer les 2 chaines lors de la
+					réception.
+					Ces 2 chaînes sont des chaînes binaires. Il est
+					donc absolument nécessaire de les encoder avec <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a>
+					si on veut les passer dans une URL.</p>
+				<p class="fp-puce fp-bottom0">
+					La fonction <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a>
+					remplace tous les caractères non alphanumériques (hormis -_.) par des séquences commençant par un caractère 
+					pourcentage (%), suivi de deux chiffres hexadécimaux. Les espaces sont remplacés par des signes plus (+).
+					Cela signifie que tous les octets qui ne sont pas
+					des codes ASCII de caractères alphanumériques, ou du caractère (-), ou du caractère (_), ou du
+					caractère (.) ou du caractère espace ( ) sont remplacés
+					par 3 octets. Donc, quand on lui fournit une chaîne binaire pseudo-aléatoire, la fonction <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a> 
+					remplace (256 - (26*2 + 10 + 4))/256 &ap; 75% des octets par 3 octets (les 25% restant ne sont pas modifiés, 
+					sauf l'espace qui est transformé en signe plus (+)). <br>Conclusion :
+					l'encodage d'une chaine binaire pseudo-aléatoire
+					de longueur L avec <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a> donne, en moyenne,
+					une chaîne ASCII de longueur<br> (L/4 + 3*3L/4) = 2,5L.
+				</p>
+
+				<p class="fp-puce">
+					Décommentez maintenant les appels des fonctions <a
+						href="https://www.php.net/manual/en/function.base64-encode.php" target="_blank">base64_encode()</a> et <a
+						href="https://www.php.net/manual/en/function.base64-decode.php" target="_blank">base64_decode()</a>
+					dans l'exemple précédent, et vous 
+					constaterez que l'appel de <a
+						href="https://www.php.net/manual/en/function.base64-encode.php" target="_blank">base64_encode()</a> avant
+					celui de <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a>
+					permet de réduire dans des proportions importantes la longueur de la "query string". En effet, le
+					passage de la chaine à transmettre par la fonction <a
+						href="https://www.php.net/manual/en/function.base64-encode.php" target="_blank">base64_encode()</a>
+					multiplie sa longueur approximativement par 4/3=1,33 (24 bits dans la chaine d'origine, soit 3 octets, 
+					sont codés sur 4 octets dans la chaîne encodée en <a href="https://fr.wikipedia.org/wiki/Base64" target="_blank">
+					Base64</a>). Mais comme le codage en <a href="https://fr.wikipedia.org/wiki/Base64" target="_blank">
+					Base64</a> utilise 65 caractères dont 62 sont alphanumériques, après passage par la fonction <a
+						href="https://www.php.net/manual/en/function.urlencode.php" target="_blank">urlencode()</a>,
+					
+					on obtient au final une chaîne 
+					encodée URL de longueur à peine supérieure à la longueur de la chaine encodée en
+					<a href="https://fr.wikipedia.org/wiki/Base64" target="_blank">
+					Base64</a>.
+						
+				</p>
+
+				<p class="fp-remarque">L'opérateur <span class="fp-code">@</span> (arobase) de <a
+						href="https://www.php.net/manual/en/language.operators.errorcontrol.php" target="_blank">contrôle d'erreur</a>
+				est ajouté lors de l'appel de la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a> afin de supprimer l'affichage d'un warning qui apparait notamment lorsqu'un des paramètres reçus, <span class="fp-code">x</span>, <span class="fp-code">y</span> ou <span class="fp-code">z</span>, a une longueur égale à 1 octet (suite à une modification de l'URL).
+				</p>
+				
+			<!--	<p>
+					7/09/2022 : PHP Version 8.1.2
+					Quand on change un caractère pour un autre dans l'URL, le résultat du déchiffrement peut effectivement donner
+					n'importe quoi. ex Frankoi Piat.
+					En revanche, quand je supprime un caractère, openssl_decrypt() renvoie false.
+				</p>-->
+
+			</section>
+
+			<h4>Signer le chiffrement</h4>
+			<section>
+				<p class="fp-puce">Si nous nous arrêtons au point précédent, certes les données transmises 
+					dans la "query string" sont 
+					chiffrées donc inintelligibles, mais
+					nous avons un problème : rien ne garantit que la
+					donnée reçue et déchiffrée est bien la même que celle qui a été
+					chiffrée et envoyée. On peut toujours modifier manuellement l'URL et
+					on obtiendra toujours quelque chose au déchiffrement, même si ce
+					quelque chose est totalement incohérent. Dans le cas d'un nombre
+					attendu, on pourra, si on reçoit une chaîne non numérique, se douter que l'URL a été modifiée, mais dans le
+					cas d'une chaîne de caractères attendue, on aura plus de mal à
+					définir si on est bien en face d'une tentative de corruption.<br>
+					Pour vous en convaincre, essayez, dans l'exemple précédent, de remplacer 
+					un caractère par un autre dans la valeur
+					d'un couple clé=valeur, avec ou sans appel des fonctions <a
+						href="https://www.php.net/manual/en/function.base64-encode.php" target="_blank">base64_encode()</a> et <a
+						href="https://www.php.net/manual/en/function.base64-decode.php" target="_blank">base64_decode()</a>.
+				</p>
+
+				<p class="fp-puce fp-bottom0">
+					C'est ici que la signature de données intervient. Avec de tels
+					algorithmes ("md5", "sha256", "haval160,4", "crc32", etc) nous allons pouvoir vérifier
+					si les données reçues sont bien égales aux données émises. Pour cela :
+				</p>
+				<ul class="fp-ul-puce">
+					<li> on calcule la signature de la chaine chiffrée émise;
+					<li> on transmet cette signature dans l'URL;
+					<li> à la réception, on calcule la signature de la chaine chiffrée reçue;
+					<li> on compare la signature reçue avec la signature calculée à la réception;
+					<li> si les 2 signatures sont égales, on considère que la chaine chiffrée émise est égale à la chaine chiffrée reçue;
+					sinon, on est sûr que la "query string" a été modifiée.
+				</ul>
+				<p class="fp-puce">
+					Nous utiliserons la fonction <a
+						href="https://www.php.net/manual/en/function.hash-hmac.php" target="_blank">hash_hmac()</a>
+					pour signer nos paramètres. On doit fournir à cette fonction le nom
+					de l'algorithme à utiliser. Le choix est très grand : voir la documentation de la fonction <a
+					href="https://www.php.net/manual/en/function.hash-hmac-algos.php" target="_blank">hash_hmac_algos()</a> 
+					pour une liste des algorithmes disponibles. 
+					Dans l'exemple suivant,
+					nous utiliserons l'algorithme de hachage 'sha256'
+				    qui renvoie une
+					signature de 32 octets (soit 256 bits) de long.
+				</p>
+				
+				<p class="fp-puce">
+					Pour utiliser l'algorithme de hachage 'sha256', nous devons générer une clé de 32 octets :
+				</p>
+				
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : génération des clés de chiffrement et de hachage
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Génération des clés');
+
+htmlInfo('Clé de chiffrement encodée en Base64');
+echo base64_encode(openssl_random_pseudo_bytes(16));
+
+htmlInfo('Clé de hachage encodée en Base64');
+echo base64_encode(openssl_random_pseudo_bytes(32));
+
+htmlFin();
+</textarea>
+</form>
+				
+				<p class="fp-remarque">
+					Un algorithme de hachage renvoie toujours une signature de la
+					même longueur, quelque soit la longueur de la chaîne de caractères
+					qui est signée.<br>Par exemple sha1 renverra une signature de
+					40 octets, sha224 de 56 octets, sha512 de 128 octets,
+					md5 de 32 octets, etc.
+				</p>
+
+				<p class="fp-puce">Comme la signature est de longueur fixe, nous pouvons également
+					la concaténer avec la chaîne chiffrée et le vecteur d'initialisation
+					<span class="fp-code">$iv</span>, et transmettre le tout dans la valeur
+					d'un couple clé=valeur (nous choisissons dans l'exemple ci-dessous de transmettre
+					le vecteur d'initialisation suivi de la chaine chiffrée au milieu de la signature de
+					la chaine chiffrée pour "brouiller les pistes").
+				</p>
+				
+				
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : paramètres chiffrés et signés dans des
+						liens
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+//clés générées avec le script précédent
+define('CLE_CHIFFREMENT', 'ocKSOzNlBxCu1hsziDoUCQ==');
+define('CLE_HACHAGE', 
+       'IFQ64afec21PL5xvnv2WyzfUuiDl7n5vwl5GAvuDENA=');
+
+htmlDebut('Paramètres chiffrés et signés dans des liens');
+
+if (count($_GET)&gt; 0) {
+	afficherReception();
+	exit();
+}
+
+htmlInfo('Emission');
+
+$lien = $_SERVER['PHP_SELF'];
+$lien .= '?x='.chiffrerSignerURL('François Piat');
+$lien .= '&y='.chiffrerSignerURL('5=4+1');
+$lien .= '&z='.chiffrerSignerURL(12345);
+
+echo '&lt;a href="', $lien, '" target="_blank"&gt;Cliquez ici&lt;/a&gt;';
+
+htmlFin();
+
+/**
+ * Affichage des données reçues.
+ * 
+ * Contrôle de la validité :
+ * - du nombre de couple clé=valeur reçus
+ * - des noms de ces couples
+ * Vérifie que les données reçues sont égales à celles
+ * qui ont été émises
+ *
+ * @return void
+ */
+function afficherReception() : void {
+	if (count($_GET) != 3){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	$t = array('x', 'y', 'z');
+	foreach($_GET as $cle =&gt; $val){
+		if (! in_array($cle, $t)){
+			echo 'Tentative de piratage ?';
+			htmlFin();
+			return;
+		}
+		htmlInfo("Réception $cle");
+		$r = dechiffrerSignerURL($val);
+		if ($r === false){
+			echo 'Tentative de piratage ?';
+			htmlFin();
+			return;
+		}
+		echo $r;
+	}
+	htmlFin();
+}
+
+/**
+ * Chiffre une valeur pour la passer dans une URL.
+ *
+ * @param  string		$val	La valeur à chiffrer
+ *
+ * @return string	La valeur chiffrée encodée URL
+ */
+function chiffrerSignerURL(string $val) : string {
+	// -- longueur du vecteur d'initialisation
+	$ivlen = openssl_cipher_iv_length($cipher='AES-128-CBC');
+	// -- génération du vecteur d'initialisation
+	$iv = openssl_random_pseudo_bytes($ivlen);
+	// -- chiffrement de $val
+	$x = openssl_encrypt($val, $cipher, 
+						 base64_decode(CLE_CHIFFREMENT),
+	                     OPENSSL_RAW_DATA, $iv);
+	// -- calcul de la signature de la valeur chiffrée
+	$hmac = hash_hmac('sha256', $x, 
+	                  base64_decode(CLE_HACHAGE), true);
+	$sha2len=32;
+	$x = substr($hmac, 0, $sha2len/2)
+	     .$iv.$x.substr($hmac, $sha2len/2);
+	$x = base64_encode($x);
+	return urlencode($x);
+}
+
+/**
+ * Déchiffre une valeur chiffrée avec la chiffrerSignerURL()
+ *
+ * @param  string	     $x	La valeur à déchiffrer
+ *
+ * @return string|false	 La valeur déchiffrée ou false
+ *  					 si erreur
+ */
+function dechiffrerSignerURL(string $x) : string|false {
+	$ivlen = openssl_cipher_iv_length($cipher='AES-128-CBC');
+	$x = base64_decode($x);
+	$sha2len=32;
+	$hmac = substr($x, 0, $sha2len/2).substr($x, -$sha2len/2);
+	$iv = substr($x, $sha2len/2, $ivlen);
+	$x = substr($x, $sha2len/2 + $ivlen, -$sha2len/2);
+	// calcul de  la signature de la chaine chiffrée reçue
+	$hmacCalc = hash_hmac('sha256', $x, 
+	                      base64_decode(CLE_HACHAGE), true);
+	if (! hash_equals($hmac, $hmacCalc)){
+		return false;
+	}
+	return openssl_decrypt($x, $cipher, 
+	                       base64_decode(CLE_CHIFFREMENT),
+	                       OPENSSL_RAW_DATA, $iv);
+}
+</textarea>
+				</form>
+
+				<p class="fp-remarque">Le lien de l'exemple s'ouvrira dans un
+					nouvel onglet pour que vous puissiez voir/manipuler l'URL.</p>
+				<p class="fp-puce">
+					La fonction <a
+						href="https://www.php.net/manual/en/function.hash-equals.php" target="_blank">hash_equals()</a>
+					compare deux chaînes en utilisant toujours le même temps de calcul, qu'elles soient égales ou pas. Elle
+					est utilisée pour ne pas donner d'indications "temporelles" à d'éventuels hackers.<p>
+				<p class="fp-remarque">
+					Quand PHP compare 2 chaînes avec l'opérateur <span class="fp-code">==</span>,
+					le temps de calcul dépend de la position du premier caractère différent dans les 2 chaines; 
+					plus le nombre de caractères identiques placés au début des 2 chaines augmente, plus
+					la durée de la comparaison augmente.
+
+				</p>
+
+				<p class="fp-puce fp-inter2">Pour éviter d'avoir des URLs trop
+					longues et avec trop d'éléments et de calcul de chiffrement /
+					signature à faire, on peut concaténer les valeurs des paramètres
+					avec un caractère séparateur comme dans l'exemple suivant.</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : paramètres chiffrés et signés dans des
+						liens
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+//clés
+define('CLE_CHIFFREMENT', 'ocKSOzNlBxCu1hsziDoUCQ==');
+define('CLE_HACHAGE', 
+       'IFQ64afec21PL5xvnv2WyzfUuiDl7n5vwl5GAvuDENA=');
+
+htmlDebut('Paramètres chiffrés et signés dans des liens');
+
+if (count($_GET)&gt; 0) {
+	afficherReception();
+	exit();
+}
+
+htmlInfo('Emission');
+
+$x = 'François Piat';
+$y = '5=4+1';
+$z = 12345;
+
+$xyz = chiffrerSignerURL(implode('|', array($x, $y, $z)));
+
+echo '&lt;hr&gt; DEBUG : strlen($xyz) = ', strlen($xyz) ,'&lt;hr&gt;';
+
+echo '&lt;a href="', $_SERVER['PHP_SELF'], '?xyz=', $xyz,
+     '" target="_blank"&gt;Cliquez ici&lt;/a&gt;';
+
+htmlFin();
+
+/**
+ * Affichage des données reçues.
+ * 
+ * Contrôle de la validité :
+ * - du nombre de couple clé=valeur reçus
+ * - du nom du couple attendu
+ * Vérifie que les données reçues sont égales à celles
+ * qui ont été émises
+ *
+ * @return void
+ */
+function afficherReception() : void {
+	if (count($_GET) != 1){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	if (!isset($_GET['xyz'])){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	$xyz = dechiffrerSignerURL($_GET['xyz']);
+	if ($xyz === false){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	$xyz = explode('|', $xyz);
+	// on n'est jamais trop prudent !
+	if (count($xyz) != 3){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	list($x, $y, $z) = $xyz;
+	
+	htmlInfo('Réception x');
+	echo $x;
+	htmlInfo('Réception y');
+	echo $y;
+	htmlInfo('Réception z');
+	echo $z;
+	
+	htmlFin();
+}
+
+/**
+ * Chiffre une valeur pour la passer dans une URL.
+ *
+ * @param  string	$val	La valeur à chiffrer
+ *
+ * @return string	La valeur chiffrée encodée URL
+ */
+function chiffrerSignerURL(string $val) : string{
+	// -- longueur du vecteur d'initialisation
+	$ivlen = openssl_cipher_iv_length($cipher='AES-128-CBC');
+	// -- génération du vecteur d'initialisation
+	$iv = openssl_random_pseudo_bytes($ivlen);
+	// -- chiffrement de $val
+	$x = openssl_encrypt($val, $cipher, 
+						 base64_decode(CLE_CHIFFREMENT),
+	                     OPENSSL_RAW_DATA, $iv);
+	// -- calcul de la signature de la valeur chiffrée
+	$hmac = hash_hmac('sha256', $x, 
+	                  base64_decode(CLE_HACHAGE), true);
+	$sha2len=32;
+	$x = substr($hmac, 0, $sha2len/2)
+	     .$iv.$x.substr($hmac, $sha2len/2);
+	$x = base64_encode($x);
+	return urlencode($x);
+}
+
+/**
+ * Déchiffre une valeur chiffrée avec la chiffrerSignerURL()
+ *
+ * @param string			$x	La valeur à déchiffrer
+
+ * @return string|false		La valeur déchiffrée ou false
+ *                          si erreur
+ */
+function dechiffrerSignerURL(string $x) : string|false {
+	$ivlen = openssl_cipher_iv_length($cipher='AES-128-CBC');
+	$x = base64_decode($x);
+	$sha2len=32;
+	$hmac = substr($x, 0, $sha2len/2).substr($x, -$sha2len/2);
+	$iv = substr($x, $sha2len/2, $ivlen);
+	$x = substr($x, $sha2len/2 + $ivlen, -$sha2len/2);
+	// calcul de  la signature de la chaine chiffrée reçue
+	$hmacCalc = hash_hmac('sha256', $x, 
+	                      base64_decode(CLE_HACHAGE), true);
+	if (! hash_equals($hmac, $hmacCalc)){
+		return false;
+	}
+	return openssl_decrypt($x, $cipher, 
+	                       base64_decode(CLE_CHIFFREMENT),
+	                       OPENSSL_RAW_DATA, $iv);
+}
+</textarea>
+				</form>
+
+				<p class="fp-remarque">Le lien de l'exemple s'ouvrira dans un
+					nouvel onglet pour que vous puissiez voir/manipuler l'URL.</p>
+					
+				<p class="fp-puce fp-inter2">
+					La version 7.1 de PHP a ajouté des paramètres aux fonctions <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+					et <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a>
+					
+					permettant d'<b>authentifier</b> la chaine chiffrée lors du déchiffrement.<br>
+					La fonction <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+					renvoie toujours la chaine chiffrée, et on récupère, dans
+					la chaîne <span class="fp-code">$tag</span> transmise par référence, une chaine
+					permettant d'<b>authentifier</b> la chaine chiffrée reçue.
+					Notez bien que la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+					écrit dans <span class="fp-code">$tag</span>.<br>
+					Cette chaîne <span class="fp-code">$tag</span> doit ensuite être transmise à la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a>
+					qui va la lire afin d'authentifier la chaîne chiffrée reçue.
+					
+				</p>
+				
+				<p class="fp-puce">
+					Pour pouvoir utiliser ces paramètres supplémentaires et donc le paramètre supplémentaire
+					<span class="fp-code">$tag</span>, il faut utiliser un algorithme
+					en mode AEAD (GCM ou CCM).
+				</p>
+				<p class="fp-puce">
+					
+				</p>
+				<p class="fp-puce">
+					Dans l'exemple suivant, on utilise toujours l'algorithme AES-128, mais cette fois-ci en mode GCM : il 
+					<b>chiffre ET signe</b> les données. La fonction <a
+						href="https://www.php.net/manual/en/function.openssl-encrypt.php" target="_blank">openssl_encrypt()</a>
+					permet de fixer la longueur du tag d'authentification. Sa valeur peut être entre 4 et 16 pour le mode GCM. 
+					Dans l'exemple suivant, on utilise la valeur par défaut du paramètre correspondant : 
+					le tag d'authentification
+					a une longueur fixe égale à 16 octets.
+					
+				</p>
+				
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : paramètres chiffrés et signés dans des
+						liens
+					</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+define('CLE_CHIFFREMENT', 'ocKSOzNlBxCu1hsziDoUCQ==');
+
+htmlDebut('Paramètres chiffrés et signés dans des liens');
+
+if (count($_GET)&gt; 0) {
+	afficherReception();
+	exit();
+}
+
+htmlInfo('Emission');
+
+$x = 'François Piat';
+$y = '5=4+1';
+$z = 12345;
+
+$xyz = chiffrerSignerURL(implode('|', array($x, $y, $z)));
+
+echo '&lt;hr&gt; DEBUG : strlen($xyz) = ', strlen($xyz) ,'&lt;hr&gt;';
+
+echo '&lt;a href="', $_SERVER['PHP_SELF'], '?xyz=', $xyz,
+     '" target="_blank"&gt;Cliquez ici&lt;/a&gt;';
+
+htmlFin();
+
+/**
+ * Affichage des données reçues.
+ * 
+ * Contrôle de la validité :
+ * - du nombre de couple clé=valeur reçus
+ * - du nom du couple attendu
+ * Vérifie que les données reçues sont égales à celles
+ * qui ont été émises
+ *
+ * @return void
+ */
+function afficherReception() : void {
+	if (count($_GET) != 1){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	if (!isset($_GET['xyz'])){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	$xyz = dechiffrerSignerURL($_GET['xyz']);
+	if ($xyz === false){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	$xyz = explode('|', $xyz);
+	// on n'est jamais trop prudent !
+	if (count($xyz) != 3){
+		echo 'Tentative de piratage ?';
+		htmlFin();
+		return;
+	}
+	list($x, $y, $z) = $xyz;
+	
+	htmlInfo('Réception x');
+	echo $x;
+	htmlInfo('Réception y');
+	echo $y;
+	htmlInfo('Réception z');
+	echo $z;
+	
+	htmlFin();
+}
+
+/**
+ * Chiffre une valeur pour la passer dans une URL.
+ *
+ * @param  string	$val	La valeur à chiffrer
+ *
+ * @return string	La valeur chiffrée encodée URL
+ */
+function chiffrerSignerURL(string $val) : string {
+	$ivlen = openssl_cipher_iv_length($cipher='aes-128-gcm');
+	$iv = openssl_random_pseudo_bytes($ivlen);
+	// $tag (tag d'authentification)
+	// est une chaîne transmise par référence
+	$x = openssl_encrypt($val, $cipher, 
+						 base64_decode(CLE_CHIFFREMENT),
+	                     OPENSSL_RAW_DATA, $iv, $tag);
+	$x = $iv.$tag.$x;
+	$x = base64_encode($x);
+	return urlencode($x);
+}
+
+/**
+ * Déchiffre une valeur chiffrée avec la chiffrerSignerURL()
+ *
+ * @param string			$x	La valeur à déchiffrer
+
+ * @return string|false		La valeur déchiffrée ou false
+ *                          si erreur
+ */
+function dechiffrerSignerURL(string $x) : string|false {
+	$x = base64_decode($x);
+	$ivlen = openssl_cipher_iv_length($cipher='aes-128-gcm');
+	$iv = substr($x, 0, $ivlen);
+	$taglen = 16;
+	$tag = substr($x, $ivlen, $taglen);
+	$x = substr($x, $ivlen + $taglen);
+	return @openssl_decrypt($x, $cipher,
+	                       base64_decode(CLE_CHIFFREMENT),
+						   OPENSSL_RAW_DATA, $iv, $tag);
+}
+</textarea>
+				</form>
+
+				<p class="fp-remarque">Le lien de l'exemple s'ouvrira dans un
+					nouvel onglet pour que vous puissiez voir/manipuler l'URL.</p>
+
+				<p class="fp-remarque">L'opérateur <span class="fp-code">@</span> (arobase) de <a
+						href="https://www.php.net/manual/en/language.operators.errorcontrol.php" target="_blank">contrôle d'erreur</a>
+				est ajouté lors de l'appel de la fonction <a
+						href="https://www.php.net/manual/en/function.openssl-decrypt.php" target="_blank">openssl_decrypt()</a> afin de supprimer l'affichage d'un warning qui apparait notamment lorsque le paramètre <span class="fp-code">xyz</span> reçu est vide (suite à une modification de l'URL).
+				</p>
+				
+			</section>
+		</section>
+		
+		
+	</div>
+	<footer></footer>
+</body>
+</html>

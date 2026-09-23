@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lire un fichier sur le web</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p class="fp-puce">
+			Si on passe une URL à la fonction <a
+				href="https://www.php.net/manual/en/function.fopen.php" target="_blank">fopen()</a>,
+			on peut ouvrir un fichier situé sur un autre serveur sur le réseau
+			Internet.
+		</p>
+		<p class="fp-puce fp-bottom0">On utilisera ensuite les fonctions :</p>
+		<ul class="fp-ul-puce">
+			<li><a
+				href="https://www.php.net/manual/en/function.fgets.php" target="_blank">fgets()</a>
+				qui <b>lit la ligne courante</b> du fichier, et la renvoie ,</li>
+			<li><a
+				href="https://www.php.net/manual/en/function.feof.php" target="_blank">feof()</a>
+				qui <b>teste si la fin de fichier</b> est atteinte,</li>
+			<li><a
+				href="https://www.php.net/manual/en/function.fclose.php" target="_blank">fclose()</a>
+				qui <b>ferme</b> le flux.</li>
+		</ul>
+
+		<p>L'exemple suivant ouvre et lit la page d'accueil du site
+			www.php.net.</p>
+
+		<p class="fp-remarque">Remarque : pour tester l'exemple, vous
+			devez avoir une connexion Internet ouverte.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : lire un fichier sur Internet
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier sur Internet');
+
+$nom = 'http://www.php.net/';
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+
+if ($flux === FALSE) {
+	htmlInfo("'$nom' n'est pas accessible");
+	htmlFin();
+	exit();
+}
+
+// Lecture du fichier
+htmlInfo("Contenu du fichier '$nom'");
+while (! feof($flux)) {
+  $buffer = fgets($flux);
+  if ($buffer === false){
+	break;
+  }
+  echo htmlentities($buffer, encoding:'UTF-8');
+}
+// compte tenu du break, on pourrait
+// faire un while(true)
+
+// Fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+}
+
+htmlFin();</textarea>
+		</form>
+
+		<p class="fp-remarque">
+			Pour afficher le contenu du fichier nous utilisons la fonction <a
+				href="https://www.php.net/manual/en/function.htmlentities.php" target="_blank">htmlentities()</a>,
+			sinon ce contenu qui est du code HTML serait interprété par le
+			navigateur, et non pas affichée comme du texte.
+		</p>
+
+		<p class="fp-puce">Le fait de pouvoir ouvrir un fichier sur
+			Internet, ne garantit pas que ce fichier existe réellement car le
+			plus souvent, les serveurs Web ont un mécanisme de personnalisation
+			d'erreur qui affiche une page si l'URL demandée n'est pas bonne.</p>
+		<p>L'exemple suivant essaye de lire le fichier
+			www.php.net/quelaforcesoitavectoi.html, qui bien sûr n'existe pas
+			(enfin, je pense). Le serveur fait une redirection sur une page
+			signalant l'erreur et proposant une recherche. L'exemple affiche
+			d'abord le code HTML retourné, puis le code interprété.</p>
+		<p class="fp-remarque">Remarque : pour tester l'exemple, vous
+			devez avoir une connexion Internet ouverte.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : lire un fichier sur Internet
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier sur Internet');
+
+$nom = 'http://www.php.net/quelaforcesoitavectoi.html';
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+
+if ($flux === FALSE) {
+	htmlInfo("'$nom' n'est pas accessible");
+	htmlFin();
+	exit();
+}
+
+// Lecture du fichier
+$buffer = '';
+while (! feof($flux ) ) {
+  $buffer .= fgets($flux);
+}
+// si on concatène false à une chaîne,
+// la chaîne résultante est égale à la
+// chaîne initiale, car la valeur false
+// est convertie en chaîne vide.
+
+// Fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+}
+
+
+// Affichage du fichier
+htmlInfo("Contenu du fichier '$nom'");
+
+htmlInfo('Contenu non interprété');
+echo htmlentities($buffer, encoding:'UTF-8');
+
+htmlInfo('Contenu interprété');
+echo $buffer;
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-puce fp-inter2">Si le fichier n'existe pas et
+			qu'aucun mécanisme de redirection n'est mis en place on obtient le
+			résultat suivant.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : lire un fichier sur Internet
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier sur Internet');
+
+$nom = 'http://www.francoispiat.fr/xxxxxx.html';
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+
+if ($flux === FALSE) {
+	htmlInfo("'$nom' n'est pas accessible");
+	htmlFin();
+	exit();
+}
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-remarque">
+			Nous vous rappelons que sans l'opérateur <span class="fp-code">@</span>, l'échec de
+			l'ouverture entraînerait l'affichage d'un message d'erreur de type warning, qui donnerait notamment le chemin absolu du script,
+			et donc des renseignements sur les dossiers du serveur. C'est pourquoi, nous vous conseillons de <b>toujours préfixer</b> les appels des <b>fonctions qui ouvrent un fichier</b> avec
+				l'<b>opérateur <span class="fp-code">@</span></b>.
+		</p>
+
+
+		<p class="fp-puce">
+			Quand on ouvre un fichier sur Internet, on récupère dans le tableau à indices numériques
+			<a href="https://www.php.net/manual/en/reserved.variables.httpresponseheader.php" target="_blank">
+			<span class="fp-code">$http_response_header</span></a> toutes les en-têtes
+			HTTP contenus dans la réponse renvoyée par le serveur sur lequel on a ouvert le fichier.
+		</p>
+		<p class="fp-remarque">Remarque : pour tester l'exemple, vous
+			devez avoir une connexion Internet ouverte.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : lire un fichier sur Internet
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Contenu du tableau des en-têtes HTTP');
+
+$nom = 'http://www.php.net/';
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+
+if ($flux === FALSE) {
+	htmlInfo("'$nom' n'est pas accessible");
+	htmlFin();
+	exit();
+}
+
+
+// Fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+}
+
+
+foreach($http_response_header as $entete) {
+	htmlInfo('En-tete');
+	echo $entete;
+}
+
+htmlFin();
+</textarea>
+		</form>
+
+		<footer></footer>
+	</div>
+</body>
+</html>

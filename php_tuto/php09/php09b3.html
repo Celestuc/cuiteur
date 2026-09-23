@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ecrire dans un fichier</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<p class="fp-bottom0">
+			Pour les exemples, nous utiliserons le fichier &quot;<span
+				class="fp-code">commentaires.txt</span>&quot; du dossier <span
+				class="fp-code">test_fichiers</span>.
+		</p>
+
+		<p class="fp-remarque fp-inter2">
+			Si vous ne voyez pas le dossier <span class="fp-code">test_fichiers</span>
+			et le fichier <span class="fp-code">commentaires.txt</span>, ou si
+			vous voulez le ré-initialiser <a
+				onclick="top.FP.Voir.showPLUS('exemple/init_chap09.php?x=f')">utilisez
+				ce script</a>.
+		</p>
+
+		<p class="fp-puce">
+			La fonction <a
+				href="https://www.php.net/manual/en/function.fwrite.php" target="_blank">fwrite()</a>
+			permet d'écrire du contenu dans un fichier.
+		</p>
+		<p class="fp-puce">
+			Comme nous voulons ajouter du contenu à la fin du fichier,
+			le fichier doit être ouvert (avec la fonction <a
+					href="https://www.php.net/manual/en/function.fopen.php" target="_blank">fopen()</a>)
+			en mode <b>append</b> : la valeur du paramètre spécifiant type d'opération (<span class="fp-code">$mode</span>)
+			sera donc fixé à la valeur <span class="fp-code">'a'</span>.
+			Ainsi si le fichier n'existait pas, la fonction tenterait de le créer. Si
+			le fichier peut être ouvert (ou créé), la fonction renvoie une variable de type <span class="fp-code">resource</span>
+					représentant un <b><i>flux</i></b> (<i>stream</i> en anglais) associé au fichier physique.
+
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : écrire dans un fichier
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Ecrire dans un fichier');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+$zones = array();
+$zones[] = 'Piat';
+$zones[] = 'francois.piat@univ-fcomte.fr';
+$zones[] = date('d/m/Y');
+$zones[] = 'C\'est mon commentaire';
+
+// Les guillemets doubles sont obligatoires pour que
+// le \n soit bien interprété.
+$enreg = implode('|', $zones) . "\n";
+
+
+// ouverture du fichier en mode append
+$flux = @fopen($nom, 'a');
+if ($flux === FALSE) {
+	htmlInfo("Erreur lors de l'ouverture de '$nom'");
+	htmlFin();
+	exit();
+}
+
+// Ecriture de l'enregistrement en fin de fichier
+fwrite($flux, $enreg);
+
+// Fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+}
+
+
+htmlInfo('Fichier écrit');
+echo 'La preuve &lt;a href="lire_fichier.php?file=',
+	  urlencode($nom),
+	  '" target="_blank"&gt;ici&lt;/a&gt;', ' ou ',
+	 '&lt;a href="', $nom, '" target="_blank"&gt;là&lt;/a&gt;';
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p>
+		Le code du script <span class="fp-code">lire_fichier.php</span> est donné ci-dessous :
+		</p>
+
+<pre data-code="PHP">
+&lt;?php
+
+error_reporting(E_ALL);
+
+require_once 'bib_fonctions.php';
+
+if (count($_GET) != 1){
+    htmlDebut('Lecture d\'un fichier');
+    htmlInfo('Seul un paramètre \'file\' doit être présent l\'URL');
+    htmlFin();
+    exit();
+}
+
+
+if (! isset($_GET['file'])){
+    htmlDebut('Lecture d\'un fichier');
+    htmlInfo('Pas de paramètre \'file\' dans l\'URL');
+    htmlFin();
+    exit();
+}
+
+$nom = $_GET['file'];
+
+if (! is_file($nom)) {
+    htmlDebut('Lecture d\'un fichier');
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+htmlDebut("Lecture du fichier '$nom'");
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+if ($flux === false){
+	htmlInfo("Erreur lors de l'ouverture de '$nom'");
+	htmlFin();
+	exit();
+}
+
+echo '&lt;pre&gt;';
+// boucle de lecture
+while (true){
+	$line = fgets($flux);
+	if ($line === false){
+		break;
+	}
+	echo htmlspecialchars($line, encoding:'UTF-8');
+}
+echo '&lt;/pre&gt;';
+// fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+	htmlFin();
+	exit();
+}
+
+htmlFin();
+</pre>
+
+
+		<p class="fp-puce">
+			On peut réaliser une interface d'affichage et de saisie
+			pour les commentaires. On utilisera les techniques déjà vue dans le
+			chapitre "Web et PHP" et "MySQL" pour faire un formulaire en
+			auto-soumission, avec vérification de la saisie, et lecture /
+			écriture du fichier <span class="fp-code">commentaires.txt</span> (à
+			la place d'une table dans une base de données).
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : interface de saisie / affichage
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Saisie / affichage des commentaires');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+// sans ce test, le fichier est créé s'il n'existe pas
+//if (! is_file($nom)) {
+//	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+//	           .' régulier');
+//	htmlFin();
+//	exit();
+//}
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'a+');
+if ($flux === false){
+	htmlInfo("Erreur lors de l'ouverture de '$nom'");
+	htmlFin();
+	exit();
+}
+
+$errs = [];
+
+// Phase de soumission du formulaire
+// -&gt; vérification de la saisie
+// -&gt; si OK : ajout dans le fichier
+if (isset($_POST['btnSubmit'])) {
+	$errs = verifierForm();
+	if (count($errs) == 0) {
+		ajouterComment();
+	}
+}
+
+// Lecture du fichier et affichage des commentaires
+
+// pour positionner l'offset au début du fichier
+// lorsqu'un commentaire a été ajouté en fin de fichier
+rewind($flux);
+
+while (! feof($flux)){
+	$ligne = fgets($flux);
+	if ($ligne === false){
+		continue;
+	}
+	$champs = explode('|', trim($ligne));
+	if (count($champs) != 4){
+		continue;
+	}
+	htmlInfo("{$champs[0]} a écrit le {$champs[2]}");
+	affComment($champs[3]);
+}
+
+
+// Affichage du formulaire de saisie
+htmlInfo('Votre commentaire :');
+
+$zones = array('txtNom' =&gt; '',
+			   'txtMail' =&gt; '',
+			   'txtCom' =&gt; '');
+
+if (count($errs) > 0){
+	echo '&lt;p style="color:red"&gt;',
+		 'Les erreurs suivantes ont été détectées :&lt;br&gt;';
+	foreach($errs as $err){
+		echo '- ', $err, '&lt;br&gt;';
+	}
+	echo '&lt;/p&gt;';
+
+	unset($_POST['btnSubmit']); //facultatif
+	$zones = tabProtegerSorties($_POST);
+}
+
+echo '&lt;form method="post" ',
+		'action="', $_SERVER['PHP_SELF'], '" &gt;',
+
+	 '&lt;label&gt;Nom&lt;/label&gt;',
+		'&lt;input type="text" name="txtNom" ',
+		'value="', $zones['txtNom'], '"&gt;',
+	 '&lt;label&gt;Adresse mail&lt;/label&gt;',
+		'&lt;input type="email" name="txtMail" ',
+		'value="', $zones['txtMail'], '"&gt;',
+	 '&lt;label&gt;Commentaire&lt;/label&gt;',
+		'&lt;textarea name="txtCom"&gt;', 
+		$zones['txtCom'], 
+		'&lt;/textarea&gt;',
+
+	 '&lt;p&gt;&lt;input type="reset" name="btnReset" ',
+	'value=" Effacer "&gt;',
+	'&lt;input type="submit" name="btnSubmit" ',
+	'value="Envoyer"&gt;',
+	'&lt;/p&gt;&lt;/form&gt;';
+
+htmlFin();
+
+// fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+	htmlFin();
+	exit();
+}
+
+//--------------------------------------------------------
+/**
+ * Vérification des zones de saisie.
+ *
+ * @return array	Tableau  contenant les erreurs
+ */
+function verifierForm() : array {
+	if (! parametresControle('post',
+	      ['txtNom', 'txtCom', 'txtMail', 'btnSubmit'])){
+		htmlInfo('Les paramètres reçus sont erronés');
+		htmlFin();
+		exit();
+	}
+	$errs  = [];
+
+	foreach ($_POST as &amp;$val) {
+		$val = trim($val);
+	}
+	unset($val);
+	
+	$long = mb_strlen($_POST['txtNom'], encoding:'UTF-8');
+	if ($long &lt; 2) {
+		$errs[] = 'Le nom doit contenir au minimum 2 caractères.';
+	}
+	$l = mb_strlen(strip_tags($_POST['txtNom']), encoding:'UTF-8');
+	if ($l != $long){
+		$errs[] = 'Le nom ne doit pas contenir de tags HTML.';
+	}
+	if (strpos($_POST['txtNom'], '|') !== false){
+		$errs[] = 'Le nom ne doit pas contenir de caractère \'|\'.';
+	}
+
+	$long = mb_strlen($_POST['txtCom'], encoding:'UTF-8');
+	if ($long &lt; 10) {
+		$errs[] = 'Le commentaire doit contenir au minimum 10 caractères.';
+	}
+	$l = mb_strlen(strip_tags($_POST['txtCom']), encoding:'UTF-8');
+	if ($l != $long){
+		$errs[] = 'Le commentaire ne doit pas contenir de tags HTML.';
+	}
+	if (strpos($_POST['txtCom'], '|') !== false){
+		$errs[] = 'Le commentaire ne doit pas contenir de caractère \'|\'.';
+	}
+
+	if (empty($_POST['txtMail'])){
+        $errs[] = 'L\'adresse mail ne doit pas être vide.';
+    }
+    else {
+        if(! filter_var($_POST['txtMail'],
+                        FILTER_VALIDATE_EMAIL)) {
+            $errs[] = 'L\'adresse mail n\'est pas valide.';
+        }
+    }
+	return $errs;
+}
+
+//--------------------------------------------------------
+/**
+ * Ajouter un commentaire dans le fichier
+ *
+ * @return void
+ */
+function ajouterComment() : void {
+	global $flux;
+
+	$z = [];
+	$z[] = $_POST['txtNom'];
+	$z[] = $_POST['txtMail'];
+	$z[] = date('d/m/Y');
+	$z[] = strtr($_POST['txtCom'],
+	             ["\n" => '&lt;br&gt;', "\r\n" => '&lt;br&gt;']);
+
+	$enreg = implode('|', $z) . "\n";
+
+	fwrite($flux, $enreg);
+}
+
+//--------------------------------------------------------
+/**
+ * Affiche un commentaire (4ème champ d'un enregistrement)
+ *
+ * Les commentaires peuvent contenir des tags &lt;br&gt; qui
+ * ne doivent pas être neutralisés. Les autres tags HTML
+ * éventuellement présents dans le commentaire sont
+ * neutralisés afin d'assurer une protection contre les
+ * attaques XSS
+ *
+ * @param $com		Le commentaire à afficher
+ *
+ * @return void
+ */
+function affComment(string $com) : void {
+	$start = 0;
+	while(true){
+		$i = strpos($com, '&lt;br&gt;', $start);
+		if ($i === false){
+			echo htmlentities(substr($com, $start),
+			                  encoding:'UTF-8');
+			break;
+		}
+		echo htmlentities(substr($com, $start, $i - $start),
+						  encoding:'UTF-8'), '&lt;br&gt;';
+		$start = $i + 4;
+	}
+}
+</textarea>
+		</form>
+
+	<p class="fp-bottom0">Commentaires :
+		</p>
+	<ul class="fp-ul-puce">
+		<li> Le flux est ouvert en mode <span class="fp-code">'a+'</span>, c'est à dire en mode <b>ajout en fin de fichier avec lecture</b>.
+		Le <span class="fp-code">'+'</span> signifie qu'il s'agit d'un mode <span class="fp-code">'a'</span> (append) "augmenté" avec la possibilité manquante (écriture ou lecture). Comme avec le mode <span class="fp-code">'a'</span>, on peut uniquement écrire dans le fichier; l'ajout du
+		<span class="fp-code">'+'</span> permet également de lire dans le fichier.<br>
+		Donc, dans ce mode :
+		<ul class="fp-ul-puce">
+			<li> si le fichier n'existe pas, il est créé;
+			<li> toutes les écritures sont faites en fin de fichier (quelle que soit la valeur de l'offset);
+			<li> les modifications de l'offset avec
+			<a href="https://www.php.net/manual/en/function.fseek" target="_blank">fseek()</a> ou
+			 ou <a href="https://www.php.net/manual/en/function.rewind" target="_blank">rewind()</a> n'affectent que les lectures.
+		</ul>
+		<li> Si l'utilisateur saisit des sauts de ligne dans le <span class="fp-code">textarea</span>, ils sont remplacés dans le fichier
+		par des tags HTML <span class="fp-code">br</span> afin que tous les enregistrements soient mémorisés sur une seule ligne dans le fichier, et que les sauts de ligne apparaissent quand on affiche les commentaires. La fonction <span class="fp-code">affComment()</span> permet
+		d'assurer une protection contre les attaques XSS éventuellement présentes dans le champ de commentaires, sans neutraliser les tags HTML
+		<span class="fp-code">br</span>.
+	</ul>
+
+		<footer></footer>
+	</div>
+</body>
+</html>

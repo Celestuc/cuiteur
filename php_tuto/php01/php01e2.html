@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les fonctions</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+
+</head>
+<body>
+
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<ul id="MENU-page"></ul>
+
+		<p>Dans la plupart des cas, sans paramètres, les
+			fonctions ne serviraient pas à grand chose. Nous allons voir comment
+			définir ces paramètres, leur donner des valeurs par défaut, ou
+			réaliser des fonctions avec un nombre variable de paramètres.
+			Nous verrons également quels sont les différents modes de transmission des paramètres d'une fonction.
+			</p>
+
+		<h3>Sans déclaration de type</h3>
+		<section>
+			<p>
+				Dans le premier exemple que nous avons vu, la fonction <span
+					class="fp-code">afficher()</span> acceptait 3 paramètres formels : <span
+					class="fp-code">$texte</span> , <span class="fp-code">$titre</span>
+				et <span class="fp-code">$coul</span>.
+			</p>
+
+			<pre data-code="PHP">
+function afficher($texte, $titre, $coul) {
+  echo '&lt;h3 style="background:', $coul, '"&gt;'; 
+  echo $titre;
+  echo '&lt;/h3&gt;';
+  echo '&lt;p&gt;', $texte, '&lt;/p&gt;';
+}</pre>
+
+			<p class="fp-puce fp-inter2">Dans cet exemple, le type des paramètres formels n'est pas indiqué.
+			Par conséquent, des données de <strong>n'importe quel type</strong> peuvent être passées
+				comme paramètres <strong>effectifs</strong> (i.e. effectivement transmis) lors de l'appel de cette fonction : elles peuvent être de tout type scalaire (nombre, chaîne et booléen), de tout type composé (tableau et objet), ou de tout type spécial (ressource et null).</p>
+			<p class="fp-remarque">Nous verrons par la suite qu'il est possible, en PHP, d'indiquer le type des paramètres formels.</p>
+			</p>
+			<p>
+				Dans l'exemple suivant la fonction <span class="fp-code">afficher()</span>
+				est modifiée pour qu'elle fonctionne avec un paramètre <span
+					class="fp-code">$coul</span> qui est soit une chaîne de caractères soit
+				un nombre.
+			</p>
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : paramètres
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Test fonction&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function afficher($texte, $titre, $coul) {
+  if (is_numeric($coul)) {
+  	$coul = '#'.dechex($coul);
+  }
+  echo '&lt;h3 style="background:', $coul, '"&gt;'; 
+  echo $titre;
+  echo '&lt;/h3&gt;';
+  echo '&lt;p&gt;', $texte, '&lt;/p&gt;';
+}
+
+$txt = 'Lorem ipsum dolor sit amet, consectetur 
+	adipiscing elit.';
+
+afficher($txt, 'Introduction', 16776960);
+
+$txt = 'Phasellus vel erat eu elit mattis 
+	lobortis non elementum risus.';
+
+afficher($txt, 'Développement', '#FFFF00');
+
+$txt = 'Etiam fringilla ullamcorper diam nec fermentum.';
+
+afficher ($txt, 'Conclusion', 'yellow');
+?&gt;  
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+
+			<p class="fp-puce fp-inter2">Le paramètre effectif (ou passé) peut être la
+				valeur d'une variable, une expression littérale ou la valeur de
+				l'évaluation d'une expression.</p>
+			<p>Dans :</p>
+			<pre data-code="PHP">
+afficher($txt, 'Introduction', 16776960);
+</pre>
+			<p>
+				<span class="fp-code">$txt</span> est une variable, <span
+					class="fp-code">'Introduction'</span> et <span class="fp-code">16776960</span>
+				sont des expressions littérales.
+			</p>
+			<p>On pourrait aussi utiliser le résultat d'une expression comme
+				ci-dessous :</p>
+			<pre data-code="PHP">
+afficher($txt, strtoupper('Introduction'), 16776000 + 960);
+</pre>
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : paramètres
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Test fonction&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function afficher($texte, $titre, $coul) {
+  if (is_numeric($coul)) {
+  	$coul = '#'.dechex($coul);
+  }
+  echo '&lt;h3 style="background:', $coul, '"&gt;'; 
+  echo $titre;
+  echo '&lt;/h3&gt;';
+  echo '&lt;p&gt;', $texte, '&lt;/p&gt;';
+}
+
+$txt = 'Lorem ipsum dolor sit amet, consectetur 
+	adipiscing elit.';
+
+afficher($txt, strtoupper('Introduction'), 16776000 + 960);
+?&gt;  
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+			<p class="fp-puce fp-inter2">Depuis PHP 7, si on tente d'appeler une fonction avec un nombre insuffisant de paramètres,
+			une erreur fatale arrête le script.</p>
+
+			<p class="fp-puce">
+				Si on appelle une fonction avec trop de paramètres effectifs, les paramètres effectifs excédentaires sont ignorés.
+			</p>
+			
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : paramètres
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Test fonction&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function afficher($texte, $titre, $coul) {
+  if (is_numeric($coul)) {
+  	$coul = '#'.dechex($coul);
+  }
+  echo '&lt;h3 style="background:', $coul, '"&gt;'; 
+  echo $titre;
+  echo '&lt;/h3&gt;';
+  echo '&lt;p&gt;', $texte, '&lt;/p&gt;';
+}
+
+$txt = 'Lorem ipsum dolor sit amet, consectetur 
+	adipiscing elit.';
+
+afficher($txt, 'Introduction', 16776000, 'pas utilise');
+
+afficher($txt, 'Erreur fatale'); //=> erreur fatale
+                                 // qui arrête le script
+//ce qui suit n'est pas exécuté
+afficher($txt, 'pas exécuté', 16776000);
+?&gt;  
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+		</form>
+			
+		</section>
+
+		<h3>Paramètres avec une valeur par défaut</h3>
+		<section>
+			<p class="fp-puce">
+				Nous pouvons définir des paramètres avec des valeurs par défaut en
+				utilisant la syntaxe
+				<span class="fp-code">$param = valeur_par_défaut</span>.<br>
+				<span class="fp-code">valeur_par_défaut</span>
+				doit obligatoirement être une constante, et ne peut être ni une variable, ni un membre de classe, 
+				ni le résultat d'un appel de fonction. PHP vous autorise à utiliser des tableaux ainsi que le type spécial NULL comme
+				valeur par défaut.
+			</p>
+			<p class="fp-puce">Lors de l'appel d'une fonction, si la valeur d'un paramètre ayant une valeur par défaut
+			n'est pas indiquée, alors la valeur par défaut du paramètre est utilisée.</p>
+			<p>
+				Par exemple, pour mettre une couleur par défaut dans notre fonction <span
+					class="fp-code">afficher()</span>, on modifie son prototype :
+			</p>
+			<pre data-code="PHP">
+function afficher($texte, $titre, $coul = '#FFFF00') {
+...
+}
+</pre>
+			<p>Ainsi, il devient possible d'appeler la fonction
+			<span class="fp-code">afficher()</span> sans lui transmettre de paramètre effectif pour le paramètre formel
+			<span class="fp-code">$coul</span>.</p>
+			<p>Quand on appelle la fonction <span class="fp-code">afficher()</span> avec seulement 2 paramètres effectifs
+			comme ci-dessous :</p>
+			<pre data-code="PHP">
+afficher($txt, 'Introduction');
+</pre>
+		<ul class="fp-ul-puce">
+		<li> le premier paramètre formel <span class="fp-code">$texte</span> reçoit la valeur contenue dans <span class="fp-code">$txt</span>
+		<li> le deuxième paramètre formel <span class="fp-code">$titre</span> reçoit la chaîne littérale <span class="fp-code">'Introduction'</span>
+		<li> et le troisième et dernier paramètre formel <span class="fp-code">$coul</span> prend sa valeur par défaut.
+		</ul>
+
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : paramètres avec valeur par défaut
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Paramètres avec valeur par défaut&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function afficher($texte, $titre, $coul = '#FFFF00') {
+  if (is_numeric($coul)) {
+  	$coul = '#'.dechex($coul);
+  }
+  echo '&lt;h3 style="background:', $coul, '"&gt;'; 
+  echo $titre;
+  echo '&lt;/h3&gt;';
+  echo '&lt;p&gt;', $texte, '&lt;/p&gt;';
+}
+
+$txt = 'Lorem ipsum dolor sit amet, consectetur 
+	adipiscing elit.';
+
+afficher($txt, 'Introduction');
+
+$txt = 'Phasellus vel erat eu elit mattis 
+	lobortis non elementum risus.';
+
+afficher($txt, 'Développement', '#FF0000');
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+			<p>
+			C'est la <strong>position</strong> des paramètres effectivement transmis qui fixe quel est le paramètre
+		formel qui reçoit chaque paramètre effectif. Par conséquent,
+			lors de la définition d'une fonction, les paramètres formels ayant une valeur par défaut doivent être
+			<strong>positionnés à la fin de la "liste"</strong> des paramètres formels.
+			</p>
+		</section>
+
+		<h3>Les arguments nommés</h3>
+
+		<p class="fp-puce fp-bottom0">
+			PHP 8 a introduit la notion de arguments nommés (ou paramètres nommés).
+			Les arguments nommés permettent de transmettre des arguments à une fonction en utilisant leur nom formel, sans utiliser leur position.
+			Ceci :
+		</p>
+
+		<ul class="fp-ul-puce">
+			<li>documente automatiquement la signification du paramètre effectivement transmis,
+			<li>permet de transmettre des paramètres effectifs dans n'importe quel ordre (i.e. indépendamment de leur position dans l'en-tête de la fonction),
+			<li>et permet de simplifier les appels des fonctions qui ont pour plusieurs paramètres avec des valeurs par défaut, quand on ne souhaite modifier que la valeur d'un paramètre situé en fin de liste.
+		</ul>
+
+		<p class="fp-puce">
+			Les arguments nommés sont passés en préfixant la valeur avec le nom du paramètre formel suivi d'un caractère
+			<span class="fp-code">&nbsp;:&nbsp;</span>
+			(deux-points).
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : arguments nommés
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Arguments nommés&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function fct($param1, $param2){
+  echo $param1, ' ', $param2, '&lt;br&gt;';
+}
+
+// les 3 appels suivants sont fonctionnellement identiques
+fct('a', 'b');
+fct(param1:'a', param2:'b');
+fct(param2:'b', param1:'a');
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		<p>
+			L'exemple ci-dessus illustre qu'avec les paramètres nommés, on peut transmettre des paramètres effectifs sans respecter
+			l'ordre de leur déclaration dans l'en-tête de la fonction.
+		</p>
+
+
+		<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : arguments nommés et valeurs par défaut
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Arguments nommés et valeurs par défaut&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function fct($param1, $param2 = 2, $param3 = 3, $param4 = 4){
+  echo $param1, ' ', $param2, ' ', $param3,
+       ' ', $param4, '&lt;br&gt;';
+}
+
+// Les 2 appels suivants sont fonctionnellement identiques.
+// On souhaite modifier la valeur de $param3, sans modifier
+// celle de $param2
+fct(10, 2, 30);
+fct(10, param3:30); // pas besoin d'indiquer une valeur
+					// pour $param2
+
+echo '&lt;hr&gt;';
+
+// les 2 appels suivants sont fonctionnellement identiques
+fct(10, 2, 3, 40);
+fct(10, param4:40); // pas besoin d'indiquer une valeur
+					// pour $param2 et $param3
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		<p class="fp-remarque">
+			L'exemple précédent illustre que les arguments nommés peuvent être utilisés avec des arguments positionnels (i.e. dans le même appel).
+			Dans ce cas, les arguments nommés doivent être placés après les arguments positionnels.
+		</p>
+
+		<section>
+
+		</section>
+
+		<h3>Mode de transmission des paramètres</h3>
+
+		<section>
+			<p><strong>Par défaut</strong>, les paramètres des fonctions sont transmis
+			<strong>par valeur</strong>. Cela signifie que la fonction, dans le corps de
+			sa définition, travaille sur des <strong>copies</strong> des variables effectivement transmises.
+			Dit autrement, par défaut, chaque paramètre d'une fonction occupe un espace mémoire distinct
+			de celui occupé par l'éventuelle variable effectivement transmise correspondante.<br>
+			Ainsi, par défaut, lorsqu'une fonction est appelée, un nouvel espace mémoire est alloué pour chaque
+			paramètre, et il est initialisé avec la valeur effectivement transmise.
+			</p>
+
+			<p>
+			Par conséquent, par défaut, les modifications des paramètres réalisées dans le corps d'une fonction
+			ne sont pas répercutées sur les éventuelles variables effectivement transmises quand la dite fonction
+			retourne.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple </strong> : mode de transmission par défaut
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;title&gt;Mode de transmission par défaut&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function f1 ($par){
+	++$par;
+	echo 'Dans f1 $par = ', $par;
+}
+
+$a = 1;
+f1($a);
+// $a n'est pas modifié,
+// la fonction a travaillé sur une copie de $a
+echo '&lt;br&gt;Dans script $a = ', $a;
+
+echo '&lt;hr&gt;&lt;hr&gt;';
+
+$a = array(10, 10);
+$b = $a;
+$b[0] = 20; //seul $b est modifié (une copie est réalisée)
+echo '&lt;pre&gt;';
+echo '&lt;br&gt;Dans script $a = &lt;br&gt;';
+var_dump($a);
+echo '&lt;br&gt;Dans script $b = &lt;br&gt;';
+var_dump($b);
+
+echo '&lt;hr&gt;';
+
+function f2 ($par){
+	++$par[1];
+	echo 'Dans f2 $par = &lt;br&gt;';
+	var_dump($par);
+}
+
+f2($b);
+// $b n'est pas modifié,
+// la fonction a travaillé sur une copie de $b
+echo '&lt;br&gt;Dans script $b = &lt;br&gt;';
+var_dump($b);
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p class="fp-remarque">
+				Le cas des objets est particulier, il sera traité dans le chapitre qui leur est consacré.
+			</p>
+
+		</section>
+
+		<h3>Transmission de paramètre par référence</h3>
+		<section>
+			<p class="fp-puce">
+				Quand le nom du paramètre formel est précédé du caractère <span
+					class="fp-code">&amp;</span> (ampersand) dans l'en-tête de la
+				fonction, il est transmis <strong>par référence</strong> :
+			</p>
+			<p class="fp-puce">
+				Dans ce cas, l'adresse mémoire du paramètre effectif
+				est transmise à la fonction.
+				Aucune copie de la variable effectivement transmise n'est réalisée. Si la fonction
+				modifie la valeur du paramètre, la valeur du paramètre
+				correspondant à l'extérieur de la fonction sera automatiquement
+				modifiée puisque les 2 variables <strong>désignent (ou pointent vers) le même emplacement mémoire</strong>.
+				<br>D'une certaine façon, le passage de paramètres par
+				référence permet de "dépasser" la portée des variables.
+			</p>
+
+			<p class="fp-puce">
+			 Dans l'exemple suivant, le premier paramètre
+			 est transmis par référence, le second l'est par valeur.
+			</p>
+
+			<pre data-code="PHP">function uneFonction(&amp;$par_ref, $par_val) { ...</pre>
+
+			<div class="fp-remarque">
+				Le passage d'arguments par référence est uniquement possible si les paramètres effectivement transmis sont
+				des variables. L'appel suivant de la fonction ci-dessus
+				<pre data-code="PHP">uneFonction('abcd', 1234);</pre>
+				provoquera une erreur car le premier paramètre effectivement transmis doit être modifiable : ça doit
+				être une variable.
+			</div>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple </strong> : mode de transmission par référence
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;title&gt;Mode de transmission par référence&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function f1 (&amp;$par){
+	++$par;
+	echo 'Dans f1 $par = ', $par;
+}
+
+$a = 1;
+f1($a);
+// $a est modifié,
+echo '&lt;br&gt;Dans script $a = ', $a;
+
+echo '&lt;hr&gt;&lt;hr&gt;';
+
+$a = array(10, 10);
+$b = &amp;$a;
+// $a et $b pointent vers le même emplacement mémoire
+$b[0] = 20;
+echo '&lt;pre&gt;';
+echo '&lt;br&gt;Dans script $a = &lt;br&gt;';
+var_dump($a);
+echo '&lt;br&gt;Dans script $b = &lt;br&gt;';
+var_dump($b);
+
+echo '&lt;hr&gt;';
+
+function f2 (&amp;$par){
+	++$par[1];
+	echo 'Dans f2 $par = &lt;br&gt;';
+	var_dump($par);
+}
+
+f2($b);
+echo '&lt;br&gt;Dans script $a = &lt;br&gt;';
+var_dump($a);
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+			
+
+		</section>
+
+		<h3>Nombre variable de paramètres</h3>
+		<section>
+
+			<p class="fp-puce">Il est possible d'utiliser la notation <span class="fp-code">&nbsp;...&nbsp;</span> pour désigner un nombre de
+			paramètres quelconque dans l’<strong>en-tête</strong> d’une fonction. Cette notation
+			(appelée <strong>Rest</strong>) ne s'applique, si nécessaire, qu'au dernier paramètre. Les
+			paramètres transmis sont alors regroupés dans un tableau.
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : nombre variable de paramètres
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Nombre variable de paramètres&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function somme ($a, ...$b) {
+	$total = $a;
+	$n = count($b);
+	// $n contient le nombre d'éléments
+	// contenus dans le tableau $b
+	for ($i = 0 ; $i &lt; $n; ++$i) {
+		$total += $b[$i];
+	}
+	echo $total, '&lt;br&gt;';
+}
+
+//------------------------------------------------------
+// l'entier 1 est reçu dans le paramètre $a
+// $b est un tableau vide
+somme(1);
+
+// l'entier 1 est reçu dans le paramètre $a
+// les entiers 2, 3 et 4 sont regroupés dans $b
+somme(1, 2, 3, 4);
+
+somme(12, 34, 56, 78, 910, 1112);
+
+somme(); //provoque une erreur fatale qui arrête le script
+
+echo 'pas affiché&lt;br&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p class="fp-remarque">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.count.php" target="_blank">count()</a>
+					renvoie le nombre d'éléments contenus dans le tableau <span class="fp-code">$b</span>.
+			</p>
+
+			<p class="fp-bottom0 fp-puce">
+				Quels que soient les paramètres indiqués dans l'en-tête d'une fonction, il est possible
+				d'accéder à l'ensemble des paramètres qui lui sont transmis en utilisant les fonctions :
+			</p>
+			<ul class="fp-ul-puce">
+				<li><a
+					href="https://www.php.net/manual/en/function.func-get-args.php" target="_blank">func_get_args</a> retourne les arguments
+					d'une fonction sous forme de tableau</li>
+				<li><a
+					href="https://www.php.net/manual/en/function.func-get-arg.php" target="_blank">func_get_arg</a>
+					retourne un élément de la liste des arguments</li>
+				<li><a
+					href="https://www.php.net/manual/en/function.func-num-args.php" target="_blank">func_num_args</a>
+					retourne le nombre d'arguments passés à la fonction.</li>
+			</ul>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : utilisation de func_get_args()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Utilisation de func_get_args()&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function fct () {
+	$a = func_get_args();
+	// $a est un tableau contenant l'ensemble des arguments
+	// transmis à la fonction
+	$n = count($a);
+	// $n contient le nombre d'
+	// contenus dans le tableau $a
+	for ($i = 0 ; $i &lt; $n; ++$i) {
+		echo $a[$i], '&lt;br&gt;';
+	}
+
+}
+
+//------------------------------------------------------
+fct(1, 2, 3, 4);
+
+echo '&lt;hr&gt;';
+
+fct(10, 20);
+
+echo '&lt;hr&gt;';
+
+fct();
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : utilisation de func_num_args() et func_get_arg()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;title&gt;Utilisation de func_num_args() et func_get_arg()&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function fct ($par1, $par2) {
+	$n = func_num_args();
+	// $n contient le nombre d'
+	// arguments transmis à la fonction
+	for ($i = 0 ; $i &lt; $n; ++$i) {
+		echo func_get_arg($i), '&lt;br&gt;';
+	}
+
+}
+
+//------------------------------------------------------
+fct(1, 2, 3, 4);
+
+echo '&lt;hr&gt;';
+
+fct(10, 20);
+
+echo '&lt;hr&gt;';
+
+fct(1); //provoque une erreur fatale qui arrête le script
+
+echo 'pas affiché';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		<p class="fp-remarque">
+			Pour réaliser des fonctions avec un nombre variable de paramètres, il est recommandé d'utliser la notation
+			<span class="fp-code">&nbsp;...&nbsp;</span> dans l'en-tête de la fonction (appelée <strong>Rest</strong>),
+			plutôt que d'utiliser les fonctions
+			<a href="https://www.php.net/manual/en/function.func-get-args.php" target="_blank">func_get_args</a>,
+			<a href="https://www.php.net/manual/en/function.func-get-arg.php" target="_blank">func_get_arg</a> et
+
+			<a href="https://www.php.net/manual/en/function.func-num-args.php" target="_blank">func_num_args</a>.
+		</p>
+
+		</section>
+		<h3>Passage d’un tableau comme liste de paramètres</h3>
+		<section>
+		<p>
+		A l'inverse, il est également possible d'utiliser la notation <span class="fp-code">&nbsp;...&nbsp;</span>
+		(appelée cette fois-ci <strong>Spread</strong>) sur un tableau lors d'un <strong>appel</strong> de
+fonction. Les valeurs du tableau seront alors transmises comme
+une liste de paramètres.
+		</p>
+
+					<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : nombre variable de paramètres
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Nombre variable de paramètres&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function somme($a, $b, $c)  {
+	echo ($a + $b + $c) , '&lt;br&gt;';
+}
+
+
+//------------------------------------------------------
+$a = array(2, 5, 8, 7);
+$r = somme(...$a);	 	// 15
+$r = somme(3, ...$a); 	// 10
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		</section>
+
+		<a id="exo_fct_calculer"></a>
+		<h3 class="fp-exo">Exercice : fonction calculer</h3>
+		<section>
+			<p>
+				En utilisant le principe du nombre variable de paramètres, écrivez la
+				fonction <span class="fp-code">calculer()</span> qui affiche le
+				résultat la multiplication ou l'addition des éléments qui lui sont
+				passés en paramètre. Il est convenu que le premier paramètre passé
+				définit l'opération à faire, et qu'il doit être égal à
+				<span class="fp-code">&nbsp;+&nbsp;</span> ou à <span class="fp-code">&nbsp;*&nbsp;</span>.
+				Dans le cas contraire, un message d'erreur est affiché.
+			</p>
+			<p class="fp-solution">
+				<a onclick="top.FP.Voir.showSolution('exo_fct_calculer_solu', 1)">Une
+					solution possible</a>
+			</p>
+
+			<div id="exo_fct_calculer_solu" class="BLOC-solution">
+				<form action="" method="post" class="TEST-form">
+					<div class="TEST-titre">
+						<strong>Exercice</strong> : fonction calculer
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+  &lt;head&gt;
+    &lt;title&gt;Calculer&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+&lt;?php
+function calculer($operateur, ...$operandes) {
+	$n = count($operandes);
+	if ($operateur == '+') {
+		$resultat = 0;
+		for ($i = 0; $i &lt; $n; $i++) {
+			$resultat += $operandes[$i];
+		}
+		echo '&lt;hr&gt;Résultat = ', $resultat, '&lt;hr&gt;';
+	
+	} elseif ($operateur == '*') {
+		$resultat = 1;
+		for ($i = 0; $i &lt; $n; $i++) {
+			$resultat *= $operandes[$i];
+		}
+		echo '&lt;hr&gt;Résultat = ', $resultat, '&lt;hr&gt;';
+	}
+	else{
+		echo '&lt;hr&gt;L\'operateur "', $operateur,
+			 '" n\'est pas supporté.&lt;hr&gt;';
+	}
+}
+
+calculer('+', 1, 2 ,3, 4);
+
+calculer('*', 1, 2, 3, 4);
+
+calculer('-', 1, 2, 3, 4);
+
+calculer(true, 1, 2, 3, 4);
+?&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</textarea>
+				</form>
+			<p class="fp-puce">
+				Lors du dernier appel de la fonction
+				<span class="fp-code">calculer()</span>, la valeur booléenne <span class="fp-code">true</span>
+				est comparée à la chaîne <span class="fp-code">'+'</span>. Comme l'opérateur de comparaison d'égalité
+				<span class="fp-code">==</span> réalise une comparaison <strong>non stricte</strong>, et qu'ici on compare un booléen et une chaîne,
+				une comparaison booléenne est effectuée. Avant de comparer les 2 opérandes, la chaine <span class="fp-code">'+'</span>
+				est convertie en booléen, ce qui donne <span class="fp-code">true</span> (<strong>type juggling</strong>). Donc la condition
+				<span class="fp-code">true == '+'</span> est évaluée à <span class="fp-code">true</span>.
+			</p>
+			<p class="fp-puce">
+				Pour corriger ce problème, il suffit d'utiliser l'opérateur de comparaison d'identité <span class="fp-code">===</span>
+				à la place de l'opérateur de comparaison d'égalité <span class="fp-code">==</span>.
+			</p>
+
+			</div>
+
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

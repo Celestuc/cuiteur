@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <title>Cuiteur | Accueil</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../styles/cuiteur.css">
+</head>
+
+<body>
+    <div id="bcContenu" class="connecte">
+        <h1>Accueil</h1>
+
+        <nav>
+            <ul>
+                <li><a href="cuiteur.php">Accueil</a></li>
+                <li><a href="recherche.php">Recherche</a></li>
+                <li><a href="compte.php">Votre profil</a></li>
+                <li><a href="deconnexion.php">Se déconnecter</a></li>
+            </ul>
+        </nav>
+
+        <aside>
+            <img src="../upload/7.jpg" alt="avatar @jobs" class="avatar">@<a href="utilisateur.php?utID=7" title="Voir le profil et les blablas de @jobs"><strong>jobs</strong></a>
+            Steve Jobs
+            <br>
+            <a href="abonnements.php?utID=7" title="Voir les personnes que je suis">0 abonnement</a>
+            -
+            <a href="abonnes.php?utID=7" title="Voir les personnes qui me suivent">0 abonné</a>
+
+            <h2>Tendances</h2>
+
+            <ul>
+                <li>
+                    #<a href="tendances.php?taID=murphy" title="Voir les blablas originaux contenant le tag #murphy (10)">murphy</a>
+                </li>
+                <li>
+                    #<a href="tendances.php?taID=info" title="Voir les blablas originaux contenant le tag #info (5)">info</a>
+                </li>
+                <li>
+                    #<a href="tendances.php?taID=intelligence" title="Voir les blablas originaux contenant le tag #intelligence (4)">intelligence</a>
+                </li>
+                <li>
+                    #<a href="tendances.php?taID=conseil" title="Voir les blablas originaux contenant le tag #conseil (3)">conseil</a>
+                </li>
+                <li>
+                    <a href="tendances.php">Toutes les tendances</a>
+                </li>
+            </ul>
+
+            <h2>Suggestions</h2>
+
+            <ul>
+                <li>
+                    <img src="../upload/3.jpg" alt="avatar @albert" class="avatar">@<a href="utilisateur.php?utID=3" title="Voir le profil et les blablas de @albert"><strong>albert</strong></a>
+                    Albert Einstein
+                </li>
+                <li>
+                    <span class="avatar">C</span>@<a href="utilisateur.php?utID=23" title="Voir le profil et les blablas de @nono"><strong>nono</strong></a>
+                    Chuck Norris
+                </li>
+                <li>
+                    <a href="suggestions.php">Plus de suggestions</a>
+                </li>
+            </ul>
+        </aside>
+        <main>
+            <section>
+                <h2>Publication d'un nouveau blabla</h2>
+
+                <form action="cuiteur.php" method="post">
+                    <textarea name="txtMessage"></textarea>
+
+                    <footer>
+                        <input type="submit" name="btnPublier" value="Publier">
+                    </footer>
+                </form>
+            </section>
+
+            <ul class="mainList">
+                <li>
+                    <img src='../upload/5.jpg' alt='avatar @yoda' class='avatar'>@<a href='utilisateur.php?utID=5' title='Voir le profil et les blablas de @yoda'><strong>yoda</strong></a>
+                    Yoda
+
+                    <p>
+                        Toute page qui peut avoir un titre sans rapport avec le contenu aura un titre sans rapport avec le contenu. #murphy
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 17h57
+                        <a href='reponses.php?blID=144' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Un projet mal planifi&eacute; prend 3 fois plus de temps que pr&eacute;vu,
+                        alors qu&#039;un projet bien planifi&eacute; ne prend que 2 fois plus de temps.
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 17h03
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=143' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/5.jpg' alt='avatar @yoda' class='avatar'>@<a href='utilisateur.php?utID=5' title='Voir le profil et les blablas de @yoda'><strong>yoda</strong></a>
+                    Yoda
+
+                    <p>
+                        Si vous n&#039;y arrivez pas du premier coup, appelez &ccedil;a version 1.0 #conseil
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 16h49
+                        <a href='reponses.php?blID=142' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/1.jpg' alt='avatar @woody' class='avatar'>@<a href='utilisateur.php?utID=1' title='Voir le profil et les blablas de @woody'><strong>woody</strong></a>
+                    Woody Allen
+
+                    <p>
+                        Du mauvais code n&#039;a pas besoin d&#039;&ecirc;tre comment&eacute; ou corrig&eacute;, mais r&eacute;&eacute;crit. #conseil
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 16h48
+                        <a href='reponses.php?blID=141' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Ne testez jamais une erreur que vous ne savez pas g&eacute;rer
+                        &lt;script&gt;alert(&quot;Vous avez &eacute;t&eacute; hack&eacute; !&quot;);
+                        location =&#039;https://apple.com&#039;;&lt;/script&gt;. #conseil
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 13h44
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=139' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/5.jpg' alt='avatar @yoda' class='avatar'>@<a href='utilisateur.php?utID=5' title='Voir le profil et les blablas de @yoda'><strong>yoda</strong></a>
+                    Yoda
+
+                    <p>
+                        &Eacute;tant donn&eacute;s suffisamment d&#039;observateurs, tous les bugs sautent aux yeux. #murphy
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 11h41
+                        <a href='reponses.php?blID=136' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Plus la n&eacute;cessit&eacute; de revenir en arri&egrave;re dans le d&eacute;veloppement
+                        d&#039;un logiciel est criante, plus la derni&egrave;re sauvegarde est ancienne
+                        et p&eacute;rim&eacute;e. #murphy
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 11h41
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=135' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/5.jpg' alt='avatar @yoda' class='avatar'>@<a href='utilisateur.php?utID=5' title='Voir le profil et les blablas de @yoda'><strong>yoda</strong></a>
+                    Yoda
+
+                    <p>
+                        Dans un programme informatique, le nombre de bugs est proportionnel
+                        &agrave; la factorielle du nombre d&#039;instructions &eacute;crites. #murphy
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 10h39
+                        <a href='reponses.php?blID=134' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Quand on se met &agrave; Linux, vaut mieux avoir BEAUCOUP d&#039;amis
+                        (m&ecirc;me @nono). #info
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 9h32
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=131' title='Voir les réponses et éventuellement répondre'>3 réponses</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Il y a deux types d&#039;administrateurs : celui qui a fait une grosse connerie
+                        sous root, et celui qui va en faire une. #info
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 9h32
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=130' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Windows sait tout faire, sauf fonctionner correctement. #info
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 9h30
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=129' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/1.jpg' alt='avatar @woody' class='avatar'>@<a href='utilisateur.php?utID=1' title='Voir le profil et les blablas de @woody'><strong>woody</strong></a>
+                    Woody Allen
+
+                    <p>
+                        &quot;Compatibilit&eacute; ascendante&quot; signifie que toutes les erreurs
+                        de conception originelles sont conserv&eacute;es. #murphy
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 9h26
+                        <a href='reponses.php?blID=127' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/5.jpg' alt='avatar @yoda' class='avatar'>@<a href='utilisateur.php?utID=5' title='Voir le profil et les blablas de @yoda'><strong>yoda</strong></a>
+                    Yoda
+
+                    <p>
+                        Si un bug est impossible, il se produira quand m&ecirc;me. #murphy
+                    </p>
+
+                    <footer class="footerBlabla">
+                        3 septembre 2026 à 7h21
+                        <a href='reponses.php?blID=124' title='Voir les réponses et éventuellement répondre'>2 réponses</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/7.jpg' alt='avatar @jobs' class='avatar'>@<a href='utilisateur.php?utID=7' title='Voir le profil et les blablas de @jobs'><strong>jobs</strong></a>
+                    Steve Jobs
+
+                    <p>
+                        Les boutons sur l&#039;&eacute;cran auront l&#039;air si bons
+                        que vous aurez envie de les l&eacute;cher.
+                    </p>
+
+                    <footer class="footerBlabla">
+                        29 juillet 2026 à 17h32
+                        <a href='cuiteur.php?x=XXX'>Supprimer</a>
+                        <a href='reponses.php?blID=97' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/1.jpg' alt='avatar @woody' class='avatar'>@<a href='utilisateur.php?utID=1' title='Voir le profil et les blablas de @woody'><strong>woody</strong></a>
+                    Woody Allen
+
+                    <p>
+                        L&#039;avantage d&#039;&ecirc;tre intelligent, c&#039;est qu&#039;on peut toujours
+                        faire l&#039;#imb&eacute;cile, alors que l&#039;inverse est totalement impossible. #lol
+                    </p>
+
+                    <footer class="footerBlabla">
+                        28 juillet 2026 à 17h13
+                        <a href='reponses.php?blID=90' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/1.jpg' alt='avatar @woody' class='avatar'>@<a href='utilisateur.php?utID=1' title='Voir le profil et les blablas de @woody'><strong>woody</strong></a>
+                    Woody Allen
+
+                    <p>
+                        Un conducteur dangereux (@pdac), c&#039;est celui qui vous d&eacute;passe
+                        malgr&eacute; tous vos efforts pour l&#039;en emp&ecirc;cher.
+                    </p>
+
+                    <footer class="footerBlabla">
+                        28 juillet 2026 à 17h09
+                        <a href='reponses.php?blID=89' title='Voir les réponses et éventuellement répondre'>0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src='../upload/1.jpg' alt='avatar @woody' class='avatar'>@<a href='utilisateur.php?utID=1' title='Voir le profil et les blablas de @woody'><strong>woody</strong></a>
+                    Woody Allen
+
+                    <p>
+                        L&#039;intelligence artificielle se d&eacute;finit comme le contraire
+                        de la b&ecirc;tise naturelle. #ia #intelligence
+                    </p>
+
+                    <footer class="footerBlabla">
+                        25 juillet 2026 à 16h53
+                        <a href='reponses.php?blID=81' title='Voir les réponses et éventuellement répondre'>1 réponse</a>
+                    </footer>
+                </li>
+            </ul>
+
+        </main>
+
+        <footer>
+            &copy; Licence Informatique - Septembre 2026 - Tous droits réservés
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les expressions régulières</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+
+		<h3>Parenthèses non capturantes</h3>
+		<section>
+			<p>Dans certains cas nous ne voulons pas capturer tous les
+				sous-motifs entre parenthèses, mais les parenthèses sont néanmoins
+				nécessaires dans la syntaxe de l'expression.</p>
+			<p>
+				Soit le texte :<br> <i>"Il y a bien longtemps, dans une
+					galaxie lointaine, l'Empire Impérial de l'Empereur triomphe sur
+					tous les fronts, broyant tous ceux qui s'opposent à lui d'une main
+					de fer dans un gant d'acier. Seul un petit groupe de rebelles se
+					bat toujours pour la liberté face à la tyrannie, pour le chaos face
+					à l'ordre, et d'abord on fait c'qu'on veut merde !"</i>
+			</p>
+			<p>
+				Si nous voulons récupérer tous les mots qui suivent des articles définis ou indéfinis (le, la, les, l', un,
+				une et des), en minuscule ou en majuscule, nous pouvons utiliser l'expression :<br> <span
+					class="fp-code">/\b(les?|la|l'|une?|des)\s*\b(\w+)/i</span><br>
+				Entre l'article (défini ou indéfini) et le mot recherché, il peut y avoir un nombre quelconque d'"espaces blancs",
+				y compris aucun dans le cas de l'article <code>l'</code>, d'où l'utilisation de <code>\s*</code>.
+				Dans tous les cas, le premier caractère du mot recherché
+				doit correspondre à un début de mot, d'où l'utilisation de l'assertion <code>\b</code>. Sans cette assertion, la chaîne
+				<code>lequel</code>, par exemple, correspondrait au pattern complet.
+
+			</p>
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : capture de tous les sous-motifs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Capture de tous les sous-motifs');
+
+$txt = "Il y a bien longtemps, dans une galaxie lointaine, l'Empire Impérial de l'Empereur triomphe sur tous les fronts, broyant tous ceux qui s'opposent à lui d'une main de fer dans un gant d'acier. Seul un petit groupe de rebelles se bat toujours pour la liberté face à la tyrannie, pour le chaos face à l'ordre, et d'abord on fait c'qu'on veut merde !";
+
+$exp = '/\\b(les?|la|l\'|une?|des)\\s*\\b(\\w+)/iu';
+
+preg_match_all($exp, $txt, $t, PREG_PATTERN_ORDER);
+
+infoTableau($t);
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-remarque">Ici, il est préférable d'utiliser la constante
+				prédéfinie PREG_PATTERN_ORDER que la constante PREG_SET_ORDER</p>
+			<p>
+				L'expression fonctionne, mais nous avons capturé aussi les articles définis ou indéfinis
+				alors que nous voulons seulement le mot qui les suit. Ici,
+				nous pouvons rendre les parenthèses
+				non capturantes, en ajoutant simplement <span
+					class="fp-code">?:</span> après la parenthèse ouvrante :<br>
+					<span
+					class="fp-code">/\b(<span class="fp-rouge">?:</span>les?|la|l'|une?|des)\s*\b(\w+)/i
+				</span>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : parenthèses non capturantes
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Parenthèses non capturantes');
+
+$txt = "Il y a bien longtemps, dans une galaxie lointaine, l'Empire Impérial de l'Empereur triomphe sur tous les fronts, broyant tous ceux qui s'opposent à lui d'une main de fer dans un gant d'acier. Seul un petit groupe de rebelles se bat toujours pour la liberté face à la tyrannie, pour le chaos face à l'ordre, et d'abord on fait c'qu'on veut merde !";
+
+$exp = '/\\b(?:les?|la|l\'|une?|des)\\s*\\b(\\w+)/iu';
+
+preg_match_all($exp, $txt, $t, PREG_PATTERN_ORDER);
+
+infoTableau($t);
+
+htmlFin();
+</textarea>
+			</form>
+			Le résultat du test montre bien que les articles définis ou indéfinis n'ont pas été
+			capturés comme dans l'avant-dernier exemple.
+
+
+		</section>
+
+		<h3>Références arrières</h3>
+		<section>
+			<p>
+				La capture avec des parenthèses est une <b>capture mémorisante</b> :
+				la chaîne qui correspond au sous-motif est gardée en mémoire par le moteur
+				d'expressions régulières et pourra <b>servir à nouveau</b>, ou <b>être rappelée</b>, dans la
+				suite de l'expression.<br> On appelle cela <b>une référence
+					arrière</b> (<b>backreference</b> en anglais).
+				Pour rappeler la chaîne correspondant à un sous-motif, on utilise un backslash, suivi d'un
+				numéro spécifiant le rang du sous-motif dans le pattern (i.e. \1, \2, etc.).
+			</p>
+
+			<p>
+				Nous avions précédemment utilisé l'expression régulière suivante pour vérifier un format de date :
+				<br> <span class="fp-code">/^(\d{1,2}[\/\-. ]){2}\d{2,4}$/
+				</span><br>
+				Mais cette expression ne permettait pas de détecter l'utilisation de 2 séparateurs autorisés différents, entre
+				le jour et le mois, et entre le mois et l'année. Par exemple, la chaîne <code>17/2-2022</code> correspond au
+				pattern ci-dessus.
+				En utilisant une référence arrière, il devient possible de détecter ce problème tout en autorisant les
+				mêmes séparateurs entre les trois champs de la date : <br>
+				<span class="fp-code">/^\d{1,2}([\/\-. ])\d{1,2}<span class="fp-rouge">\1</span>\d{2,4}$/
+				</span><br>
+				Pour qu'une chaîne corresponde à ce pattern, il faut que le deuxième séparateur (celui entre le mois et l'année)
+				soit exactement égal à celui qui a été capturé par le premier et unique sous-motif du pattern.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_15.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : référence arrière
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Référence arrière');
+
+htmlDebut('Tester un format de date');
+
+$exp = '/^\\d{1,2}([\\/\\-. ])\\d{1,2}\\1\\d{2,4}$/u';
+
+// Ce pattern peut être ré-écrit en suprimant les \ dans
+// les crochets
+//$exp = '#^\\d{1,2}([/. -])\\d{1,2}\\1\\d{2,4}#u';
+
+testerExp($exp, '01-02/2003');
+
+testerExp($exp, '01/02/2003');
+testerExp($exp, '01-02-2003');
+testerExp($exp, '01.02.2003');
+testerExp($exp, '01 02 2003');
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>
+				Un des exemples typiques du fonctionnement des références arrières
+				consiste à rechercher si une chaîne contient le même mot répété 2
+				fois de suite. Pour rechercher un mot nous aurons l'expression
+				régulière suivante :<br> <span class="fp-code">\b(\w+)</span><br>
+				Soit un début de mot (<span class="fp-code">\b</span>), suivi de 1
+				ou plusieurs caractères de mot (<span class="fp-code">\w+</span>).
+				Les parenthèses autour de <code>\w+</code>
+				permettent de capturer le mot trouvé.<br>
+				Et <code>\1</code> permet de
+				le référencer dans la suite de l'expression.<br>
+				L'expression <span class="fp-code">/\b(\w+)\s+<span class="fp-rouge">\1</span>\b/</span> permet donc de rechercher un même mot répété 2 fois de suite;
+				les 2 occurences du mot devant être séparés par un ou plusieurs "espaces blancs".
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : référence arrière
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Référence arrière');
+
+$txt = "Il y a bien bien longtemps, dans une très très lointaine galaxie (36éme lune à gauche après le Djedaille's Bar)...";
+
+$exp = '/\\b(\\w+)\\s+\\1\\b/u';
+
+preg_match_all($exp, $txt, $t);
+infoTableau($t);
+
+echo '&lt;hr&gt;';
+
+// 1 correspondance erronée sans la dernière assertion \b
+$txt = 'long longtemps';
+
+preg_match_all($exp, $txt, $t);
+infoTableau($t);
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-remarque">
+				Ne pas mettre de quatrième argument à la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match-all.php" target="_blank"
+					class="fp-codePetit">preg_match_all()</a>équivaut à utiliser
+				PREG_PATTERN_ORDER
+			</p>
+
+
+
+
+			<p>
+				L'exemple suivant permet d'extraire d'un code HTML tous
+				les textes entourés par les tags <code>&lt;b&gt;</code> ou <code>&lt;i&gt;</code> avec
+				l'expression :<br> <span class="fp-code">#&lt;([bi])&gt;(.*?)&lt;/\1&gt#is;
+				</span>
+			</p>
+			<p>
+				<span class="fp-code">&lt;([bi])&gt;</span> recherche les chaînes
+				comme <span class="fp-code">&lt;b&gt;</span> et <span
+					class="fp-code">&lt;i&gt;</span>, et capture le <code>b</code> ou le <code>i</code>, que nous
+				réutilisons pour définir la balise fermante : <span class="fp-code">&lt;/\1&gt;</span>
+			</p>
+			<p class="fp-remarque">Comme cette expression contient un /, nous
+				utiliserons le caractère # comme délimiteur de l'expression
+				régulière.</p>
+			<p class="fp-remarque">Comme les textes entourés par les tags <code>&lt;b&gt;</code> ou <code>&lt;i&gt;</code>
+			peuvent contenir des sauts de lignes, nous utilisons l'option <code>s</code>.
+
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : référence arrière
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Référence arrière');
+
+// syntaxe nowdoc
+$html = &lt;&lt;&lt; '_HTML_'
+&lt;!DOCTYPE html&gt;
+&lt;html lang="fr"&gt;
+	&lt;head&gt;
+		&lt;meta charset="UTF-8"&gt;
+		&lt;title&gt;Les CSS&lt;/title&gt;
+		&lt;link href="styles.css" rel="stylesheet"&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;p&gt;La Guerre des Etoiles du Milieu&lt;/p&gt;
+
+		&lt;p&gt;Il y a bien longtemps dans une &lt;b&gt;lointaine
+		galaxie&lt;/b&gt;, les &lt;i&gt;Gentils
+		Jedis&lt;/i&gt; de la Fédération de l'Empire du Commerce de la
+		République se battent contre les &lt;I&gt;Méchants Gobelins&lt;/I&gt;
+		de la Comté du Mordor de l'infâme Sauron. &lt;/p&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+_HTML_;
+
+$exp = '#&lt;([bi])&gt;(.*?)&lt;/\\1&gt;#usi';
+
+preg_match_all($exp, $html, $t);
+
+infoTableau($t);
+
+htmlFin();
+</textarea>
+			</form>
+			<p>
+				Pendant que nous sommes dans les tags HTML, voilà une expression
+				régulière qui permet de capturer tous les tags HTML, ouvrants ou fermants, qu'ils aient ou
+				non des attributs :<br> <span class="fp-code">#&lt;/?(\w+)[^&gt;]*&gt;#</span>
+			</p>
+			<p>
+				Pour extraire les textes entourés par n'importe quel tag HTML et le nom du tag, nous
+				aurons l'expression :<br> <span class="fp-code">#&lt;(\w+)[^&gt;]*&gt;(.*?)&lt;/\1&gt;#s</span>
+			</p>
+			<p class="fp-remarque">Attention, dans le cas de tags imbriqués,
+				cette expression ne capturera que le tag le plus englobant de
+				l'imbrication.</p>
+
+		</section>
+
+		<a id="extraire_liens"></a>
+		<h3 class="fp-exo">Exercice : extraire les liens d'une page HTML</h3>
+		<section>
+			<p>
+				Affichez la liste des liens inclus dans la page à l'adresse
+				http://www.php.net (vous devez avoir une connexion Internet
+				ouverte). Affichez simplement la liste avec la fonction <span
+					class="fp-code">print_r()</span> ou avec la fonction <span
+					class="fp-code">infoTableau()</span> comme dans les exemples du
+				cours.
+			</p>
+			<p>
+				La fonction <span class="fp-code">file_get_contents</span> vous
+				permet de récupérer le contenu d'un fichier. Par exemple :
+			</p>
+			<p class="fp-code">$codeHTML =
+				@file_get_contents('http://www.php.net');</p>
+			<p>
+				Rappel : un lien est la valeur de l'attribut <span class="fp-code">href</span>.
+			</p>
+
+			<p class="fp-solution">
+				<a onClick="top.FP.Voir.showSolution('extraire_liens_solu', 1)">Une
+					solution possible</a>
+			</p>
+
+			<div id="extraire_liens_solu" class="BLOC-solution">
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien"
+						onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+						title="Afficher la bibliothéque de fonctions"></a> <a
+						class="TEST-lien-exp" title="Afficher un résumé des expressions"
+						onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+					<div class="TEST-titre">
+						<strong>Exercice</strong> : extraire les liens d'une page HTML
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Extraire les liens d\'une page HTML');
+
+$codeHTML = @file_get_contents('http://www.php.net');
+
+htmlInfo('Solution simpliste et fausse');
+
+// solution fausse
+$exp = '/\\bhref\\s*=\\s*"(.*?)"/ius';
+
+preg_match_all($exp, $codeHTML, $t1, PREG_PATTERN_ORDER);
+
+infoTableau($t1);
+
+/*----------------------------------*/
+echo '&lt;hr&gt;&lt;hr&gt;';
+
+htmlInfo('Solution');
+
+$exp = '/&lt;a\\b[^&gt;]+href\\s*=\\s*([\'"])\\s*(\\S*?)\\s*\\1/iu';
+
+preg_match_all($exp, $codeHTML, $t2, PREG_PATTERN_ORDER);
+
+$t2[0] = tabProtegerSorties($t2[0]);
+
+infoTableau($t2);
+
+$n1 = 0;
+$n2 = 0;
+
+foreach ($t2[1] as $v){
+	if ($v == '\''){
+		++$n1;
+	}
+	else if ($v == '"'){
+		++$n2;
+	}
+}
+
+echo '&lt;hr&gt;Nombre de liens qui utilisent les guillemets simples : ', $n1, '&lt;br&gt;Nombre de liens qui utilisent les guillemets doubles : ', $n2, '&lt;br&gt;';
+
+htmlFin();
+</textarea>
+				</form>
+
+				<p>
+					La première solution
+					<code>/\bhref\s*=\s*"(.*?)"/is</code>
+					est fausse pour deux raisons :<br>
+					- elle capture des liens en trop qui sont non cliquables (feuilles de styles par
+					exemple);<br>
+					- la valeur de l'attribut <span class="fp-code">href</span> peut aussi être entourée de simples quotes.
+				</p>
+				<p>
+					Il est possible d'utiliser l'expression régulière suivante :<br> <span
+						class="fp-code">/&lt;a\b[^&gt;]+href\s*=\s*(['"])\s*(\S*?)\s*\1/i</span>
+				</p>
+
+				<table>
+					<tr>
+						<td class="fp-code">&lt;a</td>
+						<td>la chaîne littérale <code>&lt;a</code></td>
+					</tr>
+					<tr>
+						<td class="fp-code">\b</td>
+						<td>assertion correspondant à une fin de mot</td>
+					</tr>
+					<tr>
+						<td class="fp-code">[^&gt;]+</td>
+						<td>un plusieurs caractères qui ne peuvent pas être un <code>&gt;</code></td>
+					</tr>
+					<tr>
+						<td class="fp-code">href</td>
+						<td>la chaîne littérale <code>href</code></td>
+					</tr>
+					<tr>
+						<td class="fp-code">\s*</td>
+						<td>0 ou plusieurs caractères "espaces blancs"</td>
+					</tr>
+					<tr>
+						<td class="fp-code">=</td>
+						<td>la chaîne littérale <code>=</code></td>
+					</tr>
+					<tr>
+						<td class="fp-code">\s*</td>
+						<td>0 ou plusieurs caractères "espaces blancs"</td>
+					</tr>
+					<tr>
+						<td class="fp-code">(['"])</td>
+						<td>expression atomique qui doit être égal soit à un guillemet simple, soit à un guillemet double.
+						La valeur du caractère correspondant est <b>capturée</b> et est référencée ultérieurement dans le pattern
+						par <code><span class="fp-rouge">\1</span></code></td>
+					</tr>
+					<tr>
+						<td class="fp-code">\s*</td>
+						<td>0 ou plusieurs caractères "espaces blancs". La valeur de l'attribut <code>href</code>
+						peut contenir des "espaces blancs" juste après le guillemet ouvrant, et juste avant le
+						guillemet fermant</td>
+					</tr>
+					<tr>
+						<td class="fp-code">(\S*?)</td>
+						<td>0 ou plusieurs caractères qui ne peuvent pas être des "espaces blancs",
+						avec capture de la valeur du lien (Un lien ne peut pas contenir d'"espaces blancs").<br>
+						<code>*?</code> : quantificateur non gourmand</td>
+					</tr>
+					<tr>
+						<td class="fp-code">\s*</td>
+						<td>0 ou plusieurs caractères "espaces blancs"</td>
+					</tr>
+					<tr>
+						<td class="fp-code"><span class="fp-rouge">\1</span></td>
+						<td>la correspondance capturée par <code>(['"])</code></td>
+					</tr>
+					<tr>
+						<td class="fp-code">i</td>
+						<td>Option <code>i</code> : les noms des tags HTML et des attributs ne sont pas sensibles à la casse</td>
+					</tr>
+				</table>
+			</div>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

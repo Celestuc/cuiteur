@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les expressions régulières</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+
+		<p class="fp-bottom0">Les
+			fonctions PHP permettant la manipulation des expressions régulières peuvent être classées en trois groupes
+			:</p>
+		<ul class="fp-ul-puce">
+			<li>des fonctions de <b>recherche</b> de correspondance,
+			</li>
+			<li>des fonctions de <b>remplacement</b> de modèles,
+			</li>
+			<li>des fonctions de <b>découpage</b> de chaînes.
+			</li>
+		</ul>
+
+		<p>
+			Les fonctions pour la recherche de correspondance <b>vérifient si
+				une chaîne est conforme ou non à une expression régulière</b>. Il y a
+			deux fonctions dans cette catégorie, qui permettent non seulement de
+			<b>vérifier</b> la correspondance d'une chaîne à un motif, mais
+			également de <b>récupèrer</b> les parties correspondant aux motifs.
+		</p>
+
+		<h3>Recherche simple</h3>
+		<section>
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>
+				est sans doute la plus utilisée de toutes les fonctions manipulant les expressions
+				régulières. Elle permet d'abord de vérifier si au moins une correspondance avec un modèle est trouvée
+				dans la chaîne examinée. Le modèle est le premier paramètre de la fonction,
+				et la chaîne à examiner le deuxième.<br> La fonction renvoie <code>1</code> si au moins une correspondance avec le modèle est
+				trouvée, <code>0</code> sinon, et <code>false</code> en cas d'erreur (par exemple, quand le pattern contient une erreur).
+				<!-- ou, avec l'option u, quand le pattern ou le subject contiennent une erreur d'encodage (cf. test2022/expreg.php) -->
+			</p>
+			<p>
+				L'exemple suivant utilise la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>
+				pour vérifier si une chaîne correspond au modèle d'une adresse
+				e-mail.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : recherche simple
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Recherche simple');
+
+$exp = '/^[a-zA-Z][a-zA-Z0-9_.-]*@[a-zA-Z][a-zA-Z0-9_.-]*\\.[a-zA-Z]{2,6}$/u';
+
+$txt = 'darkounet@lesMechants.com';
+
+if (preg_match($exp, $txt)) {
+	htmlInfo("L'adresse '$txt' est correcte");
+} else {
+	htmlInfo("L'adresse '$txt' n'est pas bonne");
+}
+
+$txt = 'yoyo76_lesGentils.com';
+
+if (preg_match($exp, $txt)) {
+	htmlInfo("L'adresse '$txt' est correcte");
+} else {
+	htmlInfo("L'adresse '$txt' n'est pas bonne");
+}
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>L'exemple suivant teste différents formats de nombres.</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : recherche simple
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Recherche simple');
+
+$exp = '/^-?\\d{1,4}$|^-?\\d{1,4}\\.\\d{0,2}$/u';
+
+verifier($exp, 123.45);
+verifier($exp, '-1234.5');
+verifier($exp, ' -12');
+verifier($exp, -.12);
+verifier($exp, 12.345);
+verifier($exp, '0a');
+
+//======================================================
+function verifier(string $exp, string $txt) : void {
+	if (preg_match($exp, $txt)) {
+    	htmlInfo("'$txt' est un nombre acceptable");
+  	} else {
+    	htmlInfo("'$txt' n'est pas un nombre acceptable");
+	}
+}
+
+htmlFin();
+</textarea>
+			</form>
+
+		</section>
+
+		<h3>Récupérer les correspondances à des sous-motifs</h3>
+		<section>
+
+			<p>
+				Si notre expression régulière contient des <b>sous-motifs</b>
+				(délimités par des parenthèses ouvrantes et fermantes), ces
+				sous-motifs définissent des zones de <b>capture</b>
+				que la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>
+				permet de récupérer si on lui passe un troisième paramètre.
+				Après l'appel de la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>,
+				ce troisième paramètre est un tableau à indices numériques qui contient :<br>
+				- à l'indice 0 : le texte correspondant au motif complet;<br>
+				- à l'indice 1 : le texte correspondant au premier sous-motif;<br>
+				- à l'indice 2 : le texte correspondant au deuxième sous-motif;<br>
+				- etc.
+			</p>
+			<p>
+				Reprenons l'expression qui sert à valider une adresse e-mail :<br>
+				<span class="fp-code">/^[a-zA-Z][a-zA-Z0-9_.-]*@[a-zA-Z][a-zA-Z0-9_.-]*\.[a-zA-Z]{2,6}$/
+				</span>
+			</p>
+			<p>Une adresse e-mail peut être décomposée en deux parties séparées par le caractère <code>@</code> :
+			<br>
+				<span class="fp-code">partie_locale@domaine
+				</span>
+			</p>
+
+			<p>Et la partie du domaine située après le dernier point <code>.</code> constitue le
+			Top Level Domain (TLD) (.fr par exemple).
+			</p>
+
+
+			<p>Si nous entourons la partie locale, la partie nom de domaine
+				et la partie TLD par des parenthèses, nous pouvons
+				récupèrer ces zones dans un tableau.</p>
+			<p>
+				Essayons donc cette expression régulière :<br> <span
+					class="fp-code">/^<span class="fp-rouge">(</span>[a-zA-Z][a-zA-Z0-9_.-]*<span
+					class="fp-rouge">)</span>@<span class="fp-rouge">(</span>[a-zA-Z][a-zA-Z0-9_.-]*\.<span
+					class="fp-rouge">(</span>[a-zA-Z]{2,6}<span
+					class="fp-rouge">))</span>$/
+				</span>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : capturer des zones avec des sous-motifs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Capturer des zones avec des sous-motifs');
+
+$exp = '/^([a-zA-Z][a-zA-Z0-9_.-]*)@([a-zA-Z][a-zA-Z0-9_.-]*\\.([a-zA-Z]{2,6}))$/u';
+// sans les sous-motifs
+//$exp = '/^[a-zA-Z][a-zA-Z0-9_.-]*@[a-zA-Z][a-zA-Z0-9_.-]*\\.[a-zA-Z]{2,6}$/u';
+
+$txt = 'darkounet@lesMechants.com';
+
+preg_match($exp, $txt, $t);
+infoTableau($t);
+
+htmlFin();
+</textarea>
+			</form>
+			<p>
+				Le résultat du test montre le tableau créé par la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>
+				dans la variable <span class="fp-code">$t</span>.
+
+			</p>
+			<p>
+				Testez l'exemple ci-dessus en utilisant l'expression régulières sans sous-motif : le tableau
+				<code>$t</code> ne contient plus qu'un seul élément avec le texte correspondant au pattern complet.
+			</p>
+			<p>
+				Nous pouvons remplacer les assertions de début et fin de chaîne (<code>^</code> et <code>$</code>) par des assertions de début ou de fin de mot (<code>\b</code>), pour
+				travailler sur un texte plus complet comme :<br> "Vous pouvez
+				écrire à francois.piat@univ-fcomte.fr pour féliciter l'auteur de ce
+				cours."
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : capturer des zones avec des sous-motifs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Capturer des zones avec des sous-motifs');
+
+$exp = '/\\b([a-zA-Z][a-zA-Z0-9_.-]*)@([a-zA-Z][a-zA-Z0-9_.-]*\\.([a-zA-Z]{2,6}))\\b/u';
+
+$txt = 'Vous pouvez écrire à francois.piat@univ-fcomte.fr pour féliciter l\'auteur de ce cours.';
+
+preg_match($exp, $txt, $t);
+infoTableau($t);
+
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>
+				Que se passe-t-il quand le texte à examiner est le suivant :<br>
+				"Vous pouvez écrire à francois.piat@univ-fcomte.fr ou à
+				fpiat@femto-st.fr pour féliciter l'auteur de ce cours.". <br>
+				Nous avons ici deux adresses email, et on devrait avoir le tableau
+				suivant :<br>
+			</p>
+			<table>
+				<tr>
+					<td>
+						<p>Indice</p>
+					</td>
+					<td>
+						<p>Valeur</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">0</p>
+					</td>
+					<td>
+						<p>francois.piat@univ-fcomte.fr</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">1</p>
+					</td>
+					<td>
+						<p>francois.piat</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">2</p>
+					</td>
+					<td>
+						<p>univ-fcomte.fr</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">3</p>
+					</td>
+					<td>
+						<p>fr</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">4</p>
+					</td>
+					<td>
+						<p>fpiat@femto-st.fr</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">5</p>
+					</td>
+					<td>
+						<p>fpiat</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">6</p>
+					</td>
+					<td>
+						<p>femto-st.fr</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p align="center">7</p>
+					</td>
+					<td>
+						<p>fr</p>
+					</td>
+				</tr>
+			</table>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : capturer des zones avec des sous-motifs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Capturer des zones avec des sous-motifs');
+
+$exp = '/\\b([a-zA-Z][a-zA-Z0-9_.-]*)@([a-zA-Z][a-zA-Z0-9_.-]*\\.([a-zA-Z]{2,6}))\\b/u';
+
+$txt = 'Vous pouvez écrire à francois.piat@univ-fcomte.fr ou à fpiat@femto-st.fr pour féliciter l\'auteur de ce cours.';
+
+preg_match($exp, $txt, $t);
+infoTableau($t);
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>
+				Le résultat du test n'est pas celui que nous attendions. Le tableau
+				ne montre que la première adresse email trouvée. Le code n'est pas
+				en cause et fonctionne parfaitement. En effet, la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>
+				<b>s'arrête à la première occurence trouvée</b> pour le modèle. Pour
+				récupèrer toutes les occurences du modèle, il faut utiliser une
+				autre fonction.
+			</p>
+
+
+		</section>
+
+		<h3>Récupérer toutes les occurences</h3>
+		<section>
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.preg-match-all.php" target="_blank">preg_match_all()</a>
+				fonctionne comme <a
+					href="https://www.php.net/manual/en/function.preg-match.php" target="_blank">preg_match()</a>
+				à la différence qu'elle <b>recherche le modèle autant de fois
+					que c'est possible</b>, et qu'elle ne s'arrête pas à la première
+				concordance trouvée.
+			</p>
+			<p>
+				Après l'exécution de la fonction, la variable utilisée pour stocker
+				le résultat contiendra un tableau à deux dimensions, classé par
+				correspondance ou par sous-motifs selon la valeur du
+				quatrième paramètre de la fonction <a
+					href="https://www.php.net/manual/en/function.preg-match-all.php" target="_blank">preg_match_all()</a>.
+				Vous n'avez rien compris ? Alors passons aux exemples.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : capturer des zones avec des sous-motifs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Capturer des zones avec des sous-motifs');
+
+$exp = '/\\b([a-zA-Z][a-zA-Z0-9_.-]*)@([a-zA-Z][a-zA-Z0-9_.-]*\\.([a-zA-Z]{2,6}))\\b/u';
+
+$txt = 'Vous pouvez écrire à francois.piat@univ-fcomte.fr ou à fpiat@femto-st.fr pour féliciter l\'auteur de ce cours.';
+
+htmlInfo('Classées par occurence');
+
+preg_match_all($exp, $txt, $t, PREG_SET_ORDER);
+infoTableau($t);
+
+htmlInfo('Classées par ordre des sous-motifs');
+
+preg_match_all($exp, $txt, $t, PREG_PATTERN_ORDER);
+infoTableau($t);
+
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les chaînes de caractères</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p class="fp-puce">
+			Les chaînes de caractères sont avec les tableaux
+			un des types de données les plus manipulés dans les scripts PHP.
+			Il faut savoir utiliser les bons guillemets (simples ou doubles)
+			suivant les traitements que l'on veut faire ou ne pas faire sur une
+			chaîne.
+		</p>
+
+
+		<p class="fp-puce fp-bottom0">
+			Il y a <b>4 façons</b> pour inclure une chaîne de caractères comme
+			valeur littérale dans un script :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>entourer la chaîne avec des <b>guillemets simples</b></li>
+			<li>entourer la chaîne avec des <b>guillemets doubles</b></li>
+			<li>utiliser la <b>syntaxe heredoc</b></li>
+			<li>utiliser la <b>syntaxe nowdoc</b></li>
+		</ul>
+		<p>Chacune des solutions différe dans la façon dont elle gére les
+			caractères spéciaux et l'interprétation des variables.</p>
+
+		<h3>Les guillemets simples</h3>
+		<section>
+			<p class="fp-puce">C'est la façon la plus simple et la
+				<strong>moins "coûteuse"</strong> (avec la syntaxe nowdoc) pour délimiter une chaîne de caractères littérale.</p>
+			Exemple :
+			<pre data-code="PHP" class="fp-top0">$hello = 'Bonjour tout le monde';</pre>
+
+			<p class="fp-puce">
+				Pour inclure un guillemet simple (apostrophe) dans la chaîne, nous
+				devons le protéger (ou l'échapper) avec un backslash (<span
+					class="FP-code">\</span>).
+			</p>
+			Exemple :
+			<pre data-code="PHP" class="fp-top0">$hello = 'Bonjour tout l\'monde';</pre>
+
+			<p class="fp-puce fp-bottom0">
+				Dans une chaîne littérale délimitée par des guillemets simples :
+			</p>
+			<ul class="fp-ul-puce">
+				<li>Quand on double un backslash (i.e. quand on écrit deux backslash de suite), il ne reste qu'un seul backslash
+				dans la chaîne résultante.
+				<li>Il n'est pas possible d'échapper d'autres caractères que l'apostrophe et le backslash. Un
+				backslash placé devant n'importe quel autre caractère sera
+				tout simplement placé tel quel dans la chaîne résultante.
+				<li>Pour placer, dans la chaîne résultante, un backslash devant un guillemet simple ou un autre backslash, il
+				donc nécessaire de le doubler.
+			</ul>
+
+			<form method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : backslashs en pagaille
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Backslashs en pagaille');
+
+$str = 'a\'b\\cd\ef \\\\ \\\ \\\' \n\r\t';
+
+echo '&lt;hr&gt;', $str, '&lt;hr&gt;';
+
+htmlFin();</textarea>
+			</form>
+
+		<p> Recommandation : lorsque vous souhaitez placer un backslash dans une chaîne délimitée par des guillemets simples, je vous recommande, pour des questions de lisibilité, de toujours l'échapper en le doublant.<br>
+		Cette recommandation sera également valable pour les chaînes délimitées par des guillemets doubles.
+		</p>
+
+		</section>
+
+		<h3>Les guillemets doubles</h3>
+		<section>
+			<p class="fp-puce">Une chaîne de caractères littérale peut être délimitée
+				avec des guillemets doubles.</p>
+
+			Exemple :
+			<pre data-code="PHP" class="fp-top0">$hello = "Bonjour tout le monde";</pre>
+
+			<p class="fp-puce fp-bottom0">
+				La différence entre les guillemets doubles et simples est <strong>importante</strong>
+				car dans les chaînes entourées de guillemets doubles :
+			</p>
+			<ul class="fp-ul-puce">
+				<li><b>les variables sont remplacées par leur valeur,</b></li>
+				<li><b>les séquences d'échappement sont interprétées</b>.</li>
+			</ul>
+
+			<p class="fp-bottom0">Par exemple, dans le code suivant :
+			<pre data-code="PHP" class="fp-top0">
+$prenom = 'François';
+$nom = 'Piat';
+$personne = "$prenom $nom";
+</pre>
+			<p>
+				la variable <span class="fp-code">$personne</span> contiendra la
+				chaîne de caractère <span class="fp-code">François Piat</span>.
+			</p>
+
+			<p class="fp-puce fp-bottom0">Les séquences d'échappement
+				suivantes sont interprétées :</p>
+			<dl class="fp-dl-code">
+				<dt>\n</dt>
+				<dd>: provoque un passage à une nouvelle ligne (linefeed, LF ou 0x0A (10) en ASCII)</dd>
+				<dt>\r</dt>
+				<dd>: provoque un retour à la ligne (carriage return, CR ou 0x0D (13) en
+					ASCII)</dd>
+				<dt>\t</dt>
+				<dd>: provoque une tabulation horizontale (HT ou 0x09 (9) en ASCII)</dd>
+				<dt>\\</dt>
+				<dd>: permet d'insérer un backslash</dd>
+				<dt>\$</dt>
+				<dd>: permet d'insérer un caractère $ dans une chaîne entourée par des guillemets doubles</dd>
+				<dt>\"</dt>
+				<dd>: permet d'insérer un guillemet double dans une chaîne entourée par des guillemets doubles</dd>
+				<!--<dt>\{</dt>
+				<dd>: permet d'afficher un accolade ouvrante entourée par des guillemets doubles</dd>
+				<dt>\}</dt>
+				<dd>: permet d'afficher un accolade fermante entourée par des guillemets doubles</dd>
+				<dt>\[</dt>
+				<dd>: permet d'afficher un crochet ouvrant entourée par des guillemets doubles</dd>
+				<dt>\]</dt>
+				<dd>: permet d'afficher un crochet fermant entourée par des guillemets doubles</dd>-->
+			</dl>
+
+			<p class="fp-puce fp-bottom0">
+				De plus, il est possible d'insérer directement, dans une chaîne délimitée entre guillemets doubles,
+				des octets dont la valeur est donnée en octal ou en hexadécimal. Pour cela, les valeurs en octal doivent
+				être précédées d'un backslash (<span class="fp-code">\</span>), et les valeurs en hexadécimal
+				précédées d'un backslash et du caractère x (<span class="fp-code">\x</span>).<br>
+				Voici quelques notations équivalentes :
+			</p>
+			<ul class="fp-ul-puce">
+				<li> <span class="fp-code">'A'</span>, <span class="fp-code">"A"</span>, <span class="fp-code">"\x41"</span>, <span class="fp-code">"\101"</span>
+				<li> <span class="fp-code">'a'</span>, <span class="fp-code">"a"</span>, <span class="fp-code">"\x61"</span>, <span class="fp-code">"\141"</span>
+				<li><span class="fp-code">"\n"</span>, <span class="fp-code">"\x0A"</span>, <span class="fp-code">"\xA"</span>, <span class="fp-code">"\012"</span>, <span class="fp-code">"\12"</span>
+				<li><span class="fp-code">"\r"</span>, <span class="fp-code">"\x0D"</span>, <span class="fp-code">"\xD"</span>, <span class="fp-code">"\015"</span>, <span class="fp-code">"\15"</span>,
+			</ul>
+
+			<form method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : guillemets simples et guillemets doubles
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('guillemets simples et doubles');
+
+echo '&lt;h4&gt;Chaîne sans complication&lt;/h4&gt;';
+echo 'Simple : Bonjour tout le monde';
+echo "&lt;br&gt;Double : Bonjour tout le monde";
+
+echo '&lt;h4&gt;Chaîne avec apostrophe&lt;/h4&gt;';
+echo 'Simple : Bonjour tout l\'monde';
+echo "&lt;br&gt;Double : Bonjour tout l'monde";
+
+echo '&lt;h4&gt;Chaîne avec guillemets doubles&lt;/h4&gt;';
+echo 'Simple : "Bonjour tout le monde"';
+echo "&lt;br&gt;Double : \"Bonjour tout le monde\"";
+
+echo '&lt;h4&gt;Chaîne avec un backslash&lt;/h4&gt;';
+echo 'Simple : Conseil: toujours protéger le caractère \\';
+echo "&lt;br&gt;Double : Conseil: toujours protéger le caractère \\";
+
+echo '&lt;h4&gt;Séquence d\'échappement : saut de ligne&lt;/h4&gt;';
+echo '&lt;pre&gt;';
+echo 'Simple : \n est sans effet ici';
+echo "&lt;br&gt;Double : \n \\n est\12interprété\xAici";
+echo '&lt;/pre&gt;';
+
+echo '&lt;h4&gt;Chaîne avec une variable&lt;/h4&gt;';
+$x = 'François';
+echo 'Simple : je m\'appelle $x Piat';
+echo "&lt;br&gt;Double : je m'appelle $x Piat";
+
+htmlFin();</textarea>
+			</form>
+
+		<p>Rappel : l'élément HTML <span class="fp-code">pre</span> (pour PREformatted text) permet de représenter du texte pré-formaté. Le texte contenu dans cet élément est généralement affiché dans une police à espacement fixe. Les blancs (espaces consécutifs, tabulations, sauts de ligne) contenus dans le texte sont affichés tels qu'ils sont dans le code source du document.</p>
+		</section>
+
+		<h3>La syntaxe heredoc</h3>
+		<section>
+			<p class="fp-puce">
+				La syntaxe heredoc commence par <span class="fp-code">&lt;&lt;&lt;</span>,
+				suivi d'un identifiant arbitraire, puis de la chaîne de caractères.
+				La séquence se termine par l'identifiant initial, placé en premier
+				sur une nouvelle ligne.
+			</p>
+			<p class="fp-puce">L'identifiant utilisé doit suivre les mêmes
+				règles que pour le nommage des variables PHP : il ne doit
+				contenir que des caractères alpha-numériques ou _, et commencer par
+				un caractère alphabétique ou _.</p>
+			<p class="fp-puce">Les séquences d'échappement sont interprétées,
+				et les variables remplacées par leur valeur. Les guillemets simples
+				ou doubles dans la chaîne n'ont besoin d'aucune protection
+				particulière.</p>
+
+			<form method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : syntaxe heredoc
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('syntaxe heredoc');
+
+$n = 'François';
+$x = &lt;&lt;&lt; _Delimiteur_
+Bonjour,\nJe m'appelle "Piat", $n Piat.
+_Delimiteur_;
+
+echo '&lt;pre&gt;', $x, '&lt;/pre&gt;';
+
+htmlFin();</textarea>
+			</form>
+
+			<p class="FP-2-inter">La syntaxe heredoc peut être utilisée avec
+				facilité pour stocker des chaînes de caractères représentant du code
+				HTML. A l'intérieur de la chaîne, le formattage éventuel du code
+				(saut de ligne, indentation) sera gardé lors de l'affichage du code
+				HTML source de la page résultat, rendant ainsi le code source de cette page plus
+				facilement lisible. Les guillemets (simples ou doubles) employés
+				pour entourer les valeurs des attributs ne poseront pas de problème
+				de protection.</p>
+
+			<form method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : syntaxe heredoc
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('synatxe heredoc');
+
+$couleur = '#FFFFBD';
+
+$html = &lt;&lt;&lt; _HTML_
+&lt;table border="0" width="60%" align="center""&gt;
+  &lt;tr&gt;
+    &lt;td bgcolor="$couleur"&gt;
+      &lt;p&gt;Formation PHP&lt;/p&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;
+      &lt;p&gt;La syntaxe heredoc peut être utilisée avec 
+      facilité pour stocker des chaînes de caractères 
+      représentant du code HTML.&lt;/p&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;
+      &lt;p&gt;&lt;a href="javascript:alert('Message javascript')"&gt;
+      Lien javascript&lt;/a&gt;&lt;/p&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+_HTML_;
+
+echo $html;
+
+htmlFin();</textarea>
+			</form>
+
+			<!--<p class="fp-remarque">La syntaxe heredoc est plus coûteuse à
+				traiter que les autres façons d'inclure des chaînes comme valeur
+				littérale dans les scripts. A mon avis elle doit être évitée si
+				possible.</p>-->
+		</section>
+
+		<h3>La syntaxe nowdoc</h3>
+		<section>
+		<p class="fp-puce">
+			La syntaxe nowdoc est aux chaînes délimitées entre guillemets simples ce que la syntaxe heredoc est aux chaînes délimitées entre guillemets doubles. Un chaîne littérale nowdoc est spécifiée de manière similaire à une chaîne heredoc, mais une chaîne
+			littérale nowdoc n'est <strong>pas parsée</strong>, ce qui signifie qu'il n'y a ni substitution de variable, ni interprétation
+			des séquences d'échappement dans une chaîne nowdoc (i.e. le caractère backslash est un caractère littéral comme les autres).<br>
+			Cette syntaxe est idéale pour embarquer de larges blocs de texte, sans avoir besoin d'échapper quoi que ce soit.
+		</p>
+
+		<p class="fp-puce">
+		Une chaine nowdoc commence également par <span class="fp-code">&lt;&lt;&lt;</span>, mais l'identifiant qui suit est entouré de guillemets simples, comme <span class="fp-code">&lt;&lt;&lt;'EOT'</span>. Toutes les règles concernant les identifiants heredoc s'appliquent également aux identifiants nowdoc.
+		</p>
+
+		<form method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : syntaxe nowdoc
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('synatxe nowdoc');
+
+$titre = 'Test';
+
+$html = &lt;&lt;&lt; '_HTML_'
+&lt;h6&gt;$titre&lt;/h6&gt;
+&lt;p&gt;
+Les variables ne sont pas interprétées.
+&lt;/p&gt;
+&lt;p&gt;
+Les backslash sont toujours traités de façon littérale,
+par exemple \\ et \' et \n \t.
+" ' \"
+&lt;/p&gt;
+&lt;p&gt;La syntaxe nowdoc peut aussi être utilisée avec
+      facilité pour stocker des chaînes de caractères
+      représentant du code HTML.&lt;/p&gt;
+&lt;p&gt;&lt;a href="javascript:alert('Message javascript')"&gt;
+      Lien javascript&lt;/a&gt;&lt;/p&gt;
+_HTML_;
+
+echo $html;
+
+htmlFin();</textarea></form>
+
+
+
+		</section>
+
+		<h3>Saut de ligne</h3>
+		<section>
+			<p>Toutes les syntaxes (guillemets simples ou doubles, heredoc et
+				nowdoc) permettent de mettre des sauts de lignes dans les chaînes
+				de caractères.</p>
+
+			<form method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : sauts de ligne
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Sauts de ligne');
+
+$n = 'Piat';
+//---------------------------------------------------------
+// Guillemets simples
+$x = 'Bonjour.
+Je m\'appelle : 
+   François $n.';
+
+echo '&lt;pre&gt;', $x, '&lt;/pre&gt;';
+
+//---------------------------------------------------------
+// Guillemets doubles
+$x = "Bonjour.
+Je m'appelle : 
+   François $n.";
+
+echo '&lt;pre&gt;', $x, '&lt;/pre&gt;';
+
+//---------------------------------------------------------
+// syntaxe heredoc
+$x = &lt;&lt;&lt; texte_hd
+Bonjour.
+Je m'appelle : 
+   François $n.
+texte_hd;
+
+echo '&lt;pre&gt;', $x, '&lt;/pre&gt;';
+
+//---------------------------------------------------------
+// syntaxe nowdoc
+$x = &lt;&lt;&lt; 'texte_hd'
+Bonjour.
+Je m'appelle :
+   François $n.
+texte_hd;
+
+echo '&lt;pre&gt;', $x, '&lt;/pre&gt;';
+
+htmlFin();</textarea>
+			</form>
+
+		</section>
+	</div>
+	<footer></footer>
+</body>
+</html>

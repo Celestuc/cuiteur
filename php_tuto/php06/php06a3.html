@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>le Web et PHP</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+<link rel="stylesheet" href="specifique.css">
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		Nous allons dans cette section vérifier les données envoyées par ce
+		<a href ="../test/formulaire3.html" target="_blank">formulaire</a>.
+
+		<a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire3_code.html')">Code
+					HTML</a>
+		en complétant au fur et à mesure le script appelé lorsqu'il est soumis.
+
+
+		<h3>Vérification des données coté serveur</h3>
+		<section>
+
+		<p class="fp-puce">  Quelle que soit la méthode utilisée pour soumettre un formulaire, il est impératif de vérifier les données reçues, d'une part
+		pour que notre site ne plante pas si on ne reçoit pas une donnée attendue ou si on reçoit une donnée inattendue; et d'autre part
+		pour ne pas laisser la porte ouverte à des tentatives de piratage.
+		</p>
+
+		<p class="fp-puce">Du côté client, avec HTML et JavaScript, il n'y
+			a malheureusement pas de méthodes sûres qui permettent de vérifier
+			que les valeurs saisies sont correctes et que les valeurs envoyées
+			sont bien celles que l'on attend. Même si la nouvelle version de HTML
+			(HTML5) offre des attributs permettant de définir la validité d'une
+			zone, ils sont dans la réalité peu utilisables puisque maintenant
+			tous les navigateurs offre des outils qui permettent de voir et
+			surtout modifier dynamiquement le code HTML des pages affichées.
+			La validation avec JavaScript n'est pas suffisante non plus
+			car il suffit de désactiver JavaScript dans le navigateur ou avec les
+			outils proposés pour qu'aucune validation ne soit faite.
+		</p>
+
+		<p class="fp-puce">
+			Il faut donc mettre en place <b>sur le serveur</b> les procédures qui
+			permettent de <b>valider les informations</b> que l'on reçoit "de
+			l'extérieur" (ie Internet), et ce, quelque soit la provenance de ces
+			informations (formulaires en POST, données en GET, cookies, en-têtes
+			HTTP si on les utilise, etc).
+		</p>
+
+									</section>
+<h3>Deux catégories d'erreurs</h3>
+		<section>
+		<p class="fp-puce">
+		Quand on reçoit une donnée erronée, cela peut être dû à un manque d'information ou d'attention du visiteur. Dans ce cas, il faut
+		<b>informer</b> le visiteur pour qu'il puisse corriger son erreur. En revanche, si l'on a à faire à un visiteur mal intentionné qui cherche à <b>pirater</b>
+		notre site, il faut par exemple le rediriger vers une déconnexion ou le blacklister.
+		</p>
+
+		<p class="fp-puce">
+			La distinction entre ces deux catégories d'erreurs est sujette à discussion. Par exemple, si un utilisateur envoie une chaîne
+			avec des balises HTML, on peut considérer qu'il s'agit d'une tentative de piratage, ou bien être plus "tolérant" et simplement
+			l'informer de son erreur, tout en protégeant bien entendu notre site contre les attaques XSS. <br>
+			Dans la suite, on va considérer toutes les erreurs détectées, qui nécessitent une modification du code HTML, comme des tentatives de piratage, tout en gardant à l'esprit que notre application doit également fonctionner correctement sur les vieux navigateurs qui ne supportent pas encore
+			les dernières fonctionnalités d'HTML5. <BR>
+			Exemple : sur les vieux navigateurs qui ne supportent pas encore les <span class="fp-code">input</span> de type <span class="fp-code">number</span> , ils fonctionnent comme
+			des <span class="fp-code">input</span>  de type <span class="fp-code">text</span>. Donc, si nous recevons une chaîne non numérique
+			pour l'identifiant, nous informerons simplement le visiteur de son erreur.
+		</p>
+
+
+		</section>
+<h3>Vérification des clés dans $_POST et $_GET</h3>
+		<section>
+
+		<p class="fp-puce">
+			Nous allons commencer par vérifier les clés des éléments présents dans <span
+					class="fp-code">$_POST</span>.
+			Pour faciliter cette vérification, nous allons ajouter la fonction<span
+					class="fp-code">parametresControle()</span>
+			dans notre bibliothéque de fonctions :
+		</p>
+
+
+
+<pre data-code="PHP">
+/**
+ * Contrôle des clés présentes dans les tableaux $_GET ou
+ * $_POST - piratage ?
+ *
+ * Soit $x l'ensemble des clés contenues dans $_GET ou $_POST
+ * L'ensemble des clés obligatoires doit être inclus dans $x.
+ * De même $x doit être inclus dans l'ensemble des clés autorisées,
+ * formé par l'union de l'ensemble des clés facultatives et de
+ * l'ensemble des clés obligatoires. Si ces 2 conditions sont
+ * vraies, la fonction renvoie true, sinon, elle renvoie false.
+ * Dit autrement, la fonction renvoie false si une clé obligatoire
+ * est absente ou si une clé non autorisée est présente; elle
+ * renvoie true si "tout va bien"
+ *
+ * @param string    $tabGlobal 'post' ou 'get'
+ * @param array     $clesObligatoires tableau contenant les clés
+ *                  qui doivent obligatoirement être présentes
+ * @param array     $clesFacultatives tableau contenant
+ *                  les clés facultatives
+ *
+ * @return bool     true si les paramètres sont corrects, false sinon
+*/
+function parametresControle(string $tabGlobal,
+							array $clesObligatoires,
+							array $clesFacultatives = []): bool{
+    $x = strtolower($tabGlobal) == 'post' ? $_POST : $_GET;
+
+    $x = array_keys($x);
+    // $clesObligatoires doit être inclus dans $x
+    if (count(array_diff($clesObligatoires, $x)) > 0){
+        return false;
+    }
+    // $x doit être inclus dans
+    // $clesObligatoires Union $clesFacultatives
+    if (count(array_diff($x,
+						 array_merge($clesObligatoires,
+						             $clesFacultatives))) > 0){
+        return false;
+    }
+
+    return true;
+}
+</pre>
+
+<p class="fp-remarque">
+Cette fonction est également utilisable pour vérifier les clés des éléments présents dans <span
+					class="fp-code">$_GET</span>, lors d'une transmission de paramètres dans l'URL.
+
+</p>
+
+
+
+<p class="fp-inter2">
+				Cliquez
+				<b><a href="../test/formulaire4.html" target="_blank">ici</a></b>
+				pour ouvrir un nouvel onglet affichant le formulaire. <a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire4_code.html')">Code
+					HTML</a><br>
+
+				Quand vous soumettez le formulaire en cliquant sur son bouton
+				<span class="fp-code">submit</span>, le script spécifié dans l'attribut
+				<span class="fp-code">action</span> de l'élement HTML <span class="fp-code">form</span> (ici
+				<span class="fp-code">controle_cles.php</span>) est appelé avec la méthode
+				<span class="fp-code">POST</span>.
+			</p>
+
+			<p>
+				Code du script <span class="fp-code">controle_cles.php</span> :
+			</p>
+						<pre data-code="PHP">
+&lt;?php
+
+require_once 'bib_fonctions.php';
+
+htmlDebut('Réception formulaire');
+
+htmlInfo('Pour débuggage');
+echo '&lt;pre&gt;';
+htmlInfo('$_POST');
+var_dump($_POST);
+echo '&lt;/pre&gt;';
+
+htmlInfo('Pour tester la fonction parametresControle() ...');
+// si soumission du formulaire
+if (isset($_POST['btnEnvoi'])){
+    if (! parametresControle('post',
+            clesObligatoires:['btnEnvoi', 'hidSecret', 'txtNom',
+                              'numIdentifiant', 'radNiveau',
+                              'lstTP', 'txtRemarques'],
+            clesFacultatives:['chkHtml', 'chkCss',
+                              'chkJs', 'chkPhp'])){
+        echo '&lt;p&gt;Tentative de piratage ?&lt;/p&gt;';
+    }
+    else {
+        echo '&lt;p&gt;Ok, les clés sont valides.&lt;/p&gt;';
+    }
+}
+else {
+  echo '&lt;p&gt;Le script est appelé via une requête HTTP GET.&lt;/p&gt;';
+}
+
+htmlFin();
+</pre>
+	<p>
+		Vérifier qu'à moins de modifier le code HTML du formulaire, quelque soit les données soumises (en particulier quelque soit les cases à cocher sélectionnées), le script <span class="fp-code">controle_cles.php</span> affiche toujours
+		le message 'Ok, les clés sont valides.' quand le formulaire est soumis.
+	</p>
+
+	<p class="fp-remarque">
+		S'il n'y a pas de bouton radio initialement pré-sélectionné dans le formulaire HTML, la clé <span class="fp-code">radNiveau</span>
+		devient facultative.
+	</p>
+
+	<p class="fp-remarque">
+		Si vous appelez "directement" le script <span class="fp-code">controle_cles.php</span>, en tapant par exemple son URL dans la barre de navigation,
+		il est appelé avec la méthode <span class="fp-code">GET</span>. Le test <span class="fp-code">if (isset($_POST['btnEnvoi']))</span> sert
+		à éviter d'afficher le message 'Tentative de piratage ?' dans ce cas là.
+	</p>
+
+			</section>
+<h3>Validation des zones numériques</h3>
+		<section>
+
+		<p class="fp-puce">
+			Pour l'identifiant et pour le niveau  sélectionné avec le bouton radio, nous attendons de recevoir des "entiers"
+			dans <span class="fp-code">$_POST['numIdentifiant']</span> et <span class="fp-code">$_POST['radNiveau']</span>.
+		</p>
+
+		<p class="fp-puce">
+		 Comme toutes les valeurs des éléments du tableau <span class="fp-code">$_POST</span> sont de <b>type
+		 <span class="fp-code">string</span></b>, nous ne pouvons pas utiliser la fonction
+		 <a href="https://www.php.net/manual/en/function.is-int" target="_blank">is_int()</a> pour tester les valeurs
+		 de <span class="fp-code">$_POST['numIdentifiant']</span> et <span class="fp-code">$_POST['radNiveau']</span>.
+		 En effet, <span class="fp-code">is_int('15')</span> est égal à <span class="fp-code">false</span>.
+		 Il faut utiliser la fonction
+		 <b><a href="https://www.php.net/manual/en/function.is-numeric" target="_blank">is_numeric()</a></b>
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_05.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : tests de is_numeric()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Tests de is_numeric()');
+
+echo '&lt;pre&gt;';
+var_dump(is_numeric(15));				//bool(true)
+var_dump(is_numeric(17.2));				//bool(true)
+var_dump(is_numeric('   42    '));		//bool(true)
+var_dump(is_numeric(''));				//bool(false)
+var_dump(is_numeric(' aa   42    '));	//bool(false)
+var_dump(is_numeric(' 42    aa'));		//bool(false)
+echo '&lt;/pre&gt;';
+
+htmlFin();
+</textarea>
+			</form>
+
+
+		</section>
+
+		<p class="fp-puce">
+      La fonction  <a href="https://www.php.net/manual/en/function.is-numeric" target="_blank">is_numeric()</a>
+      renvoie <span class="fp-code">true</span> lorsqu'on lui transmet en paramètre un
+      nombre décimal (exemple :
+			<span class="fp-code">is_numeric(17.2)</span> est égal à <span class="fp-code">true</span>).
+			Or, nous attendons des entiers. Pour faciliter les tests, nous ajoutons la fonction
+			<span class="fp-code">estEntier()</span> dans notre bibliothèque de fonctions.
+		</p>
+
+		<pre data-code="PHP">
+/**
+ * Teste si une valeur est une valeur entière
+ *
+ * @param   mixed    $x  valeur à tester
+ *
+ * @return  bool     true si entier, false sinon
+ */
+function estEntier(mixed $x):bool {
+    return is_numeric($x) &amp;&amp; ($x == (int) $x);
+}
+</pre>
+
+<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_06.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : tests de estEntier()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('tests de estEntier()');
+
+echo '&lt;pre&gt;';
+var_dump(estEntier(15));				//bool(true)
+var_dump(estEntier(17.2));				//bool(false)
+var_dump(estEntier('   42    '));		//bool(true)
+var_dump(estEntier(''));				//bool(false)
+var_dump(estEntier(' aa   42    '));	//bool(false)
+var_dump(estEntier(' 42    aa'));		//bool(false)
+echo '&lt;/pre&gt;';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-puce">
+				<span class="fp-code">$_POST['radNiveau']</span> doit être compris entre 1 et 3, bornes incluses.
+				D'où l'idée d'ajouter la fonction <span class="fp-code">estEntre()</span>
+				dans notre bibliothèque de fonctions.
+			</p>
+
+			<pre data-code="PHP">
+/**
+ * Teste si un entier est compris entre 2 autres
+ *
+ * Les bornes $min et $max sont incluses.
+ *
+ * @param   int    $x  valeur à tester
+ * @param   int    $min  valeur minimale
+ * @param   int    $max  valeur maximale
+ *
+ * @return  bool   true si $min &lt;= $x &lt;= $max
+ */
+function estEntre(int $x, int $min, int $max):bool {
+    return ($x &gt;= $min) &amp;&amp; ($x &lt;= $max);
+}
+</pre>
+
+<p class="fp-puce">
+	Vérification supplémentaire : l'identifiant doit être strictement supérieur à 0.
+</p>
+
+<p class="fp-puce">
+	Dans le script appelé lors de la soumission, nous allons mémoriser dans
+	le tableau <b><span class="fp-code">$errs</span></b>, les erreurs liées
+	à un manque d'informations ou d'attention des utilisateurs (utilisateurs dits "distraits").<br>
+	En revanche, quand une tentative de piratage est détectée, on appelle la fonction nommée
+	<b><span class="fp-code">piratageDetecteExit()</span></b>, qui pour le moment affiche un simple
+	message et termine le script.<br>
+	A la fin du <span class="fp-code">if (isset($_POST['btnEnvoi']))</span>,
+	s'il n'y a pas d'erreur, on affiche un message indiquant que les données
+	soumises sont valides; sinon, toutes les erreurs sont affichées.<br>
+	Le script
+	appelé lors de la soumission du formulaire est complété comme indiqué
+	ci-dessous :
+</p>
+
+
+
+<pre data-code="PHP">
+&lt;?php
+
+require_once 'bib_fonctions.php';
+
+/**
+ * Fonction appelée quand une tentative de piratage est détectée
+ *
+ * Affiche un message et termine le script
+ *
+ * @return void
+ */
+function piratageDetecteExit() : void {
+    echo '&lt;p&gt;Tentative de piratage ?&lt;/p&gt;';
+    htmlFin();
+    exit;
+}
+
+htmlDebut('Validation des zones numériques');
+
+htmlInfo('Validation des zones numériques');
+// si soumission du formulaire
+if (isset($_POST['btnEnvoi'])){
+    if (! parametresControle('post',
+            clesObligatoires:['btnEnvoi', 'hidSecret', 'txtNom',
+                              'numIdentifiant', 'radNiveau',
+                              'lstTP', 'txtRemarques'],
+            clesFacultatives:['chkHtml', 'chkCss',
+                              'chkJs', 'chkPhp'])){
+
+        piratageDetecteExit(); //=&gt; fin du script
+    }
+    // les clés sont valides
+
+    // pour mémoriser les erreurs des utilisateurs "distraits"
+    $errs = [];
+
+    // test de l'identifiant
+    $id = $_POST['numIdentifiant'];
+    if (estEntier($id)){
+        if ($id &lt;= 0){
+            $errs[] = 'L\'identifiant doit être un entier strictement positif';
+        }
+    }
+    else{
+        $errs[] = 'L\'identifiant doit être un entier';
+    }
+
+    // test du niveau
+    $niveau = $_POST['radNiveau'];
+    if (! (estEntier($niveau) &amp;&amp; estEntre($niveau, 1, 3))){
+        piratageDetecteExit(); //=&gt; fin du script
+    }
+
+    // les tests suivants seront placés ici
+    // ...
+
+
+    if (count($errs) &gt; 0){
+        echo '&lt;p&gt;Des erreurs ont été détectées :';
+        foreach($errs as $err){
+            echo '&lt;br&gt;- ', $err;
+        }
+        echo '&lt;/p&gt;';
+    }
+    else {
+        echo '&lt;p&gt;Ok, les données saisies sont valides.&lt;/p&gt;';
+    }
+
+}
+
+htmlFin();
+</pre>
+
+<p class="fp-puce">
+				Cliquez
+				<b><a href="../test/formulaire5.html" target="_blank">ici</a></b>
+				pour ouvrir un nouvel onglet affichant le formulaire. <a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire5_code.html')">Code
+					HTML</a><br>
+
+				et tester le script appelé lors de la soumission du formulaire.
+			</p>
+
+		<p class="fp-remarque">
+			Il peut sembler surprenant de tester la valeur reçue pour le niveau dans
+			<span class="fp-code">$_POST['radNiveau']</span> car cette valeur n'est pas saisie.
+			Néanmoins, ce test est obligatoire car rien n'empêche le visiteur qui va soumettre le
+			formulaire de modifier facilement les valeurs correspondantes à ces zones avec les outils
+			offerts par les navigateurs.
+
+		</p>
+
+
+			</section>
+<h3>Validation des zones de saisie libre</h3>
+		<section>
+
+		<p class="fp-puce">La validation des textes saisis autres que des nombres
+			est plus difficile, sauf si la chaîne doit obéir à un
+			masque clairement identifié comme par exemple un code composé de 2
+			lettres majuscules, suivies d'un nombre à 3 chiffres, puis d'un tiret
+			et de 3 lettres minuscules.
+			Quand c'est possible, on essaiera de valider les chaînes saisies
+			avec des
+			expressions régulières (voir le chapitre qui leur est consacré).</p>
+		<p class="fp-bottom0 fp-puce">A défaut de pouvoir appliquer
+			un masque de validation à une chaîne de caractères, les tests
+			minimums vont consister à :</p>
+		<ul class="fp-ul-puce">
+			<li>enlever les espaces blancs éventuels situés en début et en fin de
+				chaîne en utilisant la fonction
+				<a href="https://www.php.net/manual/en/function.trim" target="_blank">trim()</a>
+				</li>
+			<li>vérifier que la chaîne n'est pas vide (sauf si il est
+				possible de ne rien saisir dans la zone)</li>
+			<li>si des limitations de longueur existent, vérifier que la chaîne est
+				d'une longueur minimum et/ou maximum</li>
+			<li>enlever les tags HTML que l'utilisateur aurait pu glisser
+				dans la chaîne pour protéger notre site contre les attaques XSS
+				(cross-site scripting) en utilisant la fonction
+				<a href="https://www.php.net/manual/en/function.strip-tags" target="_blank">strip_tags()</a>
+				</li>
+		</ul>
+
+		<p class="fp-bottom0 fp-puce"> Dans notre formulaire d'exemple, il y a deux zones de saisie libre :
+		</p>
+		<ul class="fp-ul-puce">
+			<li> l'<span class="fp-code">input</span> de type <span class="fp-code">text</span> permettant la saisie du nom
+			<li> et le <span class="fp-code">textarea</span> permettant la saisie des remarques
+		</ul>
+
+		<p class="fp-puce"> Commençons par le nom en supposant qu'il doit être constitué de 2 à 50 caractères.
+		</p>
+
+		<pre data-code="PHP">
+// test du nom
+$nom = trim($_POST['txtNom']);
+// c'est la longueur en nombre de caractères
+// qui nous intéresse
+$l = mb_strlen($nom, encoding:'UTF-8');
+if ($l < 2 || $l > 50) {
+    $errs[] = 'Le nom doit contenir entre 2 et 50 caractères';
+}
+$noTags = strip_tags($nom);
+if ($noTags != $nom){
+    $errs[] = 'Le nom ne doit pas contenir de tags HTML';
+}
+</pre>
+		<p>Le bout de code ci-dessus, et un test similaire pour le texte saisi dans
+		le <span class="fp-code">textarea</span>, qui lui peut être vide et doit être de longueur
+		inférieure ou égale à 255 caractères,
+		seront ajoutés dans le script auquel le formulaire est soumis.
+		</p>
+
+    </section>
+<h3>Validation des zones non saisies</h3>
+		<section>
+
+		<p class="fp-bottom0">Il s'agit dans notre formulaire :</p>
+		<ul class="fp-ul-puce">
+      <li>de l'<span class="fp-code">input</span> de type <span class="fp-code">hidden</span>
+			<li>des boutons radio</li>
+			<li>des cases à cocher</li>
+			<li>de la liste déroulante.</li>
+		</ul>
+
+		<p class="fp-puce">
+      Le cas des boutons radio a déjà éte traité, et la valeur reçue dans <span class="fp-code">$_POST['hidSecret']</span>
+      doit être égale à <span class="fp-code">'pas vu'</span>.
+		</p>
+
+		<p class="fp-puce">
+      Vérification de l'item sélectionné dans la liste déroulante <a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire5_code.html')">Code
+					HTML</a> en utilisant la fonction
+					<a href="https://www.php.net/manual/en/function.in-array" target="_blank">in_array()</a>.<br>
+					:
+		</p>
+    <pre data-code="PHP">
+// test de la liste déroulante
+if (! in_array($_POST['lstTP'],
+               ['A', 'B', 'C', 'indifférent'], true)){
+    piratageDetecteExit(); //=> fin du script
+}
+</pre>
+<p class="fp-remarque">
+  Comme pour toutes les zones de saisie, on reçoit dans <span class="fp-code">$_POST['lstTP']</span> une valeur correspondant à la valeur
+  de l'attribut <b><span class="fp-code">value</span></b> de l'<span class="fp-code">option</span> sélectionnée.
+</p>
+
+    <p class="fp-puce fp-inter2">
+      Il faut vérifier les checkbox une à une. <br>
+      Rappel : si une checkbox n'est pas cochée, il n'y a pas d'élément de clé correspondante dans le tableau
+      <span class="fp-code">$_POST</span>, d'où l'utilisation de la fonction
+      <a href="https://www.php.net/manual/en/function.isset" target="_blank">isset()</a>.<br>
+      Si, par exemple, la checkbox dont l'attribut <span class="fp-code">name</span>est égal à <span class="fp-code">chkPhp</span>  est cochée, on doit recevoir la valeur <span class="fp-code">'1'</span> dans <span class="fp-code">$_POST['chkPhp']</span>.<br>
+      D'où le code suivant à répéter pour les 4 checkbox :
+    </p>
+    <pre data-code="PHP">
+// test de la checkbox 'chkPhp'
+if (isset($_POST['chkPhp'])){
+    if ($_POST['chkPhp'] !== '1'){
+        piratageDetecteExit(); //=> fin du script
+    }
+}
+</pre>
+    <p class="fp-puce">
+      On peut ici factoriser ce code comme ci-dessous :
+    </p>
+    <pre data-code="PHP">
+// test des checkbox
+$tCheck = ['chkHtml', 'chkCss', 'chkJs', 'chkPhp'];
+foreach ($tCheck as $check){
+    if (isset($_POST[$check])){
+        if ($_POST[$check] !== '1'){
+            piratageDetecteExit(); //=> fin du script
+        }
+    }
+}
+</pre>
+
+</section>
+<h3>Script avec toutes les vérifications</h3>
+
+<section>
+
+<pre data-code="PHP">
+&lt;?php
+
+require_once 'bib_fonctions.php';
+
+/**
+ * Fonction appelée quand une tentative de piratage est détectée
+ *
+ * Affiche un message et termine le script
+ *
+ * @return void
+ */
+function piratageDetecteExit() : void {
+    echo '&lt;p&gt;Tentative de piratage ?&lt;/p&gt;';
+    htmlFin();
+    exit;
+}
+
+htmlDebut('Validation de toutes les zones');
+
+htmlInfo('Validation de toutes les zones');
+// si soumission du formulaire
+if (isset($_POST['btnEnvoi'])){
+    if (! parametresControle('post',
+            clesObligatoires:['btnEnvoi', 'hidSecret', 'txtNom',
+                              'numIdentifiant', 'radNiveau',
+                              'lstTP', 'txtRemarques'],
+            clesFacultatives:['chkHtml', 'chkCss',
+                              'chkJs', 'chkPhp'])){
+
+        piratageDetecteExit(); //=&gt; fin du script
+    }
+    // les clés sont valides
+
+    // pour mémoriser les erreurs des utilisateurs "distraits"
+    $errs = [];
+
+    /* début du test des valeurs reçues une à une */
+
+    // test de l'identifiant
+    $id = $_POST['numIdentifiant'];
+    if (estEntier($id)){
+        if ($id &lt;= 0){
+            $errs[] = 'L\'identifiant doit être un entier strictement positif';
+        }
+    }
+    else{
+        $errs[] = 'L\'identifiant doit être un entier';
+    }
+
+    // test du niveau
+    $niveau = $_POST['radNiveau'];
+    if (! (estEntier($niveau) &amp;&amp; estEntre($niveau, 1, 3))){
+        piratageDetecteExit(); //=&gt; fin du script
+    }
+
+    // test du nom
+    $nom = trim($_POST['txtNom']);
+    // c'est la longueur en nombre de caractères
+    // qui nous intéresse
+    $l = mb_strlen($nom, encoding:'UTF-8');
+    if ($l &lt; 2 || $l &gt; 50) {
+        $errs[] = 'Le nom doit contenir entre 2 et 50 caractères';
+    }
+    $noTags = strip_tags($nom);
+    if ($noTags != $nom){
+        $errs[] = 'Le nom ne doit pas contenir de tags HTML';
+    }
+
+    // test des remarques
+    $rq = trim($_POST['txtRemarques']);
+    $l = mb_strlen($rq, encoding:'UTF-8');
+    if ($l &gt; 255) {
+        $errs[] = 'Le texte des remarques'.
+                         ' ne doit pas contenir plus de 255 caractères';
+    }
+    $noTags = strip_tags($rq);
+    if ($noTags != $rq){
+        $errs[] = 'Le texte des remarques ne doit pas contenir de tags HTML';
+    }
+
+    // test de la liste déroulante
+    if (! in_array($_POST['lstTP'],
+                   ['A', 'B', 'C', 'indifférent'], true)){
+        piratageDetecteExit(); //=&gt; fin du script
+    }
+
+    // test des checkbox
+    $tCheck = ['chkHtml', 'chkCss', 'chkJs', 'chkPhp'];
+    foreach ($tCheck as $check){
+        if (isset($_POST[$check])){
+            if ($_POST[$check] !== '1'){
+                piratageDetecteExit(); //=&gt; fin du script
+            }
+        }
+    }
+
+    // test de l'input de type hidden
+    if ($_POST['hidSecret'] !== 'pas vu'){
+        piratageDetecteExit(); //=> fin du script
+    }
+
+    /* fin du test des valeurs reçues une à une */
+
+    // affichage des résultats
+    if (count($errs) &gt; 0){
+        echo '&lt;p&gt;Des erreurs ont été détectées :';
+        foreach($errs as $err){
+            echo '&lt;br&gt;- ', $err;
+        }
+        echo '&lt;/p&gt;';
+    }
+    else {
+        echo '&lt;p&gt;Ok, les données saisies sont valides.&lt;/p&gt;';
+    }
+
+}
+
+htmlFin();
+</pre>
+
+
+<p>
+				Cliquez
+				<b><a href="../test/formulaire6.html" target="_blank">ici</a></b>
+				pour ouvrir un nouvel onglet affichant le formulaire <a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire6_code.html')">Code
+					HTML</a>
+
+				et tester le script précédent qui est
+				appelé lors de la soumission du formulaire.
+			</p>
+			</section>
+
+
+	</div>
+	<footer></footer>
+</body>
+</html>

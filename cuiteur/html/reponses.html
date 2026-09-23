@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <title>Cuiteur | Réponses</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../styles/cuiteur.css">
+</head>
+
+<body>
+    <div id="bcContenu" class="connecte">
+        <h1>Réponses</h1>
+
+        <nav>
+            <ul>
+                <li><a href="cuiteur.php">Accueil</a></li>
+                <li><a href="recherche.php">Recherche</a></li>
+                <li><a href="compte.php">Votre profil</a></li>
+                <li><a href="deconnexion.php">Se déconnecter</a></li>
+            </ul>
+        </nav>
+
+        <aside>
+            <img src="../upload/7.jpg" alt="avatar @jobs" class="avatar">@<a href="utilisateur.php?utID=7" title="Voir le profil et les blablas de @jobs"><strong>jobs</strong></a>
+            Steve Jobs
+            <br>
+            <a href="abonnements.php?utID=7" title="Voir les personnes que je suis">0 abonnement</a>
+            -
+            <a href="abonnes.php?utID=7" title="Voir les personnes qui me suivent">0 abonné</a>
+
+            <h2>Tendances</h2>
+
+            <ul>
+                <li>
+                    #<a href="tendances.php?taID=murphy" title="Voir les blablas originaux contenant le tag #murphy (10)">murphy</a>
+                </li>
+                <li>
+                    #<a href="tendances.php?taID=info" title="Voir les blablas originaux contenant le tag #info (5)">info</a>
+                </li>
+                <li>
+                    #<a href="tendances.php?taID=intelligence" title="Voir les blablas originaux contenant le tag #intelligence (4)">intelligence</a>
+                </li>
+                <li>
+                    #<a href="tendances.php?taID=conseil" title="Voir les blablas originaux contenant le tag #conseil (3)">conseil</a>
+                </li>
+                <li>
+                    <a href="tendances.php">Toutes les tendances</a>
+                </li>
+            </ul>
+
+            <h2>Suggestions</h2>
+
+            <ul>
+                <li>
+                    <img src="../upload/3.jpg" alt="avatar @albert" class="avatar">@<a href="utilisateur.php?utID=3" title="Voir le profil et les blablas de @albert"><strong>albert</strong></a>
+                    Albert Einstein
+                </li>
+                <li>
+                    <span class="avatar">C</span>@<a href="utilisateur.php?utID=23" title="Voir le profil et les blablas de @nono"><strong>nono</strong></a>
+                    Chuck Norris
+                </li>
+                <li>
+                    <a href="suggestions.php">Plus de suggestions</a>
+                </li>
+            </ul>
+        </aside>
+
+        <main>
+
+            <section>
+                <h2>Blabla initial</h2>
+
+                <img src="../upload/7.jpg" alt="avatar @jobs" class="avatar">@<a href="utilisateur.php?utID=7" title="Voir le profil et les blablas de @jobs"><strong>jobs</strong></a>
+                Steve Jobs
+
+                <p>
+                    Quand on se met &agrave; Linux, vaut mieux avoir BEAUCOUP d&#039;amis
+                    (m&ecirc;me @nono). #info
+                </p>
+
+                <footer class="footerBlabla">
+                    3 septembre 2026 à 9h32
+                    <a href="reponses.php?x=XXX">Supprimer</a>
+                    <a href="reponses.php?blID=131" title="Voir les réponses et éventuellement répondre">3 réponses</a>
+                </footer>
+            </section>
+
+            <section>
+                <h2>Publication d'une nouvelle réponse</h2>
+
+                <form action="reponses.php" method="post">
+                    <textarea name="txtMessage"></textarea>
+
+                    <footer>
+                        <input type="submit" name="btnPublier" value="Publier">
+                    </footer>
+                </form>
+            </section>
+
+            <ul class="mainList">
+                <li>
+                    <span class="avatar">C</span>@<a href="utilisateur.php?utID=23" title="Voir le profil et les blablas de @nono"><strong>nono</strong></a>
+                    Chuck Norris
+
+                    <p>
+                        Mais euh !?!? Je vous demande de vous arr&ecirc;ter.
+                    </p>
+
+                    <footer class="footerBlabla">
+                        4 septembre 2026 à 19h18
+                        <a href="reponses.php?blID=147" title="Voir les réponses et éventuellement répondre">0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src="../upload/6.jpg" alt="avatar @chomsky" class="avatar">@<a href="utilisateur.php?utID=6" title="Voir le profil et les blablas de @chomsky"><strong>chomsky</strong></a>
+                    Noam Chomsky
+
+                    <p>
+                        @nono en ami de secours, c&rsquo;est quand m&ecirc;me une
+                        d&eacute;pendance critique.
+                    </p>
+
+                    <footer class="footerBlabla">
+                        4 septembre 2026 à 19h11
+                        <a href="reponses.php?blID=146" title="Voir les réponses et éventuellement répondre">0 réponse</a>
+                    </footer>
+                </li>
+
+                <li>
+                    <img src="../upload/3.jpg" alt="avatar @albert" class="avatar">@<a href="utilisateur.php?utID=3" title="Voir le profil et les blablas de @albert"><strong>albert</strong></a>
+                    Albert Einstein
+
+                    <p>
+                        M&ecirc;me @nono ? L&agrave;, c&rsquo;est vraiment le niveau
+                        mode survie.
+                    </p>
+
+                    <footer class="footerBlabla">
+                        4 septembre 2026 à 18h06
+                        <a href="reponses.php?blID=145" title="Voir les réponses et éventuellement répondre">0 réponse</a>
+                    </footer>
+                </li>
+            </ul>
+        </main>
+
+        <footer>
+            &copy; Licence Informatique - Septembre 2026 - Tous droits réservés
+        </footer>
+    </div>
+</body>
+
+</html>

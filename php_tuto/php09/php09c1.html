@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gestion des fichiers</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p>PHP offre des fonctions permettant d'effectuer les opérations
+			courantes sur les fichiers : copie, déplacement, renommage et
+			suppression.</p>
+
+		<div class="fp-clear"></div>
+
+		<div class="fp-remarque">
+			<img src="../phpimg/test_fichiers.png" width="149" height="131"
+				border="0" class="fp-f-right" style="margin-left: 10px">
+			<p>
+				Pour les exemples, nous utiliserons le dossier <span class="fp-code">test_fichiers</span>
+				avec le contenu et l'arborescence ci-contre.
+			</p>
+			<p>
+				Ce dossier se trouve dans le dossier test du tutoriel. Vous pouvez
+				voir son contenu avec le bouton <img
+					src="../_core/images/__arbo.png" width="32" height="32"
+					style="display: table-cell; vertical-align: middle"> dans la
+				barre de menu du tutoriel.
+			</p>
+			<p class="fp-bottom0">
+				Si vous ne voyez pas ce dossier, ou si vous voulez le ré-initialiser
+				<a onclick="top.FP.Voir.showPLUS('exemple/init_chap09.php?x=f')">utilisez
+					ce script</a>.
+			</p>
+		</div>
+
+
+		<h3>Copier un fichier</h3>
+		<section>
+			<p class="fp-puce">
+				La copie d'un fichier <b>ordinaire</b> se fait simplement avec la fonction <a
+					href="https://www.php.net/manual/en/function.copy.php" target="_blank">copy()</a>:<br>
+				<span class="fp-code">copy('fichierSource',
+					'fichierDestination')</span>.
+			</p>
+
+			<ul class="fp-ul-puce">
+				<li><a
+					href="https://www.php.net/manual/en/function.copy.php" target="_blank">copy()</a>
+					renvoie <span class="fp-code">true</span> si la copie a réussi, <span class="fp-code">false</span> sinon.</li>
+				<li>Les noms des fichiers sont en réalité des <b>chemins d'accès
+					relatifs ou absolus</b>. Exemple :<br>
+					<span class="fp-code">copy(reps1/reps2/file_src, repd1/repd2/file_dest);</span>
+					</li>
+				<li>Le dossier de destination doit exister (<span class="fp-code">repd1/repd2/</span> dans l'exemple) car <a
+					href="https://www.php.net/manual/en/function.copy.php" target="_blank">copy()</a>
+					ne le créera pas automatiquement.
+				</li>
+				<li>Si le fichier de destination existe déjà, il est remplacé.</li>
+				<li>Sur les systèmes de type Unix, le script (c'est à dire le processus qui l'exécute) doit avoir les permissions
+					suivantes :
+					<ul class="fp-ul-puce">
+						<li> permission d'exécution sur tous les répertoires utilisés dans les chemins d'accès vers les fichiers
+						source et destination (<span class="fp-code">reps1</span>, <span class="fp-code">reps1/reps2</span>,
+						<span class="fp-code">repd1</span>, <span class="fp-code">repd1/repd2</span>);
+						<li> permission de lecture sur le fichier source;
+						<li> permission d'écriture sur le dossier destination (<span class="fp-code">repd1/repd2</span>) si un nouveau fichier (i.e. lien) y est créé;  ou sur le fichier destination lui-même s'il existe déjà (dans ce dernier cas, il sera remplacé);
+					</ul>
+					</li>
+				<li>L'utilisation de "jokers" (exemple : <span class="fp-code">copy('<span
+						class="fp-rouge">*</span>.gif', '../svg/');
+				</span>) n'est pas possible.
+				</li>
+				<li> La fonction <a
+					href="https://www.php.net/manual/en/function.copy.php" target="_blank">copy()</a>
+					ne permet pas de copier des répertoires.
+			</ul>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : copie de fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Copie de fichier');
+
+htmlInfo('Copie commentaires.txt dans commentaires.old');
+
+$source = 'test_fichiers/commentaires.txt';
+$destin = 'test_fichiers/commentaires.old';
+
+$ok = copy($source, $destin);
+
+echo $ok ? 'Copie réussie' : 'Erreur dans la copie';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<a class="LIEN-rep"
+				onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">
+				Vérifier le contenu du dossier de travail (i.e. le lister à nouveau)</a>
+
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : copie de fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Copie de fichier');
+
+htmlInfo('Copie images/diapo2.jpg dans export/diapo2.jpg');
+
+$source = 'test_fichiers/images/diapo2.jpg';
+$destin = 'test_fichiers/export/diapo2.jpg';
+
+$ok = copy($source, $destin);
+
+echo $ok ? 'Copie réussie' : 'Erreur dans la copie';
+
+htmlFin();
+</textarea>
+			</form>
+
+
+			<a class="LIEN-rep"
+				onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">
+				Vérifier le contenu du dossier de travail (i.e. le lister à nouveau)</a>
+
+			<p class="fp-puce fp-inter2 fp-clear">Les erreurs éventuelles
+				sont affichées par défaut.</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : erreur de copie
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Copie de fichier');
+
+htmlInfo('Copie inexistant.gif dans nouveau.gif');
+
+$source = 'test_fichiers/inexistant.gif';
+$destin = 'test_fichiers/nouveau.gif';
+
+$ok = copy($source, $destin);
+
+echo $ok ? 'Copie réussie' : 'Erreur dans la copie';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-puce fp-inter2">
+				Lors de la manipulation de fichiers, pour éviter de tels messages
+				qui donnent des renseignements sur les dossiers du serveur, je vous
+				recommande de préfixer les fonctions PHP avec l'opérateur de
+				masquage <span class="fp-code">@</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : erreur de copie avec masquage
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Copie de fichier');
+
+htmlInfo('Copie inexistant.gif dans nouveau.gif');
+
+$source = 'test_fichiers/inexistant.gif';
+$destin = 'test_fichiers/nouveau.gif';
+
+$ok = @copy($source, $destin);
+
+echo $ok ? 'Copie réussie' : 'Erreur dans la copie';
+
+htmlFin();
+</textarea>
+			</form>
+
+		</section>
+
+		<h3>Renommer/déplacer un fichier</h3>
+		<section>
+			<p class="fp-puce">
+				Avec PHP, le changement du nom d'un fichier concerne toutes les
+				parties du nom : le nom proprement dit et le chemin d'accès. Ainsi,
+				la fonction <a
+					href="https://www.php.net/manual/en/function.rename.php" target="_blank">rename()</a>
+				permet de <b>renommer</b> un fichier, mais également de le <b>déplacer</b>
+				si un dossier de destination différent du dossier source est donné.
+			</p>
+
+			<ul class="fp-ul-puce">
+				<li>La fonction renvoie <span class="fp-code">true</span> si le changement de nom ou le
+					déplacement a réussi, <span class="fp-code">false</span> sinon.</li>
+				<li>Les noms des fichiers sont en réalité des <b>chemins d'accès
+					relatifs ou absolus</b>. Exemple :<br>
+					<span class="fp-code">rename(reps1/reps2/file_src, repd1/repd2/file_dest);</span>
+					</li>
+				<li>Le dossier de destination doit exister (<span class="fp-code">repd1/repd2/</span> dans l'exemple) car <a
+					href="https://www.php.net/manual/en/function.rename.php" target="_blank">rename()</a>
+					ne le créera pas automatiquement.
+				</li>
+				<li>Si le fichier de destination existe déjà, il est remplacé.</li>
+				<li>Sur les systèmes de type Unix, le script (c'est à dire le processus qui l'exécute) doit avoir les permissions
+					suivantes :
+					<ul class="fp-ul-puce">
+						<li> permission d'exécution sur tous les répertoires utilisés dans les chemins d'accès vers les fichiers
+						source et destination (<span class="fp-code">reps1</span>, <span class="fp-code">reps1/reps2</span>,
+						<span class="fp-code">repd1</span>, <span class="fp-code">repd1/repd2</span>);
+						<li> permission d'écriture sur le dossier source (<span class="fp-code">reps1/reps2</span>) et sur le dossier destination (<span class="fp-code">repd1/repd2</span>);
+						<li> Aucune permission sur les fichiers source (<span class="fp-code">reps1/reps2/file_src</span>) et destination
+						(<span class="fp-code">repd1/repd2/file_dest</span>) n'est nécessaire.
+					</ul>
+					</li>
+				<li>L'utilisation de "jokers" (exemple : <span class="fp-code">rename('<span
+						class="fp-rouge">*</span>.gif', '<span class="fp-rouge">*</span>.svg');
+				</span>) n'est pas possible.
+				</li>
+				<li> La fonction <a
+					href="https://www.php.net/manual/en/function.rename.php" target="_blank">rename()</a>
+					permet de renommer/déplacer des répertoires.
+			</ul>
+
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : renommer un fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Renommer un fichier');
+
+htmlInfo('commentaires.old est renommé en remarques.txt');
+
+$source = 'test_fichiers/commentaires.old';
+$destin = 'test_fichiers/remarques.txt';
+
+$ok = @rename($source, $destin);
+
+echo $ok ? 'Renommage réussi' : 'Erreur dans le renommage';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<a class="LIEN-rep"
+				onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">
+				Vérifier le contenu du dossier de travail (i.e. le lister à nouveau)</a>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : déplacer un fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Déplacer un fichier');
+
+htmlInfo('remarques.txt déplacé dans le dossier export');
+
+$source = 'test_fichiers/remarques.txt';
+$destin = 'test_fichiers/export/remarques.txt';
+
+$ok = @rename($source, $destin);
+
+echo $ok ? 'Déplacement réussi' : 'Erreur déplacement';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<a class="LIEN-rep"
+				onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">
+				Vérifier le contenu du dossier de travail (i.e. le lister à nouveau)</a>
+
+		</section>
+
+		<h3>Supprimer un fichier</h3>
+		<section>
+			<p class="fp-puce">
+				La suppression d'un fichier ordinaire se fait avec la fonction <a
+					href="https://www.php.net/manual/en/function.unlink.php" target="_blank">unlink()</a>.
+			</p>
+
+			<ul class="fp-ul-puce">
+				<li>La fonction renvoie <span class="fp-code">true</span> si la suppression a réussi, <span class="fp-code">false</span>
+					sinon.</li>
+				<li>Le nom du fichier est en réalité un <b>chemin d'accès
+					relatif ou absolu</b>. Exemple :<br>
+					<span class="fp-code">unlink(rep1/rep2/file);</span>
+					</li>
+				<li>Sur les systèmes de type Unix, le script (c'est à dire le processus qui l'exécute) doit avoir les permissions
+					suivantes :
+					<ul class="fp-ul-puce">
+						<li> permission d'exécution sur tous les répertoires utilisés dans le chemin d'accès vers le fichier
+						à supprimer (<span class="fp-code">rep1</span>, <span class="fp-code">rep1/rep2</span>);
+						<li> permission d'écriture sur le dossier contenant le fichier (<span class="fp-code">rep1/rep2</span>);
+						<li> Aucune permission sur le fichier à supprimer (<span class="fp-code">rep1/rep2/file</span>) n'est nécessaire.
+					</ul>
+					</li>
+				<li>L'utilisation de "jokers" (exemple : <span class="fp-code">unlink('<span
+						class="fp-rouge">*</span>.gif');
+				</span>) n'est pas possible.
+				</li>
+				</li>
+				<li> La fonction <a
+					href="https://www.php.net/manual/en/function.unlink.php" target="_blank">unlink()</a>
+					ne permet pas de supprimer des répertoires.
+			</ul>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : supprimer un fichier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Supprimer un fichier');
+
+htmlInfo('Suppression de export/remarques.txt');
+
+$ok = @unlink('test_fichiers/export/remarques.txt');
+
+echo $ok ? 'Suppression réussie' : 'Erreur suppression';
+
+htmlFin();
+</textarea>
+			</form>
+
+			<a class="LIEN-rep"
+				onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">
+				Vérifier le contenu du dossier de travail (i.e. le lister à nouveau)</a>
+		<p>&nbsp;</p>
+		<!--<p>
+			Par mesure de sécurité, afin que vous ne supprimiez pas par inadvertance des fichiers du tutoriel,
+			les scripts exécutés depuis le tutoriel n'ont pas le droit d'appeler la fonction <a
+					href="https://www.php.net/manual/en/function.unlink.php" target="_blank">unlink()</a>.
+			Si vous tentez d'exécuter le script précédent, le message <i>"L'utilisation de unlink() dans cet environnement n'est pas possible."</i> s'affichera.
+		</p>-->
+
+		</section>
+	</div>
+	<footer></footer>
+</body>
+</html>
