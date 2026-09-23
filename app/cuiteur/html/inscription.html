@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <title>Cuiteur | Inscription</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../styles/cuiteur.css">
+</head>
+
+<body>
+    <div id="bcContenu">
+        <h1>Inscription</h1>
+        <main>
+            <section>
+                <h2>Formulaire d'inscription</h2>
+
+                <p>
+                    Pour vous inscrire, remplissez le formulaire ci-dessous.
+                </p>
+
+                <form method="post" action="inscription.php">
+                    <table>
+                        <tr>
+                            <td>
+                                <label for="textpseudo">Choisissez un pseudo :</label>
+                            </td>
+                            <td>
+                                <input id="textpseudo" type="text" name="pseudo" value="" placeholder="4 lettres minuscules ou chiffres minimum">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="textpasse1">Choisissez un mot de passe :</label>
+                            </td>
+                            <td>
+                                <input id="textpasse1" type="password" name="passe1" value="" placeholder="4 caractères minimum">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="textpasse2">Répétez le mot de passe :</label>
+                            </td>
+                            <td>
+                                <input id="textpasse2" type="password" name="passe2" value="">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Votre civilité :</td>
+                            <td>
+                                <label>
+                                    <input type="radio" name="radSexe" value="1"> Monsieur
+                                </label>
+                                <label>
+                                    <input type="radio" name="radSexe" value="2"> Madame
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="radSexe" value="3"> Non binaire
+                                </label>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="textprenomNom">Vos prénom et nom :</label>
+                            </td>
+                            <td>
+                                <input id="textprenomNom" type="text" name="prenomNom" value="">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="textville">Votre ville :</label>
+                            </td>
+                            <td>
+                                <input id="textville" type="text" name="ville" value="">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="textemail">Votre email :</label>
+                            </td>
+                            <td>
+                                <input id="textemail" type="email" name="email" value="">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="textnaissance">Votre date de naissance :</label>
+                            </td>
+                            <td>
+                                <input id="textnaissance" type="date" name="naissance" value="">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="bio">Votre biographie :</label>
+                            </td>
+                            <td>
+                                <textarea id="bio" name="bio"></textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">
+                                <label>
+                                    <input type="checkbox" name="cbCGU" value="1">
+                                    J'ai lu et j'accepte les conditions générales d'utilisation
+                                </label>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">
+                                <input type="submit" name="btnInscription" value="S'inscrire">
+                                <input type="reset" value="Réinitialiser">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <p>
+                    Déjà inscrit ?
+                    <a href="connexion.php">Connectez-vous</a> !
+                </p>
+            </section>
+        </main>
+
+        <footer>
+            &copy; Licence Informatique - Septembre 2026 - Tous droits réservés
+        </footer>
+    </div>
+</body>
+
+</html>
