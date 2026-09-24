@@ -9,3 +9,13 @@ define('BD_NAME', 'cuiteur_bdd'); // nom de la base sur le serveur de base de do
 define('BD_USER', 'cuiteur_user'); // nom de l'utilisateur de la base
 define('BD_PASS', 'cuiteur_pass'); // mot de passe de l'utilisateur de la base
 
+affInfos(){}
+
+affDebutMenuInfos{}
+
+htmlLien(){}
+
+htmlAvatar(){}
+
+affBlablas(){}
+

@@ -17,5 +17,5 @@ $sql = 'SELECT utID, utPrenomNom, utPseudo, utVille, utMail, utBio, utDateNaissa
 $res = bdSendRequest($bd, $sql);
 
 
-echo
+
 affFin();
