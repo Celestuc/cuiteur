@@ -171,7 +171,7 @@ function affDebut(string $titre,string $css ='style.css') :void{
             '<body>';
 }
 
-function affFin(){
+function affFin(){ 
     echo    '</body>',
             '</html>';
 }
@@ -199,7 +199,7 @@ function affListeUt(array $liste){
             '</ul>';
 }
 
-function affConvertDate(string $date){
+function convertDate(string $date){
     $anne=substr($date,0,4);
     $mois=(int)substr($date,4,2);
     $jour=(int)substr($date,6,2);
@@ -209,52 +209,52 @@ function affConvertDate(string $date){
 
     switch ($mois){
         case 1 :
-           $mois='Janvier';
+           $moisStr='Janvier';
            break;
         case 2 :
-            $mois='Février';
+            $moisStr='Février';
             break;
         case 3 :
-            $mois='Mars';
+            $moisStr='Mars';
             break;
         case 4 :
-            $mois='Avril';
+            $moisStr='Avril';
             break;
         case 5 :
-            $mois='Mai';
+            $moisStr='Mai';
             break;
         case 6 :
-            $mois='Juin';
+            $moisStr='Juin';
             break;
         case 7 :
-            $mois='Juillet';
+            $moisStr='Juillet';
             break;
         case 8 :
-            $mois='Aout';
+            $moisStr='Aout';
             break;
         case 9 :
-            $mois='Septembre';
+            $moisStr='Septembre';
             break;
         case 10 :
-            $mois='Octobre';
+            $moisStr='Octobre';
             break;
         case 11 :
-            $mois='Novembre';
+            $moisStr='Novembre';
             break;
         case 12 :
-            $mois='Décembre';
+            $moisStr='Décembre';
             break;
         default:
-            $mois='Janvier';
+            $moisStr='Janvier';
     }
-    echo $jour,' ',$mois,' ',$anne;
+return $jour .' '. $moisStr .' '. $anne;
 
 }
 
-function affConvertHeure(string $heure){
+function convertHeure(string $heure){
     $heure=substr($heure,0,5);
     $heure=str_replace(':','h',$heure);
-    echo    $heure;
+    return $heure;
 }
 
 function affListeBl(array $liste){
@@ -269,8 +269,8 @@ function affListeBl(array $liste){
         echo    '<ul>','<li>'
                 ,'<Strong>',$pseudo,'</Strong>',' ',$prenomNom,
                 '<br>',$texte,
-                '<br>',affConvertDate($liste['blDate']),' à ',
-                affConvertHeure($liste['blHeure']),
+                '<br>',convertDate($liste['blDate']),' à ',
+                convertHeure($liste['blHeure']),
                 '</li>','</ul>';
     }
 }

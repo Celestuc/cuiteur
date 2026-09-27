@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Le contenu d'un dossier</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<ul id="MENU-page"></ul>
+
+
+		<p>PHP offre un ensemble de fonctions pour gérer les dossiers sur
+			le disque du serveur (ou un disque accessible depuis le serveur).</p>
+
+
+		<div class="fp-clear">
+			<img src="../phpimg/test_repert.gif" width="155" height="418"
+				class="fp-f-right" style="margin-left: 10px">
+			<p>Certaines opérations ne sont cependant pas possibles
+				directement et nous devons les prendre en charge avec le
+				développement de nos propres fonctions de gestion qui utilisent très
+				souvent des mécanismes récursifs.</p>
+			<p>Pour les exemples, nous utiliserons l'aborescence de dossiers
+				ci-contre.</p>
+			<p>
+				Cet aborescence se trouve dans le dossier test du tutoriel. Vous
+				pouvez voir son contenu avec le bouton <img
+					src="../_core/images/__arbo.png" width="32" height="32"
+					style="display: table-cell; vertical-align: middle"> dans la
+				barre de menu du tutoriel.
+			</p>
+			<p class="fp-bottom0">
+				Si vous ne voyez pas cet aborescence, ou si vous voulez la
+				ré-initialiser <a
+					onclick="top.FP.Voir.showPLUS('exemple/init_chap09.php?x=d')">utilisez
+					ce script</a>.
+			</p>
+		</div>
+
+		<h3>Contenu d'un dossier</h3>
+		<section>
+			<p class="fp-puce fp-bottom0">Pour lire le contenu d'un dossier,
+				nous procédons comme pour la lecture d'un fichier ligne à ligne.
+				Nous devons exécuter les opérations suivantes :</p>
+			<ul class="fp-ul-puce">
+				<li><b>ouvrir le dossier</b> avec la fonction <a
+					href="https://www.php.net/manual/en/function.opendir.php" target="_blank">opendir()</a>.
+					<ul class="fp-ul-puce">
+					<li>Si l'ouverture réussit, cette fonction
+					renvoie une variable de type <span class="fp-code">resource</span>
+					représentant un <b><i>flux de répertoire</i></b> (<i>stream</i> en anglais) associé au répertoire physique (cette variable de
+					type <span class="fp-code">resource</span> sera ensuite <b>utilisée pour lister les fichiers</b> contenus dans le répertoire).
+					<li>Si l'ouverture échoue (pas les permissions,
+					répertoire inexistant, etc.), <a
+					href="https://www.php.net/manual/en/function.opendir.php" target="_blank">opendir()</a> renvoie
+					<span class="fp-code">false</span>.
+					<li>La fonction accepte comme paramètre un chemin relatif ou absolu vers le
+					dossier à ouvrir.
+					</ul>
+				</li>
+				<li><b>effectuer une boucle pour lire un à un les fichiers</b> (plus exactement les liens)
+					contenus dans le dossier avec la fonction <a
+					href="https://www.php.net/manual/en/function.readdir.php" target="_blank">readdir()</a>.
+					<a
+					href="https://www.php.net/manual/en/function.readdir.php" target="_blank">readdir()</a>
+					renvoie le nom des fichiers ou sous-dossiers; quand
+					il n'y a plus de fichier à lire, elle renvoie <span class="fp-code">false</span>.</li>
+				<li><b>fermer le flux</b> de répertoire avec la fonction <a
+					href="https://www.php.net/manual/en/function.closedir.php" target="_blank">closedir()</a>
+					ce qui va libérer les ressources système associées au flux.</li>
+			</ul>
+
+
+			<p>
+				L'exemple suivant affiche le contenu du dossier <span
+					class="fp-code">test_repert</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : contenu d'un dossier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Contenu d\'un dossier');
+
+$nom = 'test_repert';
+
+htmlInfo("Contenu du dossier $nom");
+
+// Ouverture du dossier
+$flux = @opendir($nom);
+
+if (! $flux) {
+	htmlInfo('Erreur dans l\'ouverture du dossier');
+	htmlFin();
+	exit();
+}
+
+// Boucle de lecture du dossier
+while ($elem = readdir($flux)) {
+	echo '&lt;br&gt;', $elem;
+}
+
+// Fermeture du flux
+closedir($flux);
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-inter2 fp-puce">
+				La boucle de lecture du contenu du dossier est du même genre que
+				celle utilisée pour lire les résultats d'une requête <span
+					class="fp-code">SELECT</span> :
+			<pre>
+while ($elem = readdir($flux)) {
+	...
+}</pre>
+			<ul class="fp-ul-puce">
+				<li>la fonction <a
+					href="https://www.php.net/manual/en/function.readdir.php" target="_blank">readdir()</a>
+					est appelée;
+				</li>
+				<li>sa valeur de retour est affectée dans la variable <span
+					class="fp-code">$elem</span>;</li>
+				<li>si la valeur de <span class="fp-code">$elem</span> est
+					évaluée à <span class="fp-code">true</span>, le bloc de traitement de la boucle <span
+					class="fp-code">while</span> est exécuté;
+				</li>
+				<li>sinon on sort de la boucle <span class="fp-code">while</span>.
+				</li>
+			</ul>
+
+
+			<p class="fp-inter2 fp-bottom0 fp-puce">Commentaires portant sur les résultats
+				du script précédent :</p>
+
+			<ul class="fp-ul-puce">
+				<li>la fonction <a
+					href="https://www.php.net/manual/en/function.readdir.php" target="_blank">readdir()</a>
+					renvoie les noms des fichiers et des sous-dossiers sans faire de
+					distinction;
+				</li>
+				<li>les éléments (fichiers et sous-dossiers) sont affichés dans l'ordre dans lequel ils sont mémorisés dans le système de fichiers;</li>
+				<li>les liens particuliers <span class="fp-code">.</span> (point - qui désigne le répertoire en cours de lecture)
+					et <span class="fp-code">..</span> (double point - qui désigne son répertoire parent) sont renvoyés par la
+					fonction <a
+					href="https://www.php.net/manual/en/function.readdir.php" target="_blank">readdir()</a>
+					et apparaissent dans la liste.
+				</li>
+			</ul>
+
+			<p>Modifions le script pour ne pas afficher (et éventuellement
+				traiter) les liens particuliers <span class="fp-code">.</span> et <span class="fp-code">..</span></p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : contenu d'un dossier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Contenu d\'un dossier');
+
+$nom = 'test_repert';
+
+htmlInfo("Contenu du dossier $nom");
+
+// Ouverture du dossier
+$flux = @opendir($nom);
+
+if (! $flux) {
+	htmlInfo('Erreur dans l\'ouverture du dossier');
+	htmlFin();
+	exit();
+}
+
+// Boucle de lecture du dossier
+while ($elem = readdir($flux)) {
+	if ($elem == '.' || $elem == '..') {
+		continue;
+	}
+	echo '&lt;br&gt;', $elem;
+}
+
+// Fermeture du flux
+closedir($flux);
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		<h3>Boucle de lecture</h3>
+		<section>
+			<p>
+				La boucle <span class="fp-code">while ($elem =
+					readdir($flux))</span> doit être améliorée car elle ne fonctionne pas
+				correctement dans tous les cas.
+			</p>
+			<p>
+				En effet, si un élément (fichier ou sous-dossier) s'appelle <span
+					class="fp-code">'0'</span>, la boucle s'arrêtera car
+				la chaine <span class="fp-code">'0'</span> sera évaluée à <span class="fp-code">false</span>
+			</p>
+			<p>
+				Regardons ce qui se passe si nous essayons de lire le contenu du
+				dossier test_repert/export qui contient un dossier appelé <span
+					class="fp-code">'0'</span>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : contenu d'un dossier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Contenu d\'un dossier');
+
+$nom = 'test_repert/export';
+
+htmlInfo("Contenu du dossier $nom");
+
+// Ouverture du dossier
+$flux = @opendir($nom);
+
+if (! $flux) {
+	htmlInfo('Erreur dans l\'ouverture du dossier');
+	htmlFin();
+	exit();
+}
+
+// Boucle de lecture du dossier
+while ($elem = readdir($flux)) {
+	if ($elem == '.' || $elem == '..') {
+		continue;
+	}
+	echo '&lt;br&gt;', $elem;
+}
+
+// Fermeture du flux
+closedir($flux);
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-inter2">
+				La boucle <span class="fp-code">while ($elem =
+					readdir($flux))</span> ne fonctionne pas, et s'arrête dés qu'elle
+				rencontre le dossier appelé <span
+					class="fp-code">'0'</span>. <br> Nous devons utiliser
+				l'opérateur d'inégalité stricte <span class="fp-code">!==</span> et
+				la syntaxe suivante pour tester la valeur de retour de la fonction <a
+					href="https://www.php.net/manual/en/function.readdir.php" target="_blank">readdir()</a> :<br> <span
+					class="fp-code">while (($elem = readdir($flux)) !==
+					false)</span>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : contenu d'un dossier
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Contenu d\'un dossier');
+
+$nom = 'test_repert/export';
+
+htmlInfo("Contenu du dossier $nom");
+
+// Ouverture du dossier
+$flux = @opendir($nom);
+
+if (! $flux) {
+	htmlInfo('Erreur dans l\'ouverture du dossier');
+	htmlFin();
+	exit();
+}
+
+// Boucle de lecture du dossier
+while (($elem = readdir($flux)) !== false) {
+	if ($elem == '.' || $elem == '..') {
+		continue;
+	}
+	echo '&lt;br&gt;', $elem;
+}
+
+// Fermeture du flux
+closedir($flux);
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+
+		<footer></footer>
+	</div>
+</body>
+</html>

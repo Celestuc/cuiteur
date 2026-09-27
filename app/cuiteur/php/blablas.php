@@ -12,14 +12,24 @@ $bd = bdConnect();
 $titre='liste blabla';
 affDebut($titre);
 
-$sql = 'SELECT utPrenomNom, utPseudo, blTexte, blDate, blHeure FROM utilisateur INNER JOIN blabla ON blIDAuteur  WHERE utID = 7 ORDER BY blDate DESC;';
+affTeteBl();
+
+$sql = 'SELECT utPrenomNom, utPseudo, blTexte, blDate, blHeure FROM utilisateur INNER JOIN blabla ON blIDAuteur  WHERE utID = 7 ORDER BY blDate DESC, blHeure DESC;';
 
 $res = bdSendRequest($bd, $sql);
 
-affTeteBl();
-while($t = mysqli_fetch_assoc($res)){
+if(mysqli_num_rows($res) === 0) {
+    echo '<p>Cet utilisateur n\'a pas publié de blabla.</p>';
+
+}else{
+    while($t = mysqli_fetch_assoc($res)){
     affListeBl($t);
+    }
 }
 
 affFin();
+mysqli_free_result($res);
+
+
+
 

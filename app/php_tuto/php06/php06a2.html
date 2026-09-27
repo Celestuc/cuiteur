@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Le Web et PHP</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+<link rel="stylesheet" href="specifique.css">
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p c>Les formulaires constituent une des seules façons d'établir un
+			dialogue interactif avec l'utilisateur en mettant à sa disposition
+			divers types de zones de saisie qu'il peut utiliser pour envoyer des
+			informations au serveur pour traitement.</p>
+
+
+		<p>Les formulaires sont donc utilisés massivement dans tous les
+			développements de web dynamique et en constituent un des mécanismes
+			de base qu'il faut parfaitement connaître et maîtriser.</p>
+
+		<!-- http://www.toptal.com/php/10-most-common-mistakes-php-programmers-make#common-mistake-7-assuming-post-will-always-contain-your-post-data -->
+		<h3>Récupération dans $_GET</h3>
+		<section>
+			<p>
+				Dans l'exemple suivant, nous utilisons quelques-unes des
+					zones qu'il est possible de trouver dans un
+				formulaire, et voir comment nous pouvons récupérer les données saisies dans un
+				script PHP.
+			</p>
+
+			<figure>
+				<img src="../phpimg/formulaire1.png" width="368" height="512">
+				<figcaption>formulaire HTML</figcaption>
+			</figure>
+
+			<p>
+				Cliquez
+				<a href="../test/formulaire1.html" target="_blank">ici</a>
+				pour ouvrir un nouvel onglet affichant le formulaire. <a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire1_code.html')">Code
+					HTML</a><br>
+
+				Quand vous soumettez le formulaire en cliquant sur son bouton
+				<span class="fp-code">submit</span>, le script spécifié dans l'attribut
+				<span class="fp-code">action</span> de l'élement HTML <span class="fp-code">form</span> (ici
+				<span class="fp-code">reception.php</span>) est appelé avec la méthode
+				spécifiée dans l'attribut <span class="fp-code">method</span> (ici
+				<span class="fp-code">GET</span>) : une requête HTTP GET est envoyée au serveur.
+			</p>
+
+			<p>
+				Le script <span class="fp-code">reception.php</span> fait
+				essentiellement un
+				<a href="https://www.php.net/manual/en/function.var-dump" target="_blank">var_dump()</a>
+				des tableaux superglobaux <span class="fp-code">$_GET</span> et <span class="fp-code">$_POST</span>
+			</p>
+						<pre data-code="PHP">
+&lt;?php
+
+require_once 'bib_fonctions.php';
+
+htmlDebut('Réception formulaire');
+
+echo '<pre>';
+htmlInfo('$_GET');
+var_dump($_GET);
+echo '</pre>';
+
+echo '<hr>';
+
+htmlInfo('$_POST');
+echo '<pre>';
+var_dump($_POST);
+echo '</pre>';
+
+htmlFin();
+</pre>
+
+			<p class="fp-bottom0">Observations :
+			</p>
+			<ul class="fp-ul-puce">
+			<li> quand on soumet un formulaire avec la méthode <span class="fp-code">GET</span>,
+
+			 le script spécifié dans l'attribut <span class="fp-code">action</span>
+				reçoit les données saisies dans le tableau superglobal <span class="fp-code">$_GET</span>.
+
+			<li> Toutes les valeurs des éléments du tableau <span class="fp-code">$_GET</span>
+			sont de <b>type <span class="fp-code">string</span></b>, même <span class="fp-code">$_GET['numIdentifiant']</span> alors
+			qu'il correspond à un input de type <span class="fp-code">number</span>.
+			<li> Même quand on ne saisit pas de nom, il y a, dans <span class="fp-code">$_GET</span>, un élément de
+			clé <span class="fp-code">nom</span> ayant pour valeur une chaîne vide. Idem pour le
+			<span class="fp-code">textarea</span> dont le texte saisi est reçu à l'indice <span class="fp-code">txtRemarques</span>
+			<li> On reçoit un élément correpondant à l'input de type <span class="fp-code">hidden</span>.
+			<li> On reçoit également un élément correpondant à l'input de type <span class="fp-code">submit</span>. Nous utiliserons cet élément
+			pour tester si le script <span class="fp-code">reception.php</span> est appelé suite à une soumission du formulaire.
+			<li> Aucun élément correpondant à l'input de type <span class="fp-code">reset</span> n'est reçu. Quand le visiteur
+			clique sur le bouton <span class="fp-code">reset</span>, il n'y a pas de communication avec le serveur.
+			<li> les données saisies sont transmises dans l'URL. L'internaute peut donc les <b>voir</b>. Il peut aussi les <b>modifier directement</b>
+			dans l'URL et rappeler le script <span class="fp-code">reception.php</span> : on <b>peut donc recevoir n'importe quoi dans le tableau</b> <span class="fp-code">$_GET</span>,
+			i.e. des éléments avec n'importe quelle clé et n'importe quelle valeur.
+			</ul>
+
+
+
+			<p> Si le visiteur ne modifie pas l'URL, le script <span class="fp-code">reception.php</span> reçoit <b>obligatoirement</b>
+			dans <span class="fp-code">$_GET</span> des éléments de clés égales à
+			<span class="fp-code">hidSecret</span>,
+			<span class="fp-code">txtNom</span>,
+			<span class="fp-code">numIdentifiant</span>,
+			<span class="fp-code">radNiveau</span>,
+			<span class="fp-code">btnEnvoi</span>,
+			<span class="fp-code">lstTP</span>,
+			<span class="fp-code">txtRemarques</span>
+
+			correpondant respectivement aux <span class="fp-code">input</span> de type
+			<span class="fp-code">hidden</span>,
+			<span class="fp-code">text</span>,
+			<span class="fp-code">number</span>,
+			<span class="fp-code">radio</span>,
+			<span class="fp-code">submit</span>, et aux éléments
+			<span class="fp-code">select</span> et <span class="fp-code">textarea</span>.<br>
+
+			Des éléments de clés égales à
+			<span class="fp-code">chkHtml</span>,
+			<span class="fp-code">chkCss</span>,
+			<span class="fp-code">chkJs</span>,
+			<span class="fp-code">chkPhp</span> correpondant aux <span class="fp-code">input</span> de type
+			<span class="fp-code">checkbox</span> ne sont reçus que si le visiteur sélectionne les options correpondantes.
+
+			</p>
+
+			<p class="fp-remarque">
+				Le bouton de réinitialisation (input de type <span class="fp-code">reset</span>) n'est pas un bouton d'effacement des zones du formulaires. <b>Il remet les zones dans l'état où elles étaient avant que l'utilisateur ne les modifie.</b> Bien sûr, si les zones étaient vides on aura l'impression que l'action du bouton a été d'effacer leur contenu, mais ce n'est pas ce qui est fait en réalité.
+			</p>
+
+		</section>
+<h3>Récupération dans $_POST</h3>
+		<section>
+
+			<p> Le formulaire situé <a href="../test/formulaire2.html" target="_blank">ici</a>
+			est une copie du précédent avec deux
+			<a class="TEST-plus fp-f-right fp-petit"
+					style="width: auto; padding: 4px 0 0 26px;"
+					onclick="top.FP.Voir.showPLUS('php06/formulaire2_code.html')">Code
+					HTML</a> modifications : l'attribut
+			<span class="fp-code">method</span> du formulaire est égal à <span class="fp-code">post</span>
+			et
+			le choix par défaut pour le bouton radio est supprimé.<br>
+			N.B. : le script appelé lors de la soumission du formulaire est le même que dans l'exemple précédent.<br>
+			Lorsque le formulaire est soumis, une requête HTTP POST est envoyée par le navigateur au serveur.
+			</p>
+
+			<p class="fp-bottom0">Observations :
+			</p>
+			<ul class="fp-ul-puce">
+			<li> Les données saisies sont maintenant reçus dans le tableau superglobal <span class="fp-code">$_POST</span>.
+			<li> On ne les voit plus dans l'URL. Elles sont transmises dans le corps de la requête HTTP dont la commande est égale à POST.
+			<li> Si le visiteur ne sélectionne pas un bouton radio, <span class="fp-code">$_POST</span> ne contient pas d'élément
+			de clé égale à <span class="fp-code">radNiveau</span>.
+			</ul>
+
+
+			<p>
+			Remarque : si vous éditez et modifiez le code HTML du formulaire (clic droit sur la page, puis sélectionner <em>Inspecter</em>), vous pouvez toujours envoyer n'importe quelle donnée
+			au script <span class="fp-code">reception.php</span>. On <b>peut donc toujours recevoir n'importe quoi cette fois-ci dans le tableau</b> <span class="fp-code">$_POST</span>. Cf. Captures d'écran ci-dessous.
+			</p>
+
+			<figure>
+				<img src="../phpimg/editModifCodeHtml.png" width="538" height="256">
+				<figcaption>édition et modification du code HTML</figcaption>
+			</figure>
+
+			<figure>
+				<img src="../phpimg/resModifCodeHtml.png" width="500" height="337">
+				<figcaption>réception des données dans $_POST après modification du code HTML</figcaption>
+			</figure>
+
+			<p>
+				Insistons sur le fait que toutes les valeurs des élements des tableaux <span class="fp-code">$_POST</span> et
+				<span class="fp-code">$_GET</span> sont de type <span class="fp-code">string</span>.
+			</p>
+
+
+					</section>
+<h3>Soumission des formulaires avec POST ou GET ?</h3>
+		<section>
+
+		<p class="fp-bottom0">
+				Il est <b>préférable d'utiliser la méthode <span
+					class="fp-code">POST</span></b> pour transmettre les données saisies
+					dans un formulaire pour au moins 2 raisons :
+		</p>
+		<ul class="fp-ul-puce">
+			<li> les URL ont une longueur maximale dépendant du navigateur (par exemple 2083 caractères pour Internet Explorer);
+			<li> et surtout, avec la méthode <span
+					class="fp-code">GET</span> les données saisies sont directement visibles et modifiables dans la barre de navigation, ce qu'on
+			préfére en général éviter.
+		</ul>
+
+							</section>
+
+
+	</div>
+	<footer></footer>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>Inscription</title>
+        <style>
+            main{
+                margin : 20px auto;
+                width: 350px;
+                background: rgb(188, 196, 185);
+            }
+            h2{
+                padding: 10px;
+            }
+            p{
+                text-align: center;
+                margin: 0;
+            }
+            input{
+                margin: 10px 0;
+            }
+            textarea{
+                height: 90px;
+                width: 300px;
+                resize: none;
+            }
+        </style>
+    </head>
+    <body>
+    <main>
+        <form action="reception.php" method="get">
+            <input type="hidden" name="hidSecret" value="pas vu">
+            <fieldset>
+                <legend>Identite</legend>
+                <label for="txtNom">Nom </label>
+                <input type="text" id="txtNom" name="txtNom" value="" size="20"><br>
+                <label for="numId">Identifiant </label>
+                <input type="number" id="numId" name="numIdentifiant" value="">
+            </fieldset>
+
+            <fieldset>
+                <legend>Niveau</legend>
+                <input type="radio" name="radNiveau" value="1"> Débutant
+                <input type="radio" name="radNiveau" value="2" checked> Avancé
+                <input type="radio" name="radNiveau" value="3"> Expert
+            </fieldset>
+
+            <fieldset>
+                <legend>Connaissances</legend>
+                <input type="checkbox" name="chkHtml" value="1" checked> HTML
+                <input type="checkbox" name="chkCss" value="1" checked> CSS
+                <input type="checkbox" name="chkJs" value="1"> JS
+                <input type="checkbox" name="chkPhp" value="1"> PHP
+            </fieldset>
+            <fieldset>
+                <legend>Groupe de TP</legend>
+                <select name="lstTP">
+                    <option value="A">Groupe A</option>
+                    <option value="B">Groupe B</option>
+                    <option value="C">Groupe C</option>
+                    <option value="indifférent">Indifférent</option>
+                </select>
+            </fieldset>
+            <fieldset>
+                <legend>Remarques</legend>
+                <textarea name="txtRemarques" rows="3" cols="30"></textarea>
+            </fieldset>
+            <p>
+            <input type="reset" value="Effacer">
+            <input type="submit" name="btnEnvoi" value="Envoyer">
+            </p>
+        </form>
+    </main>
+    </body>
+</html>

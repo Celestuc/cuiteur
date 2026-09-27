@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les variables de sessions</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p class="fp-puce">
+			Une variable de session est une variable stockée dans un tableau
+			superglobal de PHP, le tableau <a
+					href="https://www.php.net/manual/en/reserved.variables.session.php" target="_blank">$_SESSION</a>, et qui est disponible tout le temps que va durer
+			la session. Elle sera accessible en lecture/écriture par tous les
+			scripts d'une même session : tous les scripts déclenchés sur le même
+			site par un même utilisateur et qui font appel à la fonction <a
+				href="https://www.php.net/manual/en/function.session-start.php" target="_blank"
+				class="fp-codePetit">session_start()</a>.
+		</p>
+
+		<p class="fp-puce fp-bottom0">
+				En  réalité, <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank">session_start()</a> permet de <b>démarrer</b>
+					une nouvelle session ou de <b>reprendre</b> une session existante.
+				Lors de son appel,
+				PHP vérifie si une session existe dèjà (pour le client qui demande la page), c'est à dire si un
+				identifiant de session (SID) lui a été affecté.
+			</p>
+			<ul class="fp-ul-puce">
+			<li>Si ce n'est pas le cas, <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank">session_start()</a>
+					démarre une nouvelle session, crée automatiquement un identifiant et
+				l'affecte à la session. Dans ce cas, le script débute avec un tableau <span class="fp-code">$_SESSION</span> vide.
+			<li>Sinon (i.e. un SID existe déjà), <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank">session_start()</a>
+					reprend la session existante, et le script débute avec un tableau <span class="fp-code">$_SESSION</span>
+					contenant les données associées à ce SID (si ces données sont stockées dans un fichier, il est lu
+					afin de les affecter dans <span class="fp-code">$_SESSION</span>).
+			</ul>
+
+		<p class="fp-puce">
+			Lors de l'exécution du script, on peut ajouter / modifier / supprimer des données dans <span class="fp-code">$_SESSION</span>.
+			Elles seront mémorisées dans le fichier associé au SID du client à la fin du script.
+		</p>
+
+		<h3>Créer des variables</h3>
+		<section>
+			<p class="fp-puce">
+				Pour créer une variable de session, il suffit d'affecter une valeur
+				à une clé dans le tableau superglobal <a
+					href="https://www.php.net/manual/en/reserved.variables.session.php" target="_blank">$_SESSION</a>.
+
+			
+			<p>
+			<p class="fp-puce">
+				N'importe quel type de valeur pouvant être stockée dans un tableau
+				peut être stocké dans <a
+					href="https://www.php.net/manual/en/reserved.variables.session.php" target="_blank">$_SESSION</a>,
+				sauf les types ressources (pointeur sur un fichier, connexion à une
+				base de données, etc).
+			</p>
+
+			<p class="fp-remarque">
+				N'oubliez pas de démarrer la session avec <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank"
+					class="fp-codePetit">session_start()</a>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : créer des variables de session
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+session_start();
+
+require('bib_fonctions.php');
+
+htmlDebut('Créer des variables session');
+
+htmlInfo('Identifiant de session');
+echo session_id();
+
+// Création de 4 variables de session
+$_SESSION['Nom'] = 'Piat';
+$_SESSION['Prenom'] = 'François';
+$_SESSION['Notes'] = array(10, 8, 12);
+$_SESSION['Compteur'] = 0;
+
+htmlInfo('Variables de session créées');
+
+htmlInfo('var_dump($_SESSION)');
+echo '&lt;pre&gt;';
+var_dump($_SESSION);
+echo '&lt;/pre&gt;';
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		<h3>Récupèrer les variables de session</h3>
+		<section>
+			<p class="fp-puce">
+				Pour lire les valeurs des variables de session, il suffit de
+				connaître leur nom que l'on utilise comme clé du tableau <a
+					href="https://www.php.net/manual/en/reserved.variables.session.php" target="_blank">$_SESSION</a>.
+			</p>
+			<p>L'exemple suivant va lire les variables de session définies
+				dans l'exemple précédent.</p>
+
+			<p class="fp-remarque">
+				N'oubliez pas de démarrer la session avec <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank"
+					class="fp-codePetit">session_start()</a>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : récupérer des variables de session
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+session_start();
+
+require('bib_fonctions.php');
+
+htmlDebut('Récupérer des variables session');
+
+htmlInfo('Variable Nom');
+echo $_SESSION['Nom'];
+
+htmlInfo('Variable Prenom');
+echo $_SESSION['Prenom'];
+
+htmlInfo('Variable Notes');
+infoTableau($_SESSION['Notes']);
+
+htmlInfo('Variable Compteur');
+echo $_SESSION['Compteur'];
+
+htmlInfo('var_dump($_SESSION)');
+echo '&lt;pre&gt;';
+var_dump($_SESSION);
+echo '&lt;/pre&gt;';
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		<h3>Modifier les variables de session</h3>
+		<section>
+			<p class="fp-puce">
+				Pour modifier la valeur d'une variable de session, il suffit de
+				modifier l'élément dans le tableau superglobal <a
+					href="https://www.php.net/manual/en/reserved.variables.session.php" target="_blank">$_SESSION</a>.
+			</p>
+
+			<p>
+				L'exemple suivant ajoute des notes dans le tableau <span
+					class="fp-code">Notes</span> et incrémente <span class="fp-code">Compteur</span>.
+				Cliquez plusieurs fois de suite le bouton "Tester" pour voir les
+				modification des valeurs des variables.
+			</p>
+
+			<p class="fp-remarque">
+				N'oubliez pas de démarrer la session avec <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank"
+					class="fp-codePetit">session_start()</a>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : modification de variables de session
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+session_start();
+
+require('bib_fonctions.php');
+
+htmlDebut('modification de variables de session');
+
+$_SESSION['Compteur'] ++;
+
+$note = array_rand(range(0, 20));
+$_SESSION['Notes'][] = $note;
+
+htmlInfo('Vous avez vu la page');
+echo $_SESSION['Compteur'], ' fois';
+
+htmlInfo('Notes');
+infoTableau($_SESSION['Notes']);
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		<h3>Supprimer une variable de session</h3>
+		<section>
+			<p class="fp-puce">
+				Supprimer une variable de session se fait exclusivement avec la
+				fonction <a
+					href="https://www.php.net/manual/en/function.unset.php" target="_blank">unset()</a>
+				appliquée sur l'élément du tableau <a
+					href="https://www.php.net/manual/en/reserved.variables.session.php" target="_blank">$_SESSION</a>.
+			</p>
+
+			<p>
+				L'exemple suivant supprime la variable de session <span
+					class="fp-code">Compteur</span>.
+			</p>
+
+			<p class="fp-remarque">
+				N'oubliez pas de démarrer la session avec <a
+					href="https://www.php.net/manual/en/function.session-start.php" target="_blank"
+					class="fp-codePetit">session_start()</a>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : supprimer une variable de session
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+session_start();
+
+require('bib_fonctions.php');
+
+htmlDebut('Supprimer une variable de session');
+
+unset($_SESSION['Compteur']);
+
+htmlInfo('Contenu du tableau $_SESSION');
+
+infoTableau($_SESSION);
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

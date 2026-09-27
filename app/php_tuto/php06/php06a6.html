@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>le Web et PHP</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+<link rel="stylesheet" href="specifique.css">
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p>
+		Dans une application réelle, en cas d'erreur(s) (de type visiteurs "distraits"), il faut afficher les messages d'erreur et réafficher le formulaire avec les <b>zones remplies par la saisie précédente</b> de l'utilisateur (pour qu'il puisse voir et corriger ses erreurs). Pour que cela soit possible, il faut que la <b>génération du code HTML du formulaire ET la soumission du formulaire soient faites dans le même script</b>, et
+		mettre en oeuvre une <b>auto-soumission</b> du script.
+		</p>
+
+		<p class="fp-bottom0">
+		Le traitement à réaliser varie suivant deux cas :
+		</p>
+		<ul class="fp-ul-puce">
+		<li>Le premier cas est celui où l'utilisateur arrive sur la page pour la première fois : il faut alors afficher un formulaire "vide".
+		<li>Le deuxième cas est celui où l'utilisateur a rempli le formulaire et l'a envoyé pour traitement. Ici il faut vérifier la validité de la saisie :
+		<ul class="fp-ul-puce">
+			<li> Si tout est OK on réalise en général un traitement sur la base de données et on redirige l'utilisateur vers une autre page. Dans le script ci-dessous, on se contentera d'afficher
+			un message indiquant que la redirection.
+			<li> Si des erreurs ont été détectées, il faut afficher les messages d'erreur et réafficher le formulaire avec les <b>zones remplies par la saisie précédente de l'utilisateur</b>.
+		</ul>
+		</li>
+		</ul>
+
+		<p>
+		Pour réaliser cela, le script <b>traite l'éventuelle soumission du formulaire
+		avant de l'afficher</b>.
+		</p>
+
+		<p class="fp-remarque">Comme on souhaite que nos scripts PHP ne contiennent que du code PHP, le code HTML du formulaire
+		est ici généré par PHP en utilisant l'instruction
+		<a href="https://www.php.net/manual/en/function.echo" target="_blank">echo</a>
+		</p>
+
+
+
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : gestion des erreurs de saisie
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+
+require('bib_fonctions.php');
+
+htmlDebut('Gestion des erreurs');
+
+// erreurs détectées lors de la soumission
+$erreurs = [];
+
+// si soumission du formulaire
+if (isset($_POST['btnEnvoi'])){
+    $erreurs = traiteSoumission();
+}
+
+afficherForm($erreurs);
+htmlFin();
+
+// ----------  Fonctions locales du script ----------- //
+
+/**
+* Fonction appelée quand une tentative de piratage
+* est détectée
+*
+* Affiche un message et termine le script
+*
+* @return void
+*/
+function piratageDetecteExit() : void {
+    htmlInfo('Tentative de piratage ?');
+    htmlFin();
+    exit;
+}
+
+/**
+* Traitement de la soumission
+*
+* En cas de tentative de piratage détectée,
+* piratageDetecteExit() est appelée, et donc le script
+* est arrêté.
+* Sinon, si au moins une erreur est détectée, les
+* erreurs sont retournées.
+* Sinon (i.e. pas d'erreur détectée), le script
+* affiche un message de redirection et il est arrêté.
+*
+* @return array         erreurs détectées
+*/
+function traiteSoumission() : array {
+    if (! parametresControle('post',
+            clesObligatoires:['btnEnvoi', 'txtNom',
+                            'numId',
+                            'txtRq'])){
+
+        piratageDetecteExit(); //=&gt; fin du script
+    }
+
+    // pour mémoriser les erreurs des utilisateurs "distraits"
+    $errs = [];
+
+    // test du nom
+    $nom = trim($_POST['txtNom']);
+    // c'est la longueur en nombre de caractères
+    // qui nous intéresse
+    $l = mb_strlen($nom, encoding:'UTF-8');
+    if ($l &lt; 2 || $l &gt; 50) {
+        $errs[] = 'Le nom doit contenir '.
+                   'entre 2 et 50 caractères';
+    }
+    $noTags = strip_tags($nom);
+    if ($noTags != $nom){
+        $errs[] = 'Le nom ne doit pas contenir de tags HTML';
+    }
+
+    // test de l'identifiant
+    $id = trim($_POST['numId']);
+    if (estEntier($id)){
+        if ($id  &lt;= 0){
+            $errs[] = 'L\'identifiant doit être un entier'.
+                      ' strictement positif';
+        }
+    }
+    else{
+        $errs[] = 'L\'identifiant doit être un entier';
+    }
+
+    // test des remarques
+    $rq = trim($_POST['txtRq']);
+    $l = mb_strlen($rq , encoding:'UTF-8');
+    if ($l &gt; 255) {
+        $errs[] = 'Le texte des remarques'.
+                        ' ne doit pas contenir plus de 255'.
+                         'caractères';
+    }
+    $noTags = strip_tags($rq);
+    if ($noTags != $rq){
+        $errs[] = 'Le texte des remarques ne doit pas'.
+                                ' contenir de tags HTML';
+    }
+
+    // affichage des résultats
+    if (count($errs) == 0){
+        // OK pas d'erreur
+        htmlInfo('Validation OK. Redirection vers autre page');
+        htmlFin();
+        exit; //=&gt; fin du script
+    }
+    return $errs;
+}
+
+//_________________________________________________
+/**
+* Gestion de l'affichage du formulaire
+*
+* @param array	$errs	messages d'erreur
+*
+* @return void
+*/
+function afficherForm(array $errs): void {
+    $zones = ['txtNom' =&gt; '',
+            'numId' =&gt; '',
+            'txtRq' =&gt; ''];
+
+    // si soumission avec erreurs
+    if (isset($_POST['btnEnvoi'])){
+        // suppression des éventuels espaces blancs
+        // situés en début et en fin de chaîne
+        $zones['txtNom'] = trim($_POST['txtNom']);
+        $zones['numId'] = trim($_POST['numId']);
+        $zones['txtRq'] = trim($_POST['txtRq']);
+    }
+
+    // protection contre les attaques XSS
+    foreach ($zones as &amp;$z){
+        $z = htmlentities($z, ENT_QUOTES, encoding:'UTF-8');
+    }
+    unset($z);
+
+    // affichage des erreurs
+    if (count($errs) &gt; 0){
+        echo '&lt;p&gt;Des erreurs ont été détectées :';
+        foreach($errs as $err){
+            echo '&lt;br&gt;- ', $err;
+        }
+        echo '&lt;/p&gt;';
+    }
+
+    echo '&lt;form method="post" ',
+            'action="', $_SERVER['PHP_SELF'], '" &gt;',
+         '&lt;label&gt;Nom&lt;/label&gt;',
+            '&lt;input type="text" name="txtNom" ',
+            'value="', $zones['txtNom'], '"&gt;',
+         '&lt;label&gt;Identifiant&lt;/label&gt;',
+            '&lt;input type="number" name="numId" ',
+            'value="', $zones['numId'], '"&gt;',
+        '&lt;label&gt;Remarques&lt;/label&gt;',
+            '&lt;textarea name="txtRq"&gt;',
+            $zones['txtRq'],
+            '&lt;/textarea&gt;',
+        '&lt;p&gt;&lt;input type="reset" name="btnReset" ',
+        'value=" Effacer "&gt;',
+        '&lt;input type="submit" name="btnEnvoi" ',
+        'value="Envoyer"&gt;',
+        '&lt;/p&gt;&lt;/form&gt;';
+}
+</textarea>
+		</form>
+
+
+
+		<p class="fp-inter2">Quelques explications sur le code du script.<p>
+		
+		<pre data-code="PHP">
+// erreurs détectées lors de la soumission
+$erreurs = [];
+</pre>
+
+
+		<p class="fp-inter2">Le script commence par initialiser un tableaux
+			destiné à contenir
+			les erreurs détectées (vide au départ).
+		</p>
+
+
+		<pre data-code="PHP">
+// si soumission du formulaire
+if (isset($_POST['btnEnvoi'])){
+    $erreurs = traiteSoumission();
+}
+</pre>
+<p class="fp-inter2">
+			Nous testons ensuite si le script est appelé suite à une soumission du formulaire, ou bien s'il
+			est appelé pour un premier affichage, en testant la présence dans le tableau
+			<span class="fp-code">$_POST</span> de la clé <span class="fp-code">btnEnvoi</span> correspondant au bouton
+			<span class="fp-code">submit</span>.<br>
+			Lors du premier appel, le script est appelé via une requête HTTP GET, donc, à l'entrée dans le script, le tableau
+			<span class="fp-code">$_POST</span> est vide.<br>
+			Lorsque le visiteur clique sur le bouton <span class="fp-code">submit</span>, le script est appelée
+			via une requête HTTP POST, et si le code HTML du formulaire n'a pas été modifié;  le tableau
+			<span class="fp-code">$_POST</span>, à l'entrée dans le script, contient 4 éléments ayant pour clés
+			<span class="fp-code">btnEnvoi</span>, <span class="fp-code">txtNom</span>, <span class="fp-code">txtRq</span>
+			et <span class="fp-code">numId</span>.<br>
+			Donc la fonction <span class="fp-code">traiteSoumission()</span> n'est bien appelée qu'en cas de soumission
+			du formulaire.
+			</p>
+
+<p>
+Si la fonction de traitement de la soumission, <span class="fp-code">traiteSoumission()</span>, détecte une tentative de piratage, ou si elle ne détecte aucune erreur, le script est arrêté avant qu'elle ne retourne. On ne retourne donc de la fonction que s'il n'y a pas de tentative de piratage détectée et qu'on
+a détecté des erreurs. Dans ce cas, les erreurs sont renvoyées.
+</p>
+
+<p>
+Notez que la fonction <span class="fp-code">afficherForm()</span> utilise l'élément de clé  <span
+				class="fp-code">PHP_SELF</span> du tableau <a
+				href="https://www.php.net/manual/en/reserved.variables.server.php" target="_blank">$_SERVER</a>
+pour réaliser une <b>auto-soumission</b> : la valeur de <span
+				class="fp-code">$_SERVER['PHP_SELF']</span> est égale au chemin vers le script en train de s'exécuter.
+</p>
+
+
+
+<p class="fp-inter2">
+	Remarquez l'utilisation de la fonction
+	<a href="https://www.php.net/manual/en/function.htmlentities" target="_blank">htmlentities()</a> qui permet d'assurer une
+	protection contre les éventuelles attaques XSS réfléchies.<br>
+	Pour vous convaincre de l'utilité de cette protection, commentez les 4 lignes correspondantes,
+	tester le script, et
+	saisissez, dans l'input de type text : <br>
+	<span class="fp-code">"&gt;&lt;img
+			src="http://www.deguisement.fr/img/p-deguisement.fr/232-309-thickbox.jpg"&gt;</span><br>
+			puis soumettez le formulaire.
+		</p>
+		<p>
+			Vous pouvez aussi saisir par exemple : <br>
+			<span class="fp-code">"&gt;&lt;script&gt;location="http://google.fr"&lt;/script&gt;</span>
+		</p>
+
+		<p>
+			Pour que l'"attaque XSS" fonctionne dans le textarea, vous pouvez par exemple saisir :<br>
+			<span class="fp-code">&lt;/textarea&gt;&lt;script&gt;location="http://google.fr"&lt;/script&gt;</span>
+		</p>
+
+		<p>
+		<p>Le simple affichage de la chaîne reçue du
+			formulaire provoque, si elle contient des tags HTML, l'exécution du code saisi par l'utilisateur.
+			Cela constitue une faille de sécurité béante !
+			La fonction
+			<a href="https://www.php.net/manual/en/function.htmlentities" target="_blank">htmlentities()</a>
+			renvoie une chaîne où le code HTML, éventuellement présent dans la chaîne qu'on lui transmet en paramètre,
+			est <b>neutralisé</b>.
+		</p>
+
+
+
+
+
+
+
+
+
+
+	</div>
+	<footer></footer>
+</body>
+</html>

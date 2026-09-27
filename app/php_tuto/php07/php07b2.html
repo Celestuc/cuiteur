@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Erreur de connexion</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<p class="fp-rappel">
+			Rappel : si vous travaillez sur votre ordinateur personnel, vous
+			devez avoir <a href="../exemple/tuto_init_bd.sql" download>créer
+				la base de données de test</a> pour que les exemples puissent être
+			utilisés.
+		</p>
+
+		<p class="fp-puce">
+			Quelle que soit la phase de traitement il est primordial de <b>gérer
+				les erreurs</b> qui peuvent se produire avec le serveur de BdD.
+		</p>
+
+		<p class="fp-puce">
+			Les erreurs empêchant une connexion correcte doivent être traitées <b>immédiatement</b>.
+			Quand une telle erreur se produit, le traitement souhaité ne pourra pas être effectué.
+			Il faut donc afficher une page "propre" et arrêter
+			le script.
+
+		</p>
+
+		<p>Dans l'exemple suivant, nous tentons une connexion avec un
+			mauvais mot de passe pour examiner ce qui se passe dans le cas d'une
+			erreur.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : erreur de connexion
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Erreur de connexion');
+
+//-- Connexion --------------------------------------
+// à essayer de décommenter
+// $bd = @mysqli_connect('mariadb-hostname', 'tuto_user',
+//					 'mauvais', 'php_tuto');
+$bd = mysqli_connect('mariadb-hostname', 'tuto_user',
+					 'mauvais', 'php_tuto');
+
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT count(*) FROM livres';
+$r = mysqli_query($bd, $sql);
+
+//-- Traitement -------------------------------------
+$enr = mysqli_fetch_row($r);
+
+echo 'Il y a ', $enr[0], ' livres dans notre base';
+
+// Libération de la mémoire associée au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-puce fp-bottom0">
+			Comme nous pouvons le constater, l'erreur de connexion
+			entraîne la levée d'une <b>exception</b> qui arrête le script.
+			Cela engendre l'affichage d'un message d'erreur au milieu
+			de la page.
+
+			Pour un utilisateur non averti, ce message est
+			particulièrement déstabilisant et donne une mauvaise image de notre site. Pour un utilisateur averti, et c'est
+			pire, ce message donne des informations sur le serveur de la base
+			de données, et les répertoires du serveur Web, informations qui pourraient être utiles à un pirate cherchant à attaquer notre site.
+		</p>
+		<ul class="fp-ul-puce">
+			<li>
+			Le nom d'utilisateur de la BdD apparait dans <br> <span class="fp-code">Fatal error: Uncaught mysqli_sql_exception:  Access denied for user 'tuto_user'@...</span>.
+			<li>
+			Le chemin absolu du script PHP exécuté, <br>
+			<span class="fp-code">/var/www/localhost/htdocs/php_tuto/test/xxx.php</span>, <br>
+			est également indiqué.
+		</ul>
+		<p class="fp-remarque">
+			Il n'est pas possible de cacher le message d'erreur avec l'opérateur @ car il s'agit d'une erreur critique.
+			Vous pouvez le vérifier en décommentant l'instruction correspondante dans l'exemple ci-dessus.<br>
+			De toute façon, cacher un message d'erreur ne
+			supprime pas l'erreur !
+		</p>
+
+		<p class="fp-remarque">
+			Suivant le mode de report d'erreur de <span class="fp-code">mysqli</span>, il se peut que l'exécution du script précédent
+			entraîne le déclenchement d'un warning au lieu de lever une exception. Dans ce cas, vous pouvez ajouter l'instruction suivante,
+			avant l'appel de la
+			fonction <a
+				href="https://www.php.net/manual/en/mysqli.construct.php" target="_blank">mysqli_connect()</a>,
+			pour forcer la levée d'une exception si la connexion échoue :<br>
+			<span class="fp-code">mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);</span>
+
+		</p>
+
+		<p class="fp-remarque">
+			À partir de PHP 8.1.0, la valeur par défaut du mode du rapport d'erreur de <span class="fp-code">mysqli</span> est
+			<span class="fp-code">MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT</span>.
+
+		</p>
+
+		<p class="fp-puce fp-inter2">Si la connexion échoue, nous allons pour le moment arrêter le traitement
+			de la page et afficher dans une page "propre" un message facilement
+			compréhensible pour le visiteur.</p>
+
+
+		<p class="fp-puce"> Quelques généralités sur les exceptions :<bR>
+		- Une exception correspond à un événement anormal ou inattendu qui interrompt le
+fonctionnement normal d'un programme.<br>
+- Une exception est déclenchée -lancée- par une fonction quand une erreur survient lors de son
+exécution. Un objet de type exception contenant des informations sur l'erreur survenue est
+alors créé.<br>
+- Dès qu'une exception est survenue, le système recherche un bloc de code pour la <b>traiter</b>.
+		</p>
+
+		<p class="fp-puce"> Dans l'exemple ci-dessus,
+			si la connexion échoue, la fonction <a
+				href="https://www.php.net/manual/en/mysqli.construct.php" target="_blank">mysqli_connect()</a>
+
+			ne retourne pas : une exception <span class="fp-code">mysqli_sql_exception</span> est levée, et comme n'y a
+			pas de bloc pour la traiter, PHP affiche le message d'erreur de l'exception et arrête le script.
+		</p>
+
+		<p class="fp-puce">
+			Pour traiter cette exception, il faut utiliser une structure de contrôle
+			<span class="fp-code">try</span>, <span class="fp-code">catch</span>.
+		</p>
+
+		<pre data-code="PHP">
+try{
+	instruction H;
+	instruction I;
+	instruction J;
+	instruction K;
+}
+catch(mon_exception $e){
+	instruction L;
+	instruction M;
+	instruction N;
+}
+instruction X;
+instruction Y;
+...
+</pre>
+
+
+		<p class="fp-puce fp-bottom0">
+			Les instructions qui risquent d'entraîner la levée de l'exception <span class="fp-code">mon_exception</span> (instructions H, I, J, K), sont placées dans un bloc <span class="fp-code">try</span>. On "essaie" d'exécuter des instructions qui sont susceptibles de lever l'exception
+			 <span class="fp-code">mon_exception</span>.
+		</p>
+		<ul class="fp-ul-puce">
+			<li>Si l'exécution de toutes ces instructions placées dans le bloc <span class="fp-code">try</span> se passe bien (c'est à dire sans lever
+			l'exception <span class="fp-code">mon_exception</span>), les instructions du bloc <span class="fp-code">catch</span> ne sont pas exécutées, et le script poursuit son exécution
+			avec l'instruction qui suit ce bloc <span class="fp-code">catch</span>. Dans ce cas, le script exécute donc les instructions H, I, J, K, X, Y, etc.
+			<li>Si par contre, l'instruction I entraîne la levée de l'exception <span class="fp-code">mon_exception</span>, alors les instructions J et K qui la suivent dans le bloc <span class="fp-code">try</span> ne sont pas exécutées, et le script exécute les instructions du bloc <span class="fp-code">catch</span>.
+			Dans ce cas, le script exécute les instructions H, I, L, M, N, X, Y,
+		</ul>
+
+		<p class="fp-remarque">
+			Bien entendu, ce qui précède n'est valide qu'à condition qu'aucune des instructions ci-dessus ne termine le script.
+		</p>
+		<p class="fp-remarque">
+			Rappel : l'objet <span class="fp-code">$e</span> de type <span class="fp-code">mon_exception</span> contient des informations
+			sur l'origine de l'erreur qui vient de se déclencher.
+		</p>
+		<p class="fp-remarque">
+			Vous trouverez plus d'informations sur les exceptions dans la section "Objets - Les exceptions" à la fin du chapitre consacré aux
+			objets.
+		</p>
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_07.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : erreur de connexion
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+// démarre la bufférisation des sorties
+ob_start();
+require('bib_fonctions.php');
+
+//-- Début du script --------------------------------
+htmlDebut('Nombre de livres');
+
+// pour forcer la levée de l'exception mysqli_sql_exception
+// si la connexion échoue
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+//-- Connexion --------------------------------------
+try{
+	$bd = mysqli_connect('mariadb-hostname', 'tuto_user',
+					 'mauvais', 'php_tuto');
+	// avec le bon mot de passe
+	//$bd = mysqli_connect('mariadb-hostname', 'tuto_user',
+	//				 'tuto_pass', 'php_tuto');
+}
+catch(mysqli_sql_exception $e){
+	ob_end_clean();		// Supression de tout ce qui 
+						// a pu être déja généré
+	htmlDebut('Maintenance en cours');
+	// Gros mensonge
+	echo 'Notre site est momentanément indisponible ',
+		'pour cause de maintenance. Merci de ré-essayer ',
+		'dans quelques instants.';
+	htmlFin();
+	exit();				// Fin du script
+}
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT count(*) FROM livres';
+$r = mysqli_query($bd, $sql);
+
+//-- Traitement -------------------------------------
+$enr = mysqli_fetch_row($r);
+
+echo 'Il y a ', $enr[0], ' livres dans notre base';
+
+// Libération de la mémoire associé au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+	<p>
+    Pour afficher une page "propre" en cas d'erreur, cette fonction commence par appeler la fonction
+    <a href="https://www.php.net/manual/en/function.ob-end-clean.php" target="_blank">ob_end_clean()</a> afin de supprimer
+    tout ce qui a pu être déja généré auparavant.
+    Il faut donc
+    <a href="#bufferisation">activer la bufférisation des sorties</a> au début du script.
+</p>
+
+	<p> Testez aussi ce script en mettant le bon mot de passe.
+	</p>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

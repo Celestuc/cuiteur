@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Les formulaires</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<link rel="stylesheet" href="../exemple/exemple.css">
+<script>
+	if (!top.FP) {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+
+	document.addEventListener('DOMContentLoaded', function() {
+		var pre = document.getElementsByTagName('PRE')[0];
+		pre.classList.add('cm-s-default');
+		mode = pre.getAttribute('data-code');
+		CodeMirror.runMode(pre.textContent, top.FP.CodeMirrorMode[mode], pre);
+	}, false);
+</script>
+</head>
+<body>
+	<h1>Code du formulaire (sans mise en forme)</h1>
+	<div id="btnClose" onClick="top.FP.Voir.hidePLUS()"></div>
+
+	<div style="width: 90%; margin: 60px auto 20px">
+		<pre data-code="PHP_HTML">
+&lt;form action="reception.php" method="post"&gt;
+    &lt;fieldset&gt;
+        &lt;input type="hidden" name="hidSecret" value="pas vu"&gt;
+        &lt;legend&gt;Identite&lt;/legend&gt;
+        &lt;label for="txtNom"&gt;Nom &lt;/label&gt;
+        &lt;input type="text" id="txtNom" name="txtNom" value="" size="20"&gt;
+        &lt;br&gt;
+        &lt;label for="numId"&gt;Identifiant &lt;/label&gt;
+        &lt;input type="number" id="numId" name="numIdentifiant" value=""&gt;
+    &lt;/fieldset&gt;
+
+    &lt;fieldset&gt;
+        &lt;legend&gt;Niveau&lt;/legend&gt;
+        &lt;input type="radio" name="radNiveau" value="1"&gt; D&eacute;butant
+        &lt;input type="radio" name="radNiveau" value="2"&gt; Avanc&eacute;
+        &lt;input type="radio" name="radNiveau" value="3"&gt; Expert
+    &lt;/fieldset&gt;
+
+    &lt;fieldset&gt;
+        &lt;legend&gt;Connaissances&lt;/legend&gt;
+        &lt;input type="checkbox" name="chkHtml" value="1" checked&gt; HTML
+        &lt;input type="checkbox" name="chkCss" value="1" checked&gt; CSS
+        &lt;input type="checkbox" name="chkJs" value="1"&gt; JS
+        &lt;input type="checkbox" name="chkPhp" value="1"&gt; PHP
+    &lt;/fieldset&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;Groupe de TP&lt;/legend&gt;
+        &lt;select name="lstTP"&gt;
+            &lt;option value="A"&gt;Groupe A&lt;/option&gt;
+            &lt;option value="B"&gt;Groupe B&lt;/option&gt;
+            &lt;option value="C"&gt;Groupe C&lt;/option&gt;
+            &lt;option value="indiff&eacute;rent"&gt;Indiff&eacute;rent&lt;/option&gt;
+        &lt;/select&gt;
+    &lt;/fieldset&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;Remarques&lt;/legend&gt;
+        &lt;textarea name="txtRemarques" rows="3" cols="30"&gt;&lt;/textarea&gt;
+    &lt;/fieldset&gt;
+    &lt;p&gt;
+    &lt;input type="reset" value="Effacer"&gt;
+    &lt;input type="submit" name="btnEnvoi" value="Envoyer"&gt;
+    &lt;/p&gt;
+&lt;/form&gt;
+</pre>
+	</div>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Erreurs dans une requête</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<!--
+		<p class="fp-rappel">
+			Rappel : si vous travaillez sur votre ordinateur personnel, vous
+			devez avoir <a onclick="top.FP.Voir.showPLUS('exemple/initbase.php')">créer
+				la base de données de test</a> pour que les exemples puissent être
+			utilisés.
+		</p>
+		-->
+
+		<p class="fp-puce">
+			Si une erreur se produit au cours de la requête, une <b>exception
+			<a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank">mysqli_sql_exception</a> est levée</b> et
+			<b><a
+				href="https://www.php.net/manual/en/mysqli.query.php" target="_blank">mysqli_query()</a>
+			ne retourne pas</b>. Nous devons traiter cette exception pour agir en conséquence, le plus souvent par
+			l'arrêt du traitement en cours et l'affichage d'un message ou le
+			déroutement vers une autre page.
+		</p>
+
+		<p class="fp-puce fp-bottom0">Une erreur peut avoir généralement 3
+			causes :</p>
+		<ul class="fp-ul-puce">
+			<li>la requête contient une faute dans le nom d'un champ, d'une
+				table ou d'une commande SQL (par exemple liPage à la place de
+				liPages, lives à la place de livres, SELET à la place de SELECT,
+				etc)</li>
+			<li>la requête essaye de faire une opération "interdite" (par
+				exemple insérer un enregistrement avec une clé primaire déjà existante)</li>
+			<li>la requête contient des caractères mal protégés qui
+				provoquent une erreur de syntaxe.</li>
+		</ul>
+
+		<p>L'exemple suivant essaye de faire une insertion dans la table
+			auteurs avec un clé primaire déjà existante.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_08.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : erreur de requête
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Erreur dans un insert');
+
+$bd = bdConnect();
+
+//-- Requête ----------------------------------------
+$sql = 'INSERT INTO auteurs SET
+		auID = 1,
+		auNom = "Piat",
+		auPrenom = "François",
+		auPays = "FR",
+		auBiographie = ""';
+$r = mysqli_query($bd, $sql);
+
+echo 'La mise à jour à été effectuée correctement.';
+
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p>
+			Un autre exemple avec une requête <span class="fp-code">SELECT</span>
+			et un mauvais nom de table.
+		</p>
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_08.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : erreur de requête
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Erreur dans un select');
+
+$bd = bdConnect();
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT * 
+		FROM lives
+		WHERE liID = 10';
+$r = mysqli_query($bd, $sql);
+
+//-- Traitement -------------------------------------
+$enr = mysqli_fetch_assoc($r);
+
+infoTableau($enr);
+
+// Libération de la mémoire associée au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+		<p class="fp-inter2">
+			Dans les 2 cas, l'échec de <a
+				href="https://www.php.net/manual/en/mysqli.query.php" target="_blank">mysqli_query()</a>
+				entraîne la levée d'une exception <a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank">mysqli_sql_exception</a>. Comme cette exception n'est pas traitée, cela
+				engendre l'affichage d'un message d'erreur au milieu de la page, et l'arrêt du script.
+		</p>
+
+		<p> Comme les erreurs de connexion, les <span style="color:red"><b>erreurs</b></span> qui peuvent se produire lors de l'envoi d'une
+		requête SQL au serveur de bases de données avec <span style="color:red"><b><a
+				href="https://www.php.net/manual/en/mysqli.query.php" target="_blank">mysqli_query()</a></b>
+				<b>doivent toujours être traitées</b></span>.
+		</p>
+
+			<p>
+			Nous allons donc définir une nouvelle fonction dans notre bibliothèque (<span class="fp-code">bib_fonctions.php</span>).
+			</p>
+
+			<pre data-code="PHP">
+//____________________________________________
+/**
+ * Envoie une requête SQL au serveur de BdD en gérant
+ * les erreurs.
+ *
+ * En cas d'erreur, une page propre avec un message d'erreur
+ * est affichée et le script est arrêté. Si l'envoi de la
+ * requête réussit, cette fonction renvoie :
+ *      - un objet de type mysqli_result dans le cas d'une
+ *		  requête SELECT
+ *      - true dans le cas d'une requête INSERT, DELETE
+ *        ou UPDATE
+ *
+ * @param   mysqli   $bd     Objet connecteur sur la base de données
+ * @param   string   $sql    Requête SQL
+ *
+ * @return  mysqli_result|bool   Résultat de la requête
+ */
+function bdSendRequest(mysqli $bd, string $sql):
+                       mysqli_result|bool {
+    try{
+        return mysqli_query($bd, $sql);
+    }
+    catch(mysqli_sql_exception $e){
+        $err['titre'] = 'Erreur de requête';
+        $err['code'] = $e-&gt;getCode();
+        $err['message'] = $e-&gt;getMessage();
+        $err['appels'] = $e-&gt;getTraceAsString();
+        $err['autres'] = array('Requête' =&gt; $sql);
+        bdErreurExit($err);    // ==&gt; ARRET DU SCRIPT
+    }
+}
+</pre>
+<p>
+Pour envoyer une <b>requête</b> au serveur de BdD, tout en <b>gérant les erreurs</b> qui peuvent se produire lors de l'appel de la fonction
+<a href="https://www.php.net/manual/en/mysqli.query.php" target="_blank">mysqli_query()</a>,
+vous <span style="color:red"><b>devez toujours utiliser la fonction <span class="fp-code">bdSendRequest()</span></b></span>.
+</p>
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_09.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : erreur de requête
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Erreur dans un select');
+
+$bd = bdConnect();
+
+fonctionUn();
+
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+
+//------------------------------------------
+function fonctionUn() {
+	deuxiemeFonction();
+}
+//------------------------------------------
+function deuxiemeFonction() {
+	trois();
+}
+
+//------------------------------------------
+function trois() {	
+    global $bd;
+	//-- Requête ----------------------------------------
+	$sql = 'SELECT * 
+			FROM lives
+			WHERE liID = 10';
+	$r = bdSendRequest($bd, $sql);
+	
+	//-- Traitement -------------------------------------
+	$enr = mysqli_fetch_assoc($r);
+	
+	//- Libération de la mémoire associée au résultat 
+	//- de la requête
+	mysqli_free_result($r);
+
+	infoTableau($enr);
+}
+
+</textarea>
+		</form>
+
+		<p class="fp-puce fp-inter2">Avec l'affichage de la pile des appels
+			de fonction, on voit bien tout le traitement qui a causé l'erreur
+			détectée en ligne 33 de notre code.</p>
+
+		<p class="fp-puce">
+			Quand l'envoi d'une requête échoue, en plus d'afficher le numéro et le message de l'erreur
+			obtenus en appelant respectivement
+			<code>getCode()</code> et <code>getMessage()</code> pour l'objet
+	<a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank">mysqli_sql_exception</a>,
+			on <b>affiche la
+			requête</b> ayant provoquée l'erreur, ce qui facilite le débuggage.
+		</p>
+		<p class="fp-puce">
+			Notez enfin l'emploi du mote clé <code>global</code> afin d'accéder à l'intérieur d'une fonction à une variable définie
+			à un niveau global dans le script.
+		</p>
+	</div>
+	<footer></footer>
+</body>
+</html>

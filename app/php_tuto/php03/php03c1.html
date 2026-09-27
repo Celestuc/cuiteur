@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Protection des chaînes</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p class="fp-bottom0">Dans un script PHP, plusieurs autres langages, ou environnements, sont manipulés.
+		En effet, nous sommes amenés à gérer des chaînes destinées au client (i.e. navigateur), ou
+		au serveur de bases de données :</p>
+		<ul class="fp-ul-puce" style="margin-bottom:0">
+			<li> Le client ne comprend que les langages HTML, CSS et JavaScript. Toutes
+			les chaînes que nous affichons, depuis les scripts PHP, constituent par définition des <b>sorties</b>
+			qui sont envoyées au navigateur. Ces chaînes là contiennent du code HTML.
+			<li>Le serveur de bases de données, lui ne comprend qu'un seul langage, le langage SQL.
+			Toutes les chaînes, contenant du code SQL, que nous lui enverrons constituent par définition des <b>entrées</b>.</li>
+		</ul>
+		<p style="margin-top:0">Notez également que le code HTML envoyé au navigateur contient bien souvent des URL permettant de désigner des ressources
+		sur le réseau. Quand il s'agit de scripts, il est possible de leur envoyer des paramètres.
+		</p>
+
+		<p class="fp-bottom0">
+			Tous ces langages, ou environnements, disposent de caractères <b>spéciaux</b>, i.e. qui ont
+			une signification spéciale dans le langage considéré. Exemples :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>Dans le langage HTML, les caractères
+			<span class="fp-code">&lt;</span> et <span class="fp-code">&gt;</span>
+			indiquent le début et la fin d'un tag HTML.
+			<li>Dans une requête SQL, les guillemets simples ou doubles permettent de repérer le début et la fin d'une chaîne
+			à placer dans un champ par exemple.
+		</ul>
+
+		<p class="fp-bottom0">
+			Traitements, ou protections, à réaliser sur les <b>chaînes provenant d'une saisie utilisateur</b> (i.e. <b>visiteur du site</b>) :
+		</p>
+		<ul class="fp-ul-puce">
+		<li>
+			Quand une chaîne, provenant d'une saisie utilisateur, est envoyée au client, elle
+			est préalablement encapsulée dans du code HTML. Mais, avant cet envoi, les
+			éventuels éléments <b>HTML actifs</b> qu'elle contient doivent être <b>neutralisés</b>
+			pour qu'il ne soient pas interprétés par le navigateur comme
+			du code HTML.
+		<li>
+			De même, avant insertion dans une requête SQL, une chaîne, provenant d'une saisie utilisateur,
+			destinée au serveur de bases de données doit subir préalablement un traitement
+			visant notamment à échapper les guillemets simples et doubles avec un backslash.
+
+		<li>
+			Une URL ne peut pas contenir de caractère espace. Donc, si une chaîne, provenant d'une saisie utilisateur,
+			contient un espace, il faut l'<b>encoder</b> avant de l'insérer dans une URL.
+		</ul>
+
+		<p>
+			PHP dispose de fonctions spécialisées permettant de réaliser ces traitements.
+		</p>
+
+		<h3>Les attaques XSS</h3>
+		<section>
+		<p class="fp-puce"> Définition : une <b>attaque XSS (cross site scripting)</b> consiste à envoyer au navigateur une chaîne contenant un code HTML ou JavaScript
+		malveillant provenant d'une <b>saisie</b> du visiteur actuel, ou d'un autre visiteur.
+		</p>
+
+		<p class="fp-puce">
+		Par exemple, imaginons que votre site autorise les utilisateurs (i.e. visiteurs) à saisir des commentaires.
+		Un utilisateur pourrait saisir des tags HTML dans un de ses commentaires, par exemple un tag <span class="fp-code">&lt;script&gt;</span>
+		contenant du code JavaScript. Si ce commentaire (i.e. la chaîne qui le représente) est ensuite envoyée sans précautions au navigateur, ce dernier
+		<b>interprétera</b> le code HTML et donc le code JavaScript contenu dans l'élément <span class="fp-code">&lt;script&gt;</span>.
+		Exemple :
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : attaque XSS
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('attaque XSS');
+
+$x = 'Texte saisi par un internaute avec une redirection
+		automatique sur un site pirate &lt;script&gt;
+  		location="https://www.femto-st.fr"&lt;/script&gt;';
+
+echo $x;
+
+htmlFin();
+</textarea>
+			</form>
+
+		<p class="fp-puce">
+			Quand le navigateur appelle ce script, il est redirigé vers le site
+			de l'université de Franche-Comté. Suite à la réception de la page
+			contenant le commentaire piégé, le navigateur demande la page d'accueil du site
+			<span class="fp-code">https://www.femto-st.fr</span>.
+		</p>
+
+		<p class="fp-puce">L'"attaque" XSS ci-dessus n'est bien entendu qu'un amusement par rapport à ce qu'il est possible de faire.
+		Il est par exemple possible de rediriger l'utilisateur vers une page qui imite la page de connexion du site
+		dans le but de lui voler ses identifiants. Il ne faut pas croire que seul JavaScript
+			est capable de faire des dégâts. Un simple lien HTML (&lt;a&gt;) peut
+			se révéler aussi dangereux car le click peut nous emmener autre part
+			que ce qui est indiqué. Un tag &lt;img&gt; peut aussi pointer non sur
+			une image, mais sur un script PHP qui pourra par exemple obtenir des
+			informations sur les cookies de session avant de renvoyer (ou pas)
+			une image.</p>
+
+		<p class="fp-bottom0">
+			Il existe 2 types d'attaques XSS :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>les attaques XSS réfléchies (non permanentes)
+			<li>les attaques XSS stockée (permanentes)
+		</ul>
+
+		<figure>
+				<img src="../phpimg/xss-reflechie.png" width="563" height="336">
+				<figcaption>Attaque XSS réfléchie (non permanente)</figcaption>
+		</figure>
+
+		<p class="fp-bottom0">
+			Dans le cas d'une attaque XSS réfléchie (non permanente), les étapes sont les suivantes :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>Etape 1 : Un visiteur &#955; saisit, via un formaulaire, une chaine piégée contenant du code HTML,
+			et donc l'envoie  au serveur lorsqu'il soumet le formaulaire.
+			<li>Etape 2 : Le serveur renvoie <b>directement</b> la chaine au navigateur, le code HTML contenu dans la chaine est <b>interprété</b> coté client. Si la chaine contient le code HTML indiqué, l'utilisateur &#955; est redirigé vers l’autre site.
+		</ul>
+
+		<p class="fp-remarque">
+			Vous allez me dire que l'utilisateur ne va pas se piéger tout seul...
+			Eh bien détrompez-vous : avec des techniques d'ingénierie sociale, certains pirates
+			arrivent à faire faire pas mal de choses aux autres.
+		</p>
+
+		<figure>
+				<img src="../phpimg/xss-stockee.png" width="597" height="280">
+				<figcaption>Attaque XSS stokée (permanente)</figcaption>
+		</figure>
+
+		<p class="fp-bottom0">
+			Dans le cas d'une attaque XSS stockée (permanente), les étapes sont les suivantes :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>Etape 1 : Un pirate saisit, via un formaulaire, une chaine piégée contenant du code HTML,
+			et donc l'envoie  au serveur lorsqu'il soumet le formaulaire. Le serveur <b>enregistre cette chaîne
+			dans la base de données</b>.
+			<li>Etape 2 : Tous les visiteurs &#955; qui "consultent" la chaîne piégée (i.e. qui demandent son affichage)
+			sont redirigés vers le site du pirate (si la chaine contient le code HTML indiqué).
+		</ul>
+
+		<p>	Pour obtenir des informations complémentaires sur les attaques XSS :
+			<a href="https://owasp.org/www-community/attacks/xss/" target="_blank">Cross-Site Scripting (XSS)</a>
+		</p>
+
+		</section>
+
+		<h3>Neutraliser les caractères spéciaux d'HTML</h3>
+		<section>
+			<p class="fp-puce">Afin d'annihiler toute tentative d'attaque XSS,
+
+				quand vous envoyez, au navigateur, une chaîne provenant d'une saisie utilisateur
+				ou de la base de données,
+				pour que le navigateur en fasse l'affichage, il
+				faut préalablement encoder les caractères spéciaux du langage HTML (&lt;, &gt;,
+				&amp;, ...) pour les neutraliser, afin qu'ils ne soient pas interprétés comme éléments du
+				langage HTML, mais traités comme de simples éléments de texte.
+				</p>
+
+			<p class="fp-puce">
+				Les fonctions
+				<a href="https://www.php.net/manual/en/function.htmlspecialchars.php" target="_blank">htmlspecialchars()</a> et
+				<a href="https://www.php.net/manual/en/function.htmlentities.php" target="_blank">htmlentities()</a>
+				permettent de neutraliser les caractères spéciaux du langage HTML.
+			</p>
+
+
+			<p class="fp-puce fp-bottom0">
+				<a href="https://www.php.net/manual/en/function.htmlspecialchars.php" target="_blank">htmlspecialchars()</a> convertit en entités HTML
+ les caractères qui ont une signification spéciale en HTML (&amp;, &lt;, &gt;).
+De plus, <a href="https://www.php.net/manual/en/function.htmlspecialchars.php" target="_blank">htmlspecialchars()</a> convertit ou non
+ les quotes (&quot;, &#039;) en entités HTML suivant le second paramètre qui lui est transmis.
+			</p>
+			<ul class="fp-ul-puce">
+				<li><span class="fp-code">&amp;</span> devient <span class="fp-code">&amp;amp;</span></li>
+				<li><span class="fp-code">&lt;</span> devient <span class="fp-code">&amp;lt;</span></li>
+				<li><span class="fp-code">&gt;</span> devient <span class="fp-code">&amp;gt;</span></li>
+				<li><span class="fp-code">&quot;</span> devient éventuellement <span class="fp-code">&amp;quot;</span></li>
+				<li><span class="fp-code">&#039;</span> devient éventuellement <span class="fp-code">&amp;#039;</span> ou <span class="fp-code">&amp;apos;</span> </li>
+			</ul>
+
+			<p class="fp-puce fp-bottom0">
+				<a href="https://www.php.net/manual/en/function.htmlentities.php" target="_blank">htmlentities()</a> est identique à la fonction
+<a href="https://www.php.net/manual/en/function.htmlspecialchars.php" target="_blank">htmlspecialchars()</a>, sauf que tous les caractères
+ qui
+ont des équivalents en entités HTML sont traduits en entités HTML, notamment les caractères accentués.
+			</p>
+			<ul class="fp-ul-puce">
+				<li><span class="fp-code">é</span> devient <span class="fp-code">&amp;eacute;</span></li>
+				<li><span class="fp-code">è</span> devient <span class="fp-code">&amp;egrave;</span></li>
+				<li><span class="fp-code">à</span> devient <span class="fp-code">&amp;agrave;</span></li>
+				<li>etc.
+			</ul>
+
+
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : codage HTML
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Codage HTML');
+
+echo 'Affichez le code source de la page pour voir les 
+		tranformations effectuées par PHP.';
+
+$x = '&lt; &gt; &amp; &quot; é è à ç &ugrave; / + @';
+
+echo &quot;\n&lt;p&gt;Avec htmlspecialchars \n&quot;, 
+		htmlspecialchars($x, ENT_QUOTES, encoding:'UTF-8');
+
+echo &quot;\n&lt;p&gt;Avec htmlentities \n&quot;, 
+		htmlentities($x, ENT_QUOTES, encoding:'UTF-8');
+
+//---------------------
+
+$x = 'texte en &lt;strong&gt;gras&lt;/strong&gt;';
+echo &quot;\n&lt;p&gt;Sans protection \n&quot;, $x;
+echo &quot;\n&lt;p&gt;Avec protection \n&quot;,
+		htmlentities($x, ENT_QUOTES, encoding:'UTF-8');
+
+htmlFin();
+</textarea>
+			</form>
+
+		<p>
+			Visualisez le code source de la page HTML générée par le script précédent
+			en effectuant un clic droit sur la page, puis en sélectionnant <em>Code source de la page</em>.
+		</p>
+
+		<figure>
+			<img src="../phpimg/codeSrcPage.png" width="488" height="616">
+			<figcaption>Visualiser le code source d'une page HTML gérée par PHP</figcaption>
+		</figure>
+
+		<p>
+			Si on protège la chaîne piégée avec
+			<a href="https://www.php.net/manual/en/function.htmlentities.php" target="_blank">htmlentities()</a>,
+			l'attaque XSS est annihilée.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : attaque XSS annihilée
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('attaque XSS annihilée');
+
+$x = 'Texte saisi par un internaute avec une redirection
+		automatique sur un site pirate &lt;script&gt;
+  		location="https://www.femto-st.fr"&lt;/script&gt;';
+
+echo htmlentities($x, ENT_QUOTES, encoding:'UTF-8');
+
+htmlFin();
+</textarea>
+			</form>
+
+
+		</section>
+
+
+		<h3>Supprimer les tags HTML</h3>
+		<section>
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.strip-tags.php" target="_blank">strip_tags()</a>
+				permet d'<b>enlever les tags HTML</b> contenus dans une chaîne qu'on lui transmet en paramètre.
+				Elle permet également de se protéger contre les attaques XSS :
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : supprimer les tags HTML
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Supprimer les tags HTML');
+
+$x = 'Texte saisi par un internaute avec une redirection 
+		automatique sur un site pirate &lt;script&gt;
+  		location="https://www.femto-st.fr"&lt;/script&gt;';
+
+echo strip_tags($x);
+
+htmlFin();
+</textarea>
+			</form>
+
+		<p class="fp-remarque">
+			Nous utiliserons la fonction <a
+					href="https://www.php.net/manual/en/function.strip-tags.php" target="_blank">strip_tags()</a>
+			pour vérifier que les chaînes saisies par l'utilisateur, via un formulaire,
+			ne contiennent pas de tags HTML.
+		</p>
+
+		</section>
+
+		<h3>Meta tags d'une page HTML</h3>
+		<section>
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.get-meta-tags.php" target="_blank">get_meta_tags()</a>
+				renvoie <b>un tableau contenant les tags meta d'une page HTML</b>.
+				Cette fonction peut être utilisée par exemple pour indexer un site,
+				ou donner des informations sur des pages HTML.
+			</p>
+			<p>
+				Soit la page HTML suivante (<span class="fp-code">test_meta.html</span>
+				dans le <a
+					onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">dossier
+					"test"</a>) :
+			</p>
+			<pre data-code="PHP_HTML">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+	&lt;head&gt;
+		&lt;title&gt;Page de test&lt;/title&gt;
+		&lt;meta name="keywords" content="test, php, fonction"&gt;
+		&lt;meta name="description"
+			content="Page de test de la fonction get_meta_tags"&gt;
+		&lt;meta name="author" content="François Piat"&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		Page de test pour la récupération des meta-tags
+	&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+			<p>
+				La fonction <a
+					href="https://www.php.net/manual/en/function.get-meta-tags.php" target="_blank">get_meta_tags()</a>
+				renverra le tableau suivant :
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : meta-tags
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('meta-tags');
+
+$t = get_meta_tags('test_meta.html');
+
+echo '&lt;pre&gt;';
+
+print_r($t);
+
+echo '&lt;/pre&gt;';
+
+htmlFin();
+</textarea>
+			</form>
+
+		</section>
+
+		<h3>SQL : échapper les quotes</h3>
+		<section>
+			<p class="fp-puce">La plupart des bases de données demandent que
+				dans les données qui leurs sont envoyées, les guillemets doubles ou
+				simples, et les backslashs soient protégés par un backslash.
+			<p class="fp-bottom0">Par exemple, pour mettre le texte
+			<span class="fp-code">C'est un texte &quot;à problème&quot;</span> dans une requête SQL INSERT, nous formerons une
+				chaine ressemblant à :</p>
+			<pre class="fp-top0">
+INSERT INTO latable (leChamp)
+       VALUES ('C<span class="fp-code fp-rouge">\'</span>est un texte <span
+					class="fp-code fp-rouge">\&quot;</span>à problème<span
+					class="fp-code fp-rouge">\&quot;</span>')</pre>
+			<p class="fp-puce">
+				PHP fournit la fonction <a
+					href="https://www.php.net/manual/en/function.addslashes.php" target="_blank">addslashes()</a>
+				pour effectuer le travail à notre place.<br> Pour enlever les
+				backslashes de protection, nous pouvons utiliser la fonction <a
+					href="https://www.php.net/manual/en/function.stripslashes.php" target="_blank">stripslashes()</a>
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_02.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : protéger les guillemets
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Protéger les guillemets');
+
+$nom = "Scarlett O'Hara";
+$texte = 'est un nom "à problème"';
+
+echo "&lt;h4&gt;Textes de test&lt;/h4&gt; $nom $texte";
+
+echo '&lt;h4&gt;Ajout de backslashes&lt;/h4&gt;';
+$nom = addslashes($nom);
+$texte = addslashes($texte);
+echo "$nom $texte";
+
+echo '&lt;h4&gt;Suppression de backslashes&lt;/h4&gt;';
+$nom = stripslashes($nom);
+$texte = stripslashes($texte);
+echo "$nom $texte";
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>
+				Nous verrons plus en détail dans le chapitre consacré à MySQL
+				comment rendre ses protections plus efficaces, en particulier avec
+				l'utilisation de la fonction dédiée <a
+					href="https://www.php.net/manual/en/mysqli.real-escape-string.php" target="_blank">mysqli_real_escape_string</a>.
+			</p>
+		</section>
+
+
+	</div>
+	<footer></footer>
+</body>
+</html>

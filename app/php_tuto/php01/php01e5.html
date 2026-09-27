@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les instructions de contrôle</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<ul id="MENU-page"></ul>
+		<h3>Fin de script : exit</h3>
+		<section>
+
+			<p class="fp-puce">
+				<a href="https://www.php.net/manual/en/function.exit.php" target="_blank">exit</a>
+				<b>met immédiatement fin au script PHP courant</b> et provoque l'envoi de
+				la page telle qu'elle est au navigateur. <!--<a
+					href="https://www.php.net/manual/en/function.exit.php" target="_blank">exit</a>
+				n'est ni une instruction ni une fonction, mais une
+				&quot;construction du langage&quot;.-->
+			</p>
+			<p class="fp-puce">
+				<a href="https://www.php.net/manual/en/function.exit.php" target="_blank">exit</a>
+				peut être employée telle que (i.e. sans parenthèse et sans paramètre), ou avec un paramètre qui
+				peut être une chaîne de caractères ou un entier :
+			</p>
+			<ul class="fp-ul-puce">
+				<li>si le paramètre transmis à 
+				<a href="https://www.php.net/manual/en/function.exit.php" target="_blank">exit</a> est une chaîne,
+				elle sera transmise au navigateur qui l'affichera;
+				</li>
+				<li>si le paramètre transmis à 
+				<a href="https://www.php.net/manual/en/function.exit.php" target="_blank">exit</a> est un entier,
+				cette valeur constituera le statut de sortie du script et elle ne sera pas affichée. 
+				Le statut de sortie peut être dans l'intervalle 0-255, le statut de sortie 255 est réservé par PHP et ne doit pas être utilisé. 
+				Le statut 0 est utilisé pour terminer le programme avec succès. 
+				</li>
+			</ul>
+			<p class="fp-remarque">
+				<span class="fp-code">die</span> est un alias de <a
+					href="https://www.php.net/manual/en/function.exit.php" target="_blank">exit</a>
+				et peut être utilisé à sa place avec les même règles.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : fin de script
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Fin de script&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+Cette ligne sera affichée car située avant exit
+&lt;?php
+echo '&lt;p&gt;Traitement PHP ....&lt;/p&gt;';
+$s = date('s');
+echo $s, '&lt;hr&gt;';
+
+// une erreur se produit, arrêt du script
+if ($s % 2 == 0){
+	exit('Erreur dans le script. Fin du traitement');
+}
+exit(1);
+
+echo 'Cette ligne ne sera jamais ',
+	 'affichée car située après l\'appel de exit';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		</section>
+
+		<h3>Niveaux d'erreur</h3>
+		<section>
+
+			<p class="fp-puce">Quand une erreur se produit dans un script PHP,
+				celui-ci ne sera pas forcément arrêté. Si le niveau de l'erreur
+				n'est pas défini comme fatal, un message d'erreur sera simplement
+				émis par PHP. Suivant la configuration de PHP, les messages d'erreur
+				sont envoyés à la sortie courante (i.e. affiché dans la page) ou
+				stockés dans un fichier. Si l'erreur est une erreur fatale,
+				l'exécution du script s'arrête.</p>
+
+
+			<p class="fp-bottom0 fp-puce">Il y a 3 niveaux d'erreur dans PHP. Par ordre de gravité décroissante : </p>
+			<ul class="fp-ul-puce">
+				<li>une erreur <span class="fp-code">fatale</span> est une
+					erreur "grave" qui entraine l'arrêt du script. Exemples : problème
+					d'allocation mémoire, appel d'une fonction avec un nombre insuffisant de paramètres.
+				<li>une erreur <span class="fp-code">warning</span> n'arrête
+					pas le script. Exemples : tentative d'accès à une variable non définie,
+					transtypage d'un tableau en chaîne.
+				</li>
+				<li>une erreur <span class="fp-code">notice</span>, moins
+					grave qu'une erreur <span class="fp-code">warning</span>
+					indique que le script a rencontré quelque chose qui peut être une erreur, mais peut aussi être un événement
+					normal dans la vie du script. Exemple : appel d'une fonction qui sera supprimée dans les futures versions de PHP.
+				</li>
+			</ul>
+
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.error-reporting.php" target="_blank">error_reporting()</a>
+				permet de définir, pour un script, les erreurs qui seront reportées
+				et pour lesquelles, par défaut, un message sera affiché.
+			</p>
+
+			<p class="fp-bottom0">La fonction accepte comme argument une ou
+				plusieurs constantes combinées avec les opérateurs bit à bit :</p>
+			<ul class="fp-ul-puce">
+				<li><span class="fp-code">E_ERROR</span> : erreurs fatales d'exécution
+					provoquant un arrêt du script</li>
+				<li><span class="fp-code">E_WARNING</span> : erreurs
+					d'exécution sans arrêt du script</li>
+				<li><span class="fp-code">E_PARSE</span> : erreurs fatales rencontrées lorsque le code PHP est parsé. Exemple : oubli d'un point virgule</li>
+				<li><span class="fp-code">E_NOTICE</span> : erreurs d'exécution
+					faibles, comparables à des remarques</li>
+				<li><span class="fp-code">E_CORE_ERROR</span> : erreurs fatales
+					internes de PHP</li>
+				<li><span class="fp-code">E_CORE_WARNING</span> : erreurs
+					internes de PHP sans arrêt du script</li>
+				<li><span class="fp-code">E_COMPILE_ERROR</span> : erreurs fatales
+					internes de compilation du Zend Engine</li>
+				<li><span class="fp-code">E_COMPILE_WARNING</span> : warnings de compilation du Zend Engine sans arrêt du script</li>
+				<li><span class="fp-code">E_USER_ERROR</span> : comme <span class="fp-code">E_ERROR</span>,
+					mais déclenchée par le développeur dans le code avec <a
+					href="https://www.php.net/manual/en/function.trigger-error.php" target="_blank">trigger_error</a></li>
+				<li><span class="fp-code">E_USER_WARNING</span> : comme <span class="fp-code">E_WARNING</span>,
+					mais déclenchée par le développeur dans le code avec <a
+					href="https://www.php.net/manual/en/function.trigger-error.php" target="_blank">trigger_error</a></li>
+				<li><span class="fp-code">E_USER_NOTICE</span> : comme <span class="fp-code">E_NOTICE</span>,
+					mais déclenchée par le développeur dans le code avec <a
+					href="https://www.php.net/manual/en/function.trigger-error.php" target="_blank">trigger_error</a></li>
+				<li><span class="fp-code">E_STRICT</span> : suggestions visant une meilleure interopérabilité et la compatibilité
+				ascendante du code</li>
+				<li><span class="fp-code">E_RECOVERABLE_ERROR</span> : erreur fatale "attrapable". Cela indique
+				qu'une erreur probablement grave s'est produite, mais elle ne laisse pas le moteur PHP dans un état instable.
+				Si l'erreur n'est pas attrapée par un gestionnaire défini avec
+				<a href="https://www.php.net/manual/en/function.set-error-handler.php" target="_blank">set_error_handler()</a>,
+				le script est arrêté comme si c'était une <span class="fp-code">E_ERROR</span>
+				</li>
+				<li><span class="fp-code">E_DEPRECATED</span> : erreurs de type <span class="fp-code">E_NOTICE</span> dûes à
+					des instructions dépréciées de PHP (qui seront supprimées dans les versions
+					futures)</li>
+				<li><span class="fp-code">E_USER_DEPRECATED</span> : comme
+					E_DEPRECATED, mais déclenchée par le développeur dans le code avec
+					<a
+					href="https://www.php.net/manual/en/function.trigger-error.php" target="_blank">trigger_error</a></li>
+				<li><span class="fp-code">E_ALL</span> : désigne toutes les erreurs</li>
+			</ul>
+
+			<p>Par exemple pour reporter toutes les erreurs d'exécution on
+				appellera la fonction de la façon suivante en utilisant l'opérateur
+				de bit | :</p>
+			<pre>
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);</pre>
+			<p>Pour reporter toutes les erreurs :</p>
+			<pre>
+error_reporting(E_ALL);</pre>
+
+			<p>Dans la phase de développement, le recours à
+				l'instruction ci-dessus est utile, car il permet de faciliter le débogage du script.</p>
+			<p>
+				Pour supprimer tous les messages d'erreur (excépté les parse error
+				qu'il n'est pas possible de supprimer), utilisez :<br> <span
+					class="fp-code">error_reporting(0);</span>
+			</p>
+			<p class="fp-puce">Lorsque l'opérateur <span class="fp-code">@</span>  (arobase) de <a
+					href="https://www.php.net/manual/en/language.operators.errorcontrol.php" target="_blank">contrôle d'erreur</a>
+
+
+
+					est ajouté en préfixe d'une expression PHP, ou d'un appel de fonction, les éventuels messages
+					d'erreur générés sont supprimés.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : l'opérateur de contrôle d'erreur @
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;L'opérateur de contrôle d'erreur @&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+// A tenter de décommenter
+//error_reporting(E_ALL &amp;  ~E_WARNING);
+//error_reporting(E_ERROR | E_PARSE | E_NOTICE);
+
+echo 'Sans suppression des messages d\'erreur';
+
+$fic = fopen('non_exist', 'r');
+$resultat = $toto *2;
+$t = '100 euros' + 2;
+
+echo '&lt;hr&gt;Avec suppression des messages d\'erreur';
+
+$fic = @fopen('non_exist', 'r');
+$resultat = @$toto *2;
+$t = @('100 euros' + 2);
+
+?&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+
+		</section>
+
+		<h3 id="Hb">Gestionnaire d'erreurs</h3>
+		<section>
+			<p class="fp-puce">
+				Nous pouvons définir, ou installer, notre propre gestionnaire d'erreurs avec la
+				fonction <a
+					href="https://www.php.net/manual/en/function.set-error-handler.php" target="_blank">set_error_handler()</a>.
+					Son prototype :<br>
+				<span class="fp-code fp-petit"> set_error_handler(?callable $callback, int $error_levels = E_ALL): ?callable</span><br>
+			</p>
+			<p class="fp-puce fp-bottom0">
+				Paramètres de
+				<a href="https://www.php.net/manual/en/function.set-error-handler.php" target="_blank">set_error_handler()</a> :
+			</p>
+			<ul class="fp-ul-puce">
+				<li> <span class="fp-code">$callback</span> : le nom de la fonction de <i>callback</i> ou <i>handler</i> qui sera appelée automatiquement par PHP lorsqu'une
+				erreur se produira
+				<li> <span class="fp-code">$error_levels</span> : masque permettant de contrôler les types d'erreurs qui seront gérés
+				par la fonction de <i>callback</i>, fonctionne comme le paramètre transmis à la fonction
+				<a href="https://www.php.net/manual/en/function.error-reporting.php" target="_blank">error_reporting()</a>
+			</ul>
+			<p class="fp-puce fp-bottom0">
+				La fonction de <i>callback</i> ou <i>handler</i>
+				recevra, quand elle sera appelée, 4 paramètres :
+			</p>
+			<ul class="fp-ul-puce">
+				<li>code d'erreur (de type <span class="fp-code">int</span>)</li>
+				<li>message d'erreur (de type <span class="fp-code">string</span>)</li>
+				<li>nom du fichier où se produit l'erreur (de type <span class="fp-code">string</span>)</li>
+				<li>numéro de ligne de l'erreur (de type <span class="fp-code">int</span>).</li>
+			</ul>
+
+			<p class="fp-remarque">
+				Pour remettre en place le gestionnaire d'erreurs initial, on peut
+				utiliser la fonction <a
+					href="https://www.php.net/manual/en/function.restore-error-handler.php" target="_blank">restore_error_handler()</a>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : gestionnaire d'erreurs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Gestionnaire d'erreurs&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+error_reporting(E_ALL);
+// toutes les erreurs "capurables" le seront par le
+// handler gererErreurs() car  $error_levels sera égal à sa
+// valeur par défaut : E_ALL
+set_error_handler('gererErreurs');
+
+echo '&lt;p&gt;Instructions déclenchant des erreurs "warning"';
+$fic = fopen('non_exist', 'r');
+$resultat = $toto *2;
+$t = '100euros' + 2;
+
+
+//------------------------------------------------------
+function gererErreurs(int $num, string $msg, string $fichier,
+                      int $lig) : void {
+  echo '&lt;p style="color:red"&gt;Une erreur s\'est produite : ',
+       '&lt;br&gt;Numéro : ', $num,
+       '&lt;br&gt;Message : ', $msg,
+       '&lt;br&gt;Fichier : ', $fichier,
+       '&lt;br&gt;Ligne : ', $lig,
+       '&lt;/p&gt;';
+  exit;  // à tenter de commenter
+}
+?&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p>
+				Notre fonction <span class="fp-code">gererErreurs()</span> affiche
+				toutes les informations qu'il est possible de récupérer sur une
+				erreur. Vous remarquerez que le nom
+				du fichier dans lequel se produit l'erreur est un nom complet,
+				donnant des informations sur les répertoires. Cette information
+				pourrait être utilisée à des fins de piratage et ne devrait pas
+				être affichée. Nous allons donc constituer un message d'erreur plus
+				sibyllin.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : gestionnaire d'erreurs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Gestionnaire d'erreurs&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+error_reporting(E_ALL);
+set_error_handler('gererErreurs');
+
+echo '&lt;p&gt;Instructions déclenchant des erreurs "warning"';
+$fic = fopen('non_exist', 'r');
+$resultat = $toto *2;
+$t = '100euros' + 2;
+
+
+//------------------------------------------------------
+function gererErreurs(int $num, string $msg, string $fichier,
+                      int $lig) : void {
+  echo '&lt;p style="color:red"&gt;L\'erreur ',$num,
+       ' (', $msg, ') s\'est produite dans ',
+       basename($fichier),
+       ' à la ligne ', $lig,
+       '&lt;/p&gt;';
+  exit;  // à tenter de commenter
+}
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p class="fp-remarque">
+			Les erreurs suivantes  ne peuvent pas être gérées par une fonction de callback utilisateur installée avec
+			<a
+					href="https://www.php.net/manual/en/function.set-error-handler.php" target="_blank">set_error_handler()</a> :
+			E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING
+			</p>
+		</section>
+
+		<h3>Redirection des messages d'erreur</h3>
+		<section>
+
+			<p class="fp-puce">Par défaut les messages d'erreurs sont dirigés
+				vers la sortie courante : la page HTML envoyée au navigateur.</p>
+			<p class="fp-puce">
+				La fonction <a
+					href="https://www.php.net/manual/en/function.error-log.php" target="_blank">error_log()</a>
+				permet de choisir une autre destination pour les messages d'erreurs,
+				et d'en garder une trace. Elle accepte trois arguments : le message
+				d'erreur, la destination du message, et optionnellement une adresse
+				de destination :<br> <span class="fp-code">error_log(message,
+					destination [,adresse]);</span>
+			</p>
+			<ul class="fp-ul-puce">
+				<li>Si <span class="fp-code">destination</span> vaut 0, le
+					message est envoyé dans le fichier d'erreur de PHP, défini dans la
+					configuration de PHP avec l'option <span class="fp-code">error_log</span>.
+				</li>
+				<li>Si <span class="fp-code">destination</span> vaut 1, le
+					message est envoyé à l'adresse e-mail donnée par l'argument <span
+					class="fp-code">adresse</span>. Il faut que votre serveur dispose
+					d'un serveur de mail pour réaliser correctement l'envoi.
+				</li>
+				<li>Si <span class="fp-code">destination</span> vaut 3, le
+					message est ajouté à la fin du fichier dont le nom est donné par
+					l'argument <span class="fp-code">adresse</span>. Le nom de fichier
+					est un nom complet.
+				</li>
+			</ul>
+			<p>L'exemple suivant montre la redirection des messages d'erreur
+				dans un fichier appelé erreurs.txt</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : gestionnaire d'erreurs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Gestionnaire d'erreurs&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+error_reporting(E_ALL);
+set_error_handler('gererErreurs');
+
+echo '&lt;p&gt;Instructions déclenchant des erreurs "warning"';
+$fic = fopen('non_exist', 'r');
+$resultat = $toto *2;
+$t = '100euros' + 2;
+
+function gererErreurs(int $num, string $msg, string $fichier,
+                      int $lig) : void {
+	// Message affiché dans la page
+	echo '&lt;p&gt;Une erreur s\'est produite ...&lt;/p&gt;';
+
+	// message stocké
+	$buffer = date('d/m/Y H:i:s')
+			. " : erreur $num ($msg)"
+			. " dans $fichier, ligne $lig\n";
+
+	error_log($buffer, 3, 'erreurs.txt');
+	exit;	// fin du script
+}
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p>
+				Après avoir exécuté le script une (ou plusieurs fois), vous devez
+				avoir dans votre dossier de travail le fichier "erreurs.txt"
+				contenant les messages d'erreurs envoyés. <br> <a
+					onclick="top.FP.Voir.showPLUS('exemple/gestionrepert.php')">Contenu
+					de votre dossier de travail</a>
+			</p>
+			<p class="fp-remarque">Le dossier de travail contient déjà des
+				sous-répertoires et fichiers de types divers qui sont préparés pour
+				être utilisé tout au long de ce tutoriel</p>
+
+			<!-- 
+		<p>
+			Cliquez plusieurs fois <a onclick="top.FP.Voir.testCode(0, '../exemple/gestion_erreurs.php')">sur
+				ce lien</a> pour exécuter le script, puis examinez le résultat dans <a onclick="top.FP.Voir.showPHP('../exemple/gestionrepert.php')">votre
+				dossier de travail</a>.
+		</p>
+		-->
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

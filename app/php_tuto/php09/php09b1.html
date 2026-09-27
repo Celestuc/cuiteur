@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lire un fichier</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<p class="fp-bottom0">
+			Pour les exemples, nous utiliserons le fichier &quot;<span
+				class="fp-code">commentaires.txt</span>&quot; du dossier <span
+				class="fp-code">test_fichiers</span>.
+		</p>
+		<ul class="fp-ul-puce">
+			<li>Le fichier contient des commentaires laissés par les
+				visiteurs d'un site.</li>
+			<li>Un enregistrement "commentaire" est composé de 4 zones : nom
+				du visiteur, adresse email, date du commentaire, texte du
+				commentaire.</li>
+			<li>Les zones sont séparées par le caractère |.</li>
+			<li>Chaque enregistrement est placé sur une ligne. Dit autrement, les enregistrements sont séparés par une marque de fin de ligne  (un
+			simple caractère <i>line feed</i> <span class="fp-code">"\n"</span> sur les sytèmes Unix, un caractère <i>carriage return</i> suivi d'un caractère <i>line feed</i> <span class="fp-code">"\r\n"</span> sous Windows).
+			</li>
+		</ul>
+
+		<p class="fp-code fp-petit">
+			Gaston Lagaffe|gl@xyz.com|22/10/2012|Quel excellent site sur
+			JAVA.&lt;br&gt;Je le recommande à tous les internautes.<br>Florence
+			Arto|lamer@quonvoitdanser.fr|25/10/2012|La navigation est parfois
+			difficile mais les&lt;br&gt;recherches sont toujours récompensées.<br>
+			Darth V|dv@starwars.com|27/10/2012|Je sens la FORCE ici ...<br>Le
+			Grinch|grinch@couine.com|27/10/2012|Ce site est nul. Venez plutôt
+			voir le mien : http://www.zegrinch.com
+		</p>
+
+		<p class="fp-remarque fp-inter2">
+			Si vous ne voyez pas le dossier <span class="fp-code">test_fichiers</span>
+			et le fichier <span class="fp-code">commentaires.txt</span>, ou si
+			vous voulez le ré-initialiser <a
+				onclick="top.FP.Voir.showPLUS('exemple/init_chap09.php?x=f')">utilisez
+				ce script</a>.
+		</p>
+
+		<h3>Récupérer tout le contenu d'un fichier dans un tableau</h3>
+		<section>
+			<p class="fp-puce fp-bottom0">
+				Une des façons les plus simples de lire un fichier constitué de <b>lignes</b> est d'utiliser la
+				fonction <a
+					href="https://www.php.net/manual/en/function.file.php" target="_blank">file()</a>
+				qui :
+			</p>
+			<ul class="fp-ul-puce">
+				<li>ouvre le fichier,</li>
+				<li>lit son contenu en entier,</li>
+				<li>ferme le fichier,</li>
+				<li>renvoie <b>le contenu du fichier sous la forme d'un
+						tableau à indices numériques</b>. Les lignes sont récupérées une par une dans les valeurs des élements du tableau.
+				</li>
+			</ul>
+
+			<p>
+				La fonction <a
+					href="https://www.php.net/manual/en/function.file.php" target="_blank">file()</a>
+				est donc particulièrement adaptée pour lire des fichiers contenant
+				des <b>enregistrements de longueur variable</b>, où <b>chaque ligne contient un enregistrement</b>.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : lire un fichier avec file()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier avec file()');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+if (! is_file($nom)) {
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+// Lecture
+$enregs = @file($nom, FILE_IGNORE_NEW_LINES);
+if ($enregs === false){
+	htmlInfo("'$nom' n'a pas pu être lu");
+	htmlFin();
+	exit();
+}
+
+// Affichage des enregistrements
+$nb = count($enregs);
+for ($i = 0; $i &lt; $nb; $i++) {
+	htmlInfo("Enregistrement $i");
+	echo $enregs[$i];
+}
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p class="fp-remarque">
+				Notez l'utilisation de l'opérateur
+				<span class="fp-code">@</span> qui permet de ne pas afficher un warning
+				si l'appel de <a
+					href="https://www.php.net/manual/en/function.file.php" target="_blank">file()</a>
+				échoue.
+				Ce warning donnerait notamment le chemin absolu du script, et donc des
+				renseignements sur les dossiers du serveur.
+				Ici, l'ouverture du fichier pourrait échouer si le processus qui exécute le script n'a pas le droit de lire
+				le fichier <span class="fp-code">commentaires.txt</span>.<br>
+				D'une façon générale, nous vous conseillons de <b>toujours préfixer</b> les appels des <b>fonctions qui ouvrent un fichier</b> avec
+				l'<b>opérateur <span class="fp-code">@</span></b>.
+			</p>
+
+			<p class="fp-remarque">
+				L'option <span class="fp-code">FILE_IGNORE_NEW_LINES</span> permet de supprimer les marques de fin de lignes
+				(<span class="fp-code">"\n"</span> sur les sytèmes Unix) à la fin de chaque élément du tableau renvoyé par la fonction <a
+					href="https://www.php.net/manual/en/function.file.php" target="_blank">file()</a>.
+			</p>
+
+
+			<p class="fp-inter2 fp-puce">
+				Pour extraire les différents champs d'un enregistrement, nous
+				pouvons utiliser la fonction <a
+					href="https://www.php.net/manual/en/function.explode.php" target="_blank">explode()</a>
+				avec le caractère | comme délimiteur.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : lire un fichier avec file()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier avec file()');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+if (! is_file($nom)) {
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+// Lecture
+$enregs = @file($nom, FILE_IGNORE_NEW_LINES);
+if ($enregs === false){
+	htmlInfo("'$nom' n'a pas pu être lu");
+	htmlFin();
+	exit();
+}
+
+// Affichage des enregistrements
+$nb = count($enregs);
+for ($i = 0; $i &lt; $nb; $i++) {
+	htmlInfo("Enregistrement $i");
+	foreach (explode('|', $enregs[$i]) as $champ) {
+		echo '&lt;br&gt;Champ : ', $champ;
+	}
+}
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+
+		<h3>Récupérer tout le contenu d'un fichier dans une chaine</h3>
+		<section>
+
+			<p class="fp-puce">Pour cela, nous pouvons utiliser la fonction <a
+					href="https://www.php.net/manual/en/function.file-get-contents.php" target="_blank">file_get_contents()</a>
+			</p>
+
+						<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : lire un fichier avec file_get_contents()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier avec file_get_contents()');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+if (! is_file($nom)) {
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+// Lecture
+$buffer = @file_get_contents($nom);
+if ($buffer === false){
+	htmlInfo("'$nom' n'a pas pu être lu");
+	htmlFin();
+	exit();
+}
+
+// Affichage des enregistrements
+$enregs = explode("\n", $buffer);
+$nb = count($enregs);
+// Si la dernière ligne est terminée par une marque de fin
+// de ligne, le dernier élément du tableau $enregs contient
+// une chaine vide. Donc, on le supprime.
+if (strlen($enregs[$nb-1]) == 0){
+	array_splice($enregs, $nb-1, 1);
+	--$nb;
+}
+for ($i = 0; $i &lt; $nb; ++$i) {
+	htmlInfo("Enregistrement $i");
+	foreach (explode('|', $enregs[$i]) as $champ) {
+		echo '<br>Champ : ', $champ;
+	}
+}
+
+htmlFin();
+</textarea>
+			</form>
+
+
+			<p class="fp-puce fp-bottom0">Nous pouvons également faire la même chose en utilisant les fonctions
+				<a
+					href="https://www.php.net/manual/en/function.fopen.php" target="_blank">fopen()</a>,
+					<a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>,
+					<a
+					href="https://www.php.net/manual/en/function.filesize.php" target="_blank">filesize()</a> et <a
+					href="https://www.php.net/manual/en/function.fclose.php" target="_blank">fclose()</a>
+				en exécutant les
+				opérations suivantes :</p>
+			<ul class="fp-ul-puce">
+				<li><b>ouvrir le fichier</b> avec la fonction <a
+					href="https://www.php.net/manual/en/function.fopen.php" target="_blank">fopen()</a>.
+					<ul class="fp-ul-puce">
+					<li>Si l'ouverture réussit, cette fonction
+					renvoie une variable de type <span class="fp-code">resource</span>
+					représentant un <b><i>flux</i></b> (<i>stream</i> en anglais) associé au fichier physique (cette variable de
+					type <span class="fp-code">resource</span> sera ensuite <b>utilisée pour effectuer les opérations souhaitées sur le fichier</b>, ici le lire).
+					<li>Si l'ouverture échoue (pas les permissions,
+					fichier inexistant, etc.), <a
+					href="https://www.php.net/manual/en/function.fopen.php" target="_blank">fopen()</a> renvoie
+					<span class="fp-code">FALSE</span>.
+					<li>La fonction accepte comme premier paramètre un chemin, relatif ou absolu, vers le
+					fichier à ouvrir, et comme second paramètre une chaîne spécifiant le type
+					d'opération à effectuer, ici <span class="fp-code">'r'</span> pour <span
+					class="fp-code">read</span>.
+					</ul>
+				</li>
+				<li><b>lire tous les octets</b> du fichier avec la
+					fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>.
+					Le premier paramètre transmis à cette fonction doit être un <b>flux</b> ouvert dans un mode autorisant la lecture.
+					Le second paramètre spécifie le nombre d'octets que l'on souhaite lire. Pour lire tous les octets contenus dans le fichier avec un seul appel de <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>, il faut lui transmettre , pour ce second paramètre, la taille du fichier en octets : elle est donnée par la fonction <a
+					href="https://www.php.net/manual/en/function.filesize.php" target="_blank">filesize()</a>.
+					</li>
+				<li><b>fermer le flux</b> avec la fonction <a
+					href="https://www.php.net/manual/en/function.fclose.php" target="_blank">fclose()</a>
+					ce qui va libérer les ressources système associées au flux.</li>
+			</ul>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : lire un fichier avec fread()
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lire un fichier avec fread()');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+if (! is_file($nom)) {
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+if ($flux === false){
+	htmlInfo("Erreur lors de l'ouverture de '$nom'");
+	htmlFin();
+	exit();
+}
+// lecture du fichier
+$buffer = fread($flux, filesize($nom));
+// fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+	htmlFin();
+	exit();
+}
+
+// Affichage des enregistrements
+$enregs = explode("\n", $buffer);
+$nb = count($enregs);
+// Si la dernière ligne est terminée par une marque de fin
+// de ligne, le dernier élément du tableau $enregs contient
+// une chaine vide. Donc, on le supprime.
+if (strlen($enregs[$nb-1]) == 0){
+	array_splice($enregs, $nb-1, 1);
+	--$nb;
+}
+for ($i = 0; $i &lt; $nb; $i++) {
+	htmlInfo("Enregistrement $i");
+	foreach (explode('|', $enregs[$i]) as $champ) {
+		echo '&lt;br&gt;Champ : ', $champ;
+	}
+}
+
+htmlFin();</textarea>
+			</form>
+
+		<p class="fp-remarque">
+			D'une façon générale, c'est une bonne pratique de toujours vérifier si la fermeture d'un flux réussit car cela constitue la dernière chance de détecter une erreur. De plus, en cas d'ouverture en écriture, certains systèmes d'exploitation n'écrivent véritablement les données dans le fichier que
+			lors de la fermeture du flux; par conséquent des erreurs liées par exemple à un manque d'espace disque peuvent être détectées à ce moment là.
+		</p>
+
+		<h3>Boucle de lecture</h3>
+		<section>
+
+		<p class="fp-puce">
+			Quand on doit lire un fichier pouvant être de grande taille, il faut utiliser une boucle de lecture afin d'accéder à son contenu
+			"morceaux par morceaux", et d'éviter de créer une variable de grande taille mémorisant l'intégralité de ce contenu, ce
+			qui encombrerait l'espace d'adressage du processus exécutant le script.
+		</p>
+
+
+		<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : lecture d'un fichier par morceaux de 100 octets
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lecture du fichier par morceaux de 100 octets');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+echo 'Taille du fichier : ', filesize($nom), ' octets&lt;hr&gt;';
+
+if (! is_file($nom)) {
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+if ($flux === false){
+	htmlInfo("Erreur lors de l'ouverture de '$nom'");
+	htmlFin();
+	exit();
+}
+// boucle de lecture
+while (! feof($flux)){
+	$buffer = fread($flux, 100);
+	echo 'Nombre d\'octets lus : ', strlen($buffer);
+	echo '&lt;pre&gt;';
+	var_dump($buffer);
+	echo '&lt;/pre&gt;&lt;hr&gt;';
+}
+// fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+	htmlFin();
+	exit();
+}
+
+htmlFin();</textarea>
+			</form>
+		<p class="fp-bottom0">Explications :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>Le second paramètre transmis à la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>, <span class="fp-code">$length</span>,
+					spécifie le nombre d'octets que l'on souhaite lire.
+			<li>Chaque flux dispose d'un <b>offset</b>, ou pointeur de fichier, qui repère la <b>position</b> (sorte d'"indice")
+		 du <b>prochain octet à lire ou à écrire</b>. Lors d'une ouverture de fichier en mode lecture seule, l'offset
+		 désigne le premier octet du fichier. Ensuite, si on lit le fichier, en appelant par exemple <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>,
+		 <b>le nombre d'octets lus est ajouté à l'offset</b>.
+
+			<li>Donc le premier appel de la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>
+					permet de lire les 100 premiers octets du fichier.
+			<li>Après ce premier appel, l'offset désigne le 101ème octet
+					du fichier, qui est le premier octet lu lors du 2ème appel de la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>.
+			Le 2ème appel de la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>
+					lit donc les 100 octets du fichier situés entre les positions 101 et 200, bornes incluses.
+			<li>etc.
+			<li>Le 5ème et dernier appel de <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>
+					demande également la lecture de 100 octets, mais comme à cet instant là,
+					le nombre d'octets qui reste à lire est égal à 19, cet appel de <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>
+					renvoie une chaine contenant seulement ces 19 derniers octets.
+			<li>Après ce dernier appel de la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>,
+					l'offset désigne un octet situé juste après le dernier octet du fichier, il désigne donc un octet qui n'existe pas.
+			<li>Pour les flux ouverts en lecture, la fonction <a
+					href="https://www.php.net/manual/en/function.feof.php" target="_blank">feof()</a>
+				renvoie <span class="fp-code">true</span> si et seulement si la fin de fichier a été
+				atteinte. Attention, cette fonction utilise un indicateur qui n’est positionné que lors d’une
+				tentative de lecture qui "échoue", c’est à dire lorsqu’on essaie de lire un
+				ou plusieurs octets après le dernier octet du fichier. Si on lit uniquement le dernier octet du fichier
+				sans tenter de lire un octet après ce dernier octet, il n'est pas positionné.<br>
+				Comme le fichier <span class="fp-code">commentaires.txt</span> contient 418 octets, vous pouvez vérifier cette information en modifiant le script ci-dessus pour lire le fichier par morceaux de 209 octets. Dans ce cas, le 2ème appel de <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>
+					lit le dernier octet du fichier, mais ne positionne pas l'indicateur de fin de fichier car il
+					n'a pas cherché à lire un octet après ce dernier octet. Un 3ème appel de <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>, qui lit 0 octet,
+					est donc nécessaire pour que cet indicateur de fin de fichier soit positionné, et que l'on sorte de la boucle de lecture.
+		</ul>
+
+		<p class="fp-remarque">
+			On réalise ici une lecture <b>séquentielle</b> du fichier : on ne peut pas lire un octet spécifique du fichier (par exemple le 17ème)
+			sans lire tous les
+			octets qui le précèdent.
+		</p>
+
+		<p class="fp-remarque">
+			La fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>
+					permet également de lire les fichiers binaires comme les images par exemple.
+		</p>
+
+		<p>
+		Pour lire les données d'un fichier texte contenant des enregistrements, de longueur variable, mémorisés sur une ligne,
+		il ne faut pas utiliser la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>,
+					il faut lire le fichier ligne par ligne avec la fonction <a
+					href="https://www.php.net/manual/en/function.fgets.php" target="_blank">fgets()</a>.
+		</p>
+
+		</section>
+
+		<h3>Lire un fichier ligne par ligne</h3>
+		<section>
+			<p>La lecture du fichier <span class="fp-code">commentaires.txt</span> avec une boucle de lecture qui lit
+			le fichier ligne par ligne constitue la meilleure solution :</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : lire un fichier ligne par ligne
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+htmlDebut('Lecture du fichier ligne par ligne');
+
+$nom = 'test_fichiers/commentaires.txt';
+
+if (! is_file($nom)) {
+	htmlInfo("'$nom' n'existe pas ou n'est pas un fichier"
+	           .' régulier');
+	htmlFin();
+	exit();
+}
+
+// Ouverture du fichier
+$flux = @fopen($nom, 'r');
+if ($flux === false){
+	htmlInfo("Erreur lors de l'ouverture de '$nom'");
+	htmlFin();
+	exit();
+}
+$i = 0;
+// boucle de lecture
+while (! feof($flux)){
+	$ligne = fgets($flux);
+	// si la dernière ligne est terminée par une marque de fin
+	// de ligne, sa lecture n'entraîne pas le positionnement
+	// de l'indicateur de fin de fichier, un tour de boucle
+	// supplémentaire est réalisé
+	// fgets() renvoie false s'il n'y a plus d'octets à lire
+	if ($ligne === false){
+		continue; // break; // fonctionne aussi (sans
+		          // "utiliser" feof())
+	}
+	htmlInfo("Enregistrement $i");
+	foreach (explode('|', trim($ligne)) as $champ) {
+		echo '&lt;br&gt;Champ : ', $champ;
+	}
+	++$i;
+}
+// fermeture du flux
+$r = fclose($flux);
+if (! $r){
+	htmlInfo('Erreur lors de la fermeture du flux');
+	htmlFin();
+	exit();
+}
+
+htmlFin();
+</textarea>
+			</form>
+			<p class="fp-remarque">
+			De même, après chaque appel de la fonction
+			<a href="https://www.php.net/manual/en/function.fgets.php" target="_blank">fgets()</a>,
+				le nombre d'octets lus est ajouté à l'offset.
+				C'est la raison pour laquelle, dans la boucle de lecture du script ci-dessus,
+				les appels successifs de la fonction
+				<a href="https://www.php.net/manual/en/function.fgets.php" target="_blank">fgets()</a>
+				permettent de lire la première ligne, puis la seconde ligne, etc. jusqu'à ce que la fin de fichier soit atteinte.
+			</p>
+
+			<!--<p>
+				Si le fichier contenait des <b>enregistrements de longueur fixe</b>,
+				nous pourrions utiliser la fonction <a
+					href="https://www.php.net/manual/en/function.fread.php" target="_blank">fread()</a>à
+				la place de <a
+					href="https://www.php.net/manual/en/function.fgets.php" target="_blank">fgets()</a>.<br>
+				Pour un fichier dont les enregistrements seraient tous de 120
+				caractères, nous aurions le code suivant :
+			</p>
+			<pre data-code="PHP">
+// Boucle de lecture
+while (! feof($flux) ) {
+	// Lecture d'une ligne
+	$enreg = fread($flux, 120);
+  	... traitement ...
+}
+</pre>-->
+
+		</section>
+
+		<footer></footer>
+	</div>
+</body>
+</html>

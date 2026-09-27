@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les chaînes de caractères</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<h3>Longueur d'une chaîne</h3>
+		<section>
+
+		<p>
+			La fonction <a
+				href="https://www.php.net/manual/en/function.strlen.php" target="_blank">strlen()</a>
+			renvoie le nombre d'<strong>octets</strong> dans une chaîne, i.e. sa longueur. Nous pouvons
+			atteindre chaque octet d'une chaîne en utilisant la syntaxe des
+			tableaux [et]. <b>Le
+				premier octet d'une chaîne est à la position (ou indice) 0</b>, le second à la
+			position 1, et le dernier à la position (longueur de la chaîne) - 1.
+		</p>
+<p>Prototype de <a
+				href="https://www.php.net/manual/en/function.strlen.php" target="_blank">strlen()</a> :
+		</p>
+			<pre data-code="PHP">
+ strlen(string $string): int
+</pre>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : nombre d'octets
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Nombre d\'octets');
+
+/**
+ * Affiche la longueur et les octets d'une chaîne
+ *
+ * @param string    $x     chaîne à traiter
+ *
+ * @return void
+ */
+function fct(string $x) : void {
+	$l = strlen($x);
+	echo $l, ' octets dans la chaîne "', $x, '"';
+
+	for ($i = 0; $i &lt; $l; $i++) {
+		echo '&lt;br&gt;Position ', $i, ' = ', $x[$i];
+	}
+	echo '&lt;hr&gt;';
+}
+
+$x = 'abcdefghijklmnopqrstuvwxyz';
+fct($x);
+
+$x = 'éric';
+fct($x);
+
+htmlFin();</textarea>
+		</form>
+
+
+		<p class="fp-puce">
+		Rappel : nos scripts utilisent l'encodage UTF-8.
+		En UTF-8, les lettres non accentuées sont codées sur un seul octet, alors que les lettres accentuées comme la lettre 'é' sont codées sur
+		2 octets.
+		</p>
+
+		<p class="fp-puce">
+		Pour connaître la longueur, en nombre de <strong>caractères</strong>, d'une chaîne encodée en UTF-8, il faut utiliser
+		la fonction <a
+				href="https://www.php.net/manual/en/function.mb-strlen" target="_blank">mb_strlen()</a>,
+		appartenant à l'extension
+		<a href="http://www.php.net/manual/en/ref.mbstring.php" target="_blank">mb_string</a>.
+		</p>
+
+		<p>Prototype de <a
+				href="https://www.php.net/manual/en/function.mb-strlen" target="_blank">mb_strlen()</a> :
+		</p>
+			<pre data-code="PHP">
+mb_strlen(string $string, ?string $encoding = null): int
+</pre>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : nombre de caractères
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Nombre de caractères');
+
+/**
+ * Affiche la longueur et les octets d'une chaîne
+ *
+ * @param string    $x     chaîne à traiter
+ *
+ * @return void
+ */
+function fct(string $x) : void {
+	echo mb_strlen($x, encoding: 'UTF-8'),
+	     ' caractères dans la chaîne "', $x, '"';
+
+	for ($i = 0, $l = strlen($x); $i &lt; $l; $i++) {
+		echo '&lt;br&gt;Position ', $i, ', octet en hexa = ';
+		printf('%x', ord($x[$i]));
+	}
+	echo '&lt;hr&gt;';
+}
+
+$x = 'abcdefghijklmnopqrstuvwxyz';
+fct($x);
+
+$x = 'éric';
+fct($x);
+
+htmlFin();</textarea>
+		</form>
+
+		<p class="fp-puce">
+			Lors de l'appel d'une fonction de l'extension l'extension
+		<a href="http://www.php.net/manual/en/ref.mbstring.php" target="_blank">mb_string</a>,
+		nous vous recommandons de toujours transmettre en paramètre l'encodage utilisé, car on ne maitrise
+		par forcément la configuration du serveur qui hébergera notre site.<br>
+		Notez l'utilisation d'un paramètre nommé lors de l'appel de la fonction <a
+				href="https://www.php.net/manual/en/function.mb-strlen" target="_blank">mb_strlen()</a>.
+
+		</p>
+
+		<p class="fp-puce">
+			La fonction <a
+				href="https://www.php.net/manual/en/function.ord.php" target="_blank">ord()</a>
+				renvoie la valeur décimale (comprise entre 0 et 255) du premier octet de la chaîne qu'on lui transmet
+				en paramètre. Son utilisation permet de vérifier que les 2 premiers octets de la chaîne
+				<span class="fp-code">'éric'</span> ont pour valeurs le code UTF-8 du caractère <span class="fp-code">'é'</span>
+				(<span class="fp-code">C3&nbsp;A9</span> en hexadécimal).
+		</p>
+
+		<p class="fp-puce">
+			<b>Quand on envoie une chaîne au navigateur, ce sont les octets l'encodant qui sont envoyés au navigateur</b>.
+			Dans l'exemple précédent, quand <span class="fp-code">$x = 'éric'</span> et <span class="fp-code">$i = 0</span>, on envoie au navigateur un octet valant
+			<span class="fp-code">C3</span> en hexadécimal, immédiatement suivi par un octet valant <span class="fp-code">3C</span> en hexadécimal (code ASCII du caractère <span class="fp-code">'&lt;'</span> correspondant au <span class="fp-code">'&lt;br&gt;'</span> affiché juste après). La séquence
+			d'octets envoyée au navigateur n'est donc pas une séquence d'octets UTF-8 valide : pour qu'elle le soit, il aurait fallu qu'un octet
+			commençant par bits de poids forts <b>10</b> suive immédiatement l'octet <span class="fp-code">C3</span>
+			(d'où l'affichage du caractère erroné <span class="fp-code">?</span> dans le navigateur).
+		</p>
+
+		<p class="fp-puce">
+			Nous verrons dans la section 2.5 comment afficher un par un les caractères d'une chaîne UTF-8.
+		</p>
+
+
+
+		</section>
+
+
+		<h3>Manipulation de caractères unicode</h3>
+		<section>
+
+		<p>
+			Illustration avec le caractère &euro;, de point de code <span class="fp-code">8364</span> (en décimal), et de code UTF-8
+			<span class="fp-code">E2&nbsp;82&nbsp;AC</span>.
+		</p>
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : le caractère &euro;
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Le caractère &euro;');
+
+// en utilisant son entité HTML :
+$x0 = '&amp;euro;';
+echo $x0, '&lt;br&gt;';
+$x1 = '&amp;#8364;';
+echo $x1, '&lt;br&gt;';
+
+
+echo '&lt;hr&gt;';
+
+$x2 = '€';
+echo $x2, '&lt;br&gt;';
+$x3 = "\xE2\x82\xAC";
+echo $x3, '&lt;br&gt;';
+$x4 = sprintf('%c%c%c', 0xE2, 0x82, 0xAC);
+echo $x4, '&lt;br&gt;';
+$x5 = chr(0xE2).chr(0b10000010).chr(172);
+echo $x5, '&lt;br&gt;';
+
+echo '&lt;hr&gt;';
+
+for($i = 0; $i &lt; 6; ++$i){
+	$v = 'x'.$i;
+	echo 'Longueur (en caractères) de $', $v, ' = ',
+	      mb_strlen($$v, encoding: 'UTF-8'), '&lt;br&gt;';
+}
+
+
+htmlFin();</textarea>
+		</form>
+
+		<p class="fp-puce"> PHP permet d'écrire des constantes entières respectivement en hexadécimal et en binaire en utilisant les préfixes <b>0x</b>
+		et <b>0b</b>.
+		</p>
+
+		<p class="fp-puce">
+			La fonction <a
+					href="https://www.php.net/manual/en/function.chr.php" target="_blank">chr()</a>
+			renvoie une chaîne d'un octet à partir d'un nombre.
+		</p>
+
+		</section>
+
+		<h3>Enlever les espaces blancs en début/fin de chaîne</h3>
+		<section>
+			<p class="fp-bottom0">Pour PHP, les espaces blancs sont :</p>
+			<dl class="fp-dl-code">
+				<dt>&nbsp;
+				<dt>
+				<dd>ou 0x20 : espace</dd>
+				<dt>\t
+				<dt>
+				<dd>ou 0x09 : tabulation</dd>
+				<dt>\n
+				<dt>
+				<dd>ou 0x0A : nouvelle ligne (new line)</dd>
+				<dt>\r
+				<dt>
+				<dd>ou 0x0D : retour chariot (carriage return)</dd>
+				<dt>\0
+				<dt>
+				<dd>ou 0x00 : nul</dd>
+				<dt>\x08
+				<dt>
+				<dd>ou 0x08 : tabulation verticale</dd>
+			</dl>
+
+
+			<ul class="fp-ul-1em">
+				<li><a
+					href="https://www.php.net/manual/en/function.trim.php" target="_blank">trim()</a>
+					renvoie une copie de la chaîne débarassée des espaces blancs de
+					début et de fin.
+				<li><a
+					href="https://www.php.net/manual/en/function.ltrim.php" target="_blank">ltrim()</a>
+					renvoie une copie de la chaîne débarassée des espaces blancs de
+					début.
+				<li><a
+					href="https://www.php.net/manual/en/function.rtrim.php" target="_blank">rtrim()</a>
+					renvoie une copie de la chaîne débarassée des espaces blancs de
+					fin.
+			</ul>
+
+		<p>Prototype de <a
+					href="https://www.php.net/manual/en/function.trim.php" target="_blank">trim()</a> :
+		</p>
+			<pre data-code="PHP">
+ trim(string $string, string $characters = " \n\r\t\v\x00"): string
+</pre>
+
+			<p>Optionnellement, les caractères à supprimer peuvent être spécifiés en utilisant le paramètre <span class="fp-code">$characters</span>.
+			Listez simplement tous les caractères que vous voulez supprimer. </p>
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_01.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : enlever les espaces blancs
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Enlever les espaces blancs');
+
+$x = ' François Piat
+  ';
+
+echo '&lt;h4&gt;Avant tranformation&lt;/h4&gt;', '|', $x, '|';
+
+echo '&lt;h4&gt;Sans espaces devant&lt;/h4&gt;', '|', ltrim($x), '|';
+
+echo '&lt;h4&gt;Sans espaces derrière&lt;/h4&gt;', '|', rtrim($x), '|';
+
+echo '&lt;h4&gt;Sans espaces&lt;/h4&gt;', '|', trim($x), '|';
+
+$x = '#####François Piat##';
+echo '&lt;h4&gt;Avant tranformation&lt;/h4&gt;', '|', $x, '|';
+
+echo '&lt;h4&gt;Sans # &lt;/h4&gt;', '|', trim($x, '#'), '|';
+
+htmlFin();</textarea>
+			</form>
+
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Objets : constantes et opérateur de résolution de portée</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<h3>Définir des membres statiques</h3>
+		<section>
+		<p class="fp-puce">
+		Les membres des classes (attributs et méthodes) que nous avons définis jusqu'à présent sont des <b>membres
+		d'instance</b>.
+		</p>
+		<p class="fp-puce">
+		Cela signifie que chaque instance de la classe dispose de ses propres attributs d'instance.
+		A chaque nouvelle instanciation d'une classe, un nouvel espace mémoire est alloué pour y placer les attributs propres à l'instance nouvellement
+		créée.
+		Comme chaque instance d’une classe possède sa propre copie des attributs d'instance, les valeurs de ces attributs peuvent différer d’un objet à l’autre.
+		</p>
+
+		<p class="fp-puce">
+		En PHP, le mot-clé <b><code>static</code></b> permet de créer des <b>membres statiques</b> (attributs ou méthodes), appelés également <b>membres de classe</b>.
+		</p>
+
+		<p class="fp-puce">
+		Un attribut statique possède une valeur <b>unique</b> qui est <b>partagée entre toutes les instances de la classe</b>.
+		Chaque attribut statique est donc alloué une seule fois par classe, quel que soit le nombre d'instances de la classe.
+		Un attribut statique n’est donc pas une propriété d’une instance mais une propriété de la classe et l’accès à cet attribut ne nécessite pas l’existence d’une instance.
+		</p>
+
+		<p class="fp-puce fp-bottom0">
+		Une méthode statique ne peut pas être appelée pour une instance particulière de la classe :
+		</p>
+		<ul class="fp-ul-puce">
+			<li>elle ne peut manipuler que les attributs statiques de la classe et ses propres paramètres;
+			<li>l’appel d'une méthode statique ne nécessite pas l’existence d’une instance de cette classe;
+			<li>elle n’a pas accès ni aux attributs d'instance d'un objet, ni aux méthodes d'instance : on ne peut pas utiliser la pseudo-variable <code>$this</code> dans le corps d'une méthode statique;
+			<li>en revanche, dans le corps d'une méthode statique, on peut appeler les méthodes statiques de la classe.
+		</ul>
+
+		<p class="fp-puce">
+		Une méthode d'instance, elle, est toujours appelée pour une instance précise. Elle a donc accès aux membres d'instance et aux membres statiques
+		de la classe.
+		</p>
+
+		<p class="fp-puce">
+		Dans l'exemple ci-dessous, un attribut statique privé <code>nbInstances</code> est utilisé pour compter le nombre courant d'instances
+		de la classe Livre.
+		</p>
+
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exemple</strong> : comptage du nombre d'instances de la classe Livre
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+// Définition de la classe Livre
+class Livre {
+	// attribut statique
+	private static int $nbInstances = 0;
+
+	// Définition des attributs d'instance
+	private string $titre;
+	private string $auteur;
+	private int $pages;
+	private float $prix;
+	private string $cat;
+
+	// Constructeur
+	public function __construct(string $titre, string $auteur, int $pages, float $prix, string $cat) {
+	    ++self::$nbInstances;
+		$this-&gt;titre = $titre;
+		$this-&gt;auteur = $auteur;
+		$this-&gt;pages = $pages;
+		$this-&gt;prix = $prix;
+		$this-&gt;cat = $cat;
+		htmlInfo('Dans constructeur, '. $titre .', nbInstances = '. self::$nbInstances);
+	}
+	public function __destruct(){
+		--self::$nbInstances;
+		htmlInfo("Dans destructeur, {$this->titre}, nbInstances = ". self::$nbInstances);
+	}
+
+	public static function getNbInstances() : int {
+		return self::$nbInstances;
+	}
+
+}// Fin de la définition de la classe Livre
+
+
+htmlDebut('Comptage du nombre d\'instances de la classe Livre');
+
+htmlInfo('1. nbInstances = '. Livre::getNbInstances());
+
+// création d'un nouvel objet instance de la classe Livre
+$livre1 = new Livre('Débutant Guitare Acoustique', 'Rébillard', 70, 17, 'Méthode');
+
+$livre1 = new Livre('Les accords de guitare', 'Carpentier', 160, 4.90, 'Méthode');
+
+$livre2 = new Livre('Guitar Play Along Neil Young', 'Leonard', 50, 21.90, 'Partition');
+
+htmlInfo('2. nbInstances = '. $livre2::getNbInstances());
+
+htmlFin();
+</textarea>
+				</form>
+
+		<p class="fp-puce">
+		Pour définir un membre statique, il suffit d'ajouter le mot-clé <code>static</code>, avant le type pour un attribut, ou avant
+		le mot clé <code>function</code> pour une méthode. Remarquez l'initialisation de l'attribut statique au moment de sa définition : elle
+		est nécessaire car on ne peut pas l'initialiser dans le constructeur.
+		</p>
+		<p class="fp-puce fp-bottom0">
+			Syntaxe permettant l'<b>accès</b> aux membres statiques d'une classe :
+		</p>
+		<ul class="fp-ul-puce">
+		<li> Pour accéder à un membre statique, il faut utiliser l'<b>opérateur de résolution de portée <code>::</code></b> (double deux-points).
+		<li> Cet opérateur de résolution de portée doit être précédé :
+			<ul class="fp-ul-puce">
+			<li>du mot-clé <code>self</code> lorsqu'on se trouve dans le bloc qui définit la classe;
+			<li>et du nom de la classe, ou du nom d'une de ses instances, quand on se trouve à l'extérieur de la définition de la classe.
+			</ul>
+		</li>
+		<li>L'opérateur de résolution de portée doit être suivi :
+			<ul class="fp-ul-puce">
+			<li>pour un attribut, de son nom précédé d'un <code>$</code>,
+			<li>pour une méthode, uniquement de son nom.
+		</li>
+		</ul>
+
+		<p class="fp-remarque">
+			À mon avis, à l'extérieur de la définition de la classe,
+			la syntaxe <code>UneClasse::membre</code> est plus "lisible" que la syntaxe <code>$unObjet::membre</code>, car
+			<code>UneClasse::membre</code> indique bien que l'on souhaite accéder au membre statique <code>membre</code> de la classe
+			<code>UneClasse</code>, alors que l'autre syntaxe indique que l'on souhaite accéder à un membre de l'objet, ce qui pourrait
+			laisser penser, de façon erronée, qu'il s'agit d'un membre propre de l'objet. Je vous conseille donc
+			d'utiliser de préférence la syntaxe <code>UneClasse::membre</code>.
+		</p>
+
+		<p class="fp-remarque">
+			Dans l'exemple précédent, nous n'avons pas défini de <code>setter</code> pour l'attribut statique <code>nbInstances</code>
+			car son utilisation ne pourrait servir qu'à fausser le nombre d'intances de la classe.
+		</p>
+
+		</section>
+
+		<h3>Définir des constantes</h3>
+		<section>
+<pre data-code="PHP">
+class UneClasse{
+	const UNE_CONSTANTE = 'hello';  //constante public
+	private const UNE_AUTRE = self::UNE_CONSTANTE . ' world';
+	protected const UNE_TROISIEME = [ 1, 2, 3];
+}
+</pre>
+			<p class="fp-puce">
+				La définition d'une constante de classe se fait avec le mot-clé <code>const</code>.
+				La valeur d'une constante doit être fixée au moment de sa définition; ensuite, elle n'est plus modifiable, et donc elle n'est pas
+				accessible en écriture.
+			</p>
+
+			<p class="fp-puce">
+				On ne peut pas indiquer le type d'une constante. De toute façon, ça ne servirait à rien étant donné que, par définition, on ne peut pas
+				la modifier ensuite !
+			</p>
+
+			<p class="fp-puce">
+				Les constantes de classe ont, par défaut, une visibilité <code>public</code>.
+			</p>
+
+			<p class="fp-puce">
+				Les constantes de classe sont allouées une seule fois par classe, comme les attributs statiques. Toutes
+				les instances d'une même classe se partagent donc chaque constante de classe. L'accès aux constantes de classe
+				se fait donc en utilisant l'opérateur de résolution suivant les mêmes règles que celles présentées ci-dessus pour
+				les membres statiques.
+			</p>
+
+			<p class="fp-remarque">
+				Lors de sa définition ou de son utilisation, le nom d'une constante n'est jamais précédé du symbole <code>$</code>.
+			</p>
+
+			<p class="fp-remarque">
+				Par convention, les noms des constantes sont écrits en majuscules. Quand un nom est constitué de plusieurs mots, ils
+				sont sont séparés par un _ (underscore).
+			</p>
+
+
+			<p>
+				Pour illustrer l'utilisation des constantes, nous allons ajouter un nouvel attribut à la classe
+				Guitare. L'attribut <code>son</code> définira l'acoustique de la guitare, à savoir : acoustique,
+				à résonateur, électro-acoustique, électrique.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+					title="Afficher la bibliothéque de fonctions"></a>
+
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : définition et utilisation de constantes
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+class Guitare {
+	private string $modele;
+	private float $prix;
+	private int $cordes;
+	private int $remise;
+    private string $son;
+
+    // mot-clé public inutile
+	/*public*/ const SONS = ['a' =&gt; 'acoustique',
+				  'ea' =&gt; 'électro-acoustique',
+				  'r' =&gt; 'à résonnateur',
+				  'e' =&gt; 'électrique'];
+
+	public function __construct(string $p1, float $p2, int $p3, string $p4) {
+		$p1 = trim($p1);
+		if ($p1 == ''){
+			exit('Paramètre modèle invalide');
+		}
+		$this-&gt;modele = $p1;
+
+		$ok = array(4, 6, 12);
+		if ( !in_array($p3, $ok)) {
+			exit ('Paramètre nombre de cordes invalide');
+		}
+		$this-&gt;cordes = $p3;
+
+		$this-&gt;setPrix($p2);
+
+		if (in_array($p4, self::SONS)){
+            $this-&gt;son = $p4;
+        }
+		else {
+			exit ('Paramètre son invalide');
+		}
+
+		$this-&gt;remise = 0;
+	}
+
+	public function setPrix(float $val) : void {
+		if ($val &lt; 0) {
+			exit ('Valeur de prix invalide');
+		}
+		$this-&gt;prix = $val;
+	}
+
+	public function decrire() : void {
+		echo '&lt;h4&gt;Instance de la classe ', __CLASS__, '&lt;/h4&gt;',
+				$this-&gt;modele, ' - ', $this-&gt;son, '&lt;br&gt;',
+				$this-&gt;cordes, ' cordes&lt;br&gt;',
+				$this-&gt;prix, ' &amp;euro;&lt;br&gt;';
+	}
+
+
+}	// Fin de la définition de la classe Guitare
+
+htmlDebut('Définition et utilisation de constantes');
+
+htmlInfo('Les constantes son de la classe Guitare');
+foreach (Guitare::SONS as $val){
+    echo $val, '&lt;br&gt;';
+}
+
+$g1 = new Guitare('Guild D120', 639, 6, Guitare::SONS['a']);
+$g1-&gt;decrire();
+
+$g2 = new Guitare('Dobro Hound Dog', 453, 6, Guitare::SONS['r']);
+$g2-&gt;decrire();
+
+htmlFin();
+</textarea>
+			</form>
+
+		</section>
+
+
+		<a id="exoConstantesClasse"></a>
+		<h3>Exercice : constantes de classe</h3>
+		<section>
+			<p>
+				Reprenez le code de la classe <code>Livre</code> ci-dessous et utilisez des constantes de classe
+				pour gérer les 4 catégories de livre possibles ("Méthode", "Partition", "Biographie" ou
+				"Autre").
+			</p>
+
+			<pre data-code="PHP" class="fp-petit">
+class Livre {
+	private string $titre;
+	private string $auteur;
+	private int $pages;
+	private float $prix;
+	private string $cat;
+
+	// Constructeur
+	public function __construct(string $titre, string $auteur, int $pages,
+	                            float $prix, string $cat){
+        $this-&gt;titre = $this-&gt;verifChaine($titre, 'titre');
+        $this-&gt;auteur = $this-&gt;verifChaine($auteur, 'auteur');
+        if (estEntre($pages, 10, 1000)) {
+            $this-&gt;pages = $pages;
+        } else {
+            $this-&gt;afficheErreur($pages, 'pages');
+        }
+        if ($prix &gt;= 0 &amp;&amp; $prix &lt;= 1000) {
+            $this-&gt;prix = $prix;
+        } else {
+            $this-&gt;afficheErreur($prix, 'prix');
+        }
+        $oks = array('Méthode', 'Partition',
+                     'Biographie', 'Autre');
+        if (in_array($cat, $oks)) {
+            $this-&gt;cat = $cat;
+        } else {
+            $this-&gt;afficheErreur($cat, 'cat');
+        }
+    }
+
+	private function verifChaine(string $val, string $attr) : string {
+		$val = trim($val);
+		($val == '') &amp;&amp; $this-&gt;afficheErreur($val, $attr);
+		return $val;
+	}
+	private function afficheErreur(int|float|string $val,string $attr):void{
+		exit( "&lt;hr&gt;Valeur '&lt;b&gt;$val&lt;/b&gt;' invalide pour
+			l'attribut &lt;b&gt;$attr&lt;/b&gt;.&lt;hr&gt;");
+	}
+	public function decrire() : void {
+        echo '&lt;h4&gt;Instance de la classe Livre&lt;/h4&gt;',
+                $this-&gt;titre, ' - ', $this-&gt;auteur, ' - ',
+                $this-&gt;pages, ' pages - ',
+                $this-&gt;prix, ' &amp;euro; - ', $this-&gt;cat, '&lt;hr&gt;';
+    }
+}// Fin de la définition de la classe Livre</pre>
+
+			<p>Vous devez instancier 4 livres avec les informations suivantes :</p>
+
+			<table>
+				<tr>
+					<td>Titre</td>
+					<td>Auteur</td>
+					<td>Nb Pages</td>
+					<td>Prix</td>
+					<td>Cat.</td>
+				</tr>
+				<tr>
+					<td>Débutant Guitare Acoustique</td>
+					<td>Rébillard</td>
+					<td>70</td>
+					<td>17</td>
+					<td>Méthode</td>
+				</tr>
+				<tr>
+					<td>Les accords de guitare</td>
+					<td>Carpentier</td>
+					<td>160</td>
+					<td>4.90</td>
+					<td>Autre</td>
+				</tr>
+				<tr>
+					<td>Guitar Play Along Neil Young</td>
+					<td>Leonard</td>
+					<td>50</td>
+					<td>21.90</td>
+					<td>Partition</td>
+				</tr>
+				<tr>
+					<td>50 rock songs</td>
+					<td>Piat</td>
+					<td>120</td>
+					<td>19.99</td>
+					<td>Rock</td>
+				</tr>
+			</table>
+
+			<p class="fp-solution">
+				<a onclick="top.FP.Voir.showSolution('exoConstantesClasse_solu', 1)">Une solution possible</a>
+			</p>
+
+			<div id="exoConstantesClasse_solu" class="BLOC-solution">
+				<form action="" method="post" class="TEST-form">
+					<a class="TEST-lien" onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_14.html')"
+						title="Afficher la bibliothéque de fonctions"></a>
+					<div class="TEST-titre">
+						<strong>Exercice</strong> : constantes de classe
+					</div>
+					<textarea name="txtCode" class="TEST-textarea" data-wrap>
+&lt;?php
+ob_start();
+require('bib_fonctions.php');
+
+// Définition de la classe Livre
+class Livre {
+	private string $titre;
+	private string $auteur;
+	private int $pages;
+	private float $prix;
+	private string $cat;
+
+	// mot-clé public inutile
+	/*public*/ const CATEGORIES = [
+			'm' =&gt; 'Méthode',
+			'p' =&gt; 'Partition',
+			'b' =&gt; 'Biographie',
+			'a' =&gt; 'Autre'];
+
+	// Constructeur
+	public function __construct(string $titre, string $auteur, int $pages, float $prix, string $cat){
+        $this-&gt;titre = $this-&gt;verifChaine($titre, 'titre');
+        $this-&gt;auteur = $this-&gt;verifChaine($auteur, 'auteur');
+        if (estEntre($pages, 10, 1000)) {
+            $this-&gt;pages = $pages;
+        } else {
+            $this-&gt;afficheErreur($pages, 'pages');
+        }
+        if ($prix &gt;= 0 &amp;&amp; $prix &lt;= 1000) {
+            $this-&gt;prix = $prix;
+        } else {
+            $this-&gt;afficheErreur($prix, 'prix');
+        }
+        if (in_array($cat, self::CATEGORIES)) {
+            $this-&gt;cat = $cat;
+        } else {
+            $this-&gt;afficheErreur($cat, 'cat');
+        }
+    }
+
+	private function verifChaine(string $val, string $attr) : string {
+		$val = trim($val);
+		($val == '') &amp;&amp; $this-&gt;afficheErreur($val, $attr);
+		return $val;
+	}
+	private function afficheErreur(int|float|string $val,string $attr):void{
+		exit( "&lt;hr&gt;Valeur '&lt;b&gt;$val&lt;/b&gt;' invalide pour
+			l'attribut &lt;b&gt;$attr&lt;/b&gt;.&lt;hr&gt;");
+	}
+	public function decrire() : void {
+        echo '&lt;h4&gt;Instance de la classe Livre&lt;/h4&gt;',
+                $this-&gt;titre, ' - ', $this-&gt;auteur, ' - ',
+                $this-&gt;pages, ' pages - ',
+                $this-&gt;prix, ' &amp;euro; - ', $this-&gt;cat, '&lt;hr&gt;';
+    }
+}// Fin de la définition de la classe Livre
+
+htmlDebut('Constantes de classe');
+
+$livre1 = new Livre('Débutant Guitare Acoustique', 'Rébillard', 70, 17, Livre::CATEGORIES['m']);
+$livre1-&gt;decrire();
+
+$livre2 = new Livre('Les accords de guitare', 'Carpentier', 160, 4.90, Livre::CATEGORIES['a']);
+$livre2-&gt;decrire();
+
+$livre3 = new Livre('Guitar Play Along Neil Young', 'Leonard', 50, 21.90, 'Partition');
+$livre3-&gt;decrire();
+
+$livre4 = new Livre('50 rock songs', 'Piat', 120, 19.99, 'Rock');
+// Pour test
+//$livre4 = new Livre('50 rock songs', 'Piat', 120, 19.99, Livre::CATEGORIES['r']);
+$livre4-&gt;decrire();
+
+htmlFin();
+</textarea>
+				</form>
+			</div>
+		</section>
+
+		<footer></footer>
+	</div>
+</body>
+</html>

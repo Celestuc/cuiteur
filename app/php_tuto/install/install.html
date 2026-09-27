@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="styleTP.css">
+
+<title>Installation d'un package serveur web + PHP + MySQL (ou MariaDB)</title>
+
+</head>
+
+<body>
+
+<div id="page">
+
+<h1>Installation d'un package serveur web + PHP + MySQL (ou MariaDB)</h1>
+
+<h2>Installation de WAMP sous Windows</h2>
+
+<p>
+    Vous pouvez vous procurer le package WAMP à l'URL <a href="http://www.wampserver.com/" target="_blank">http://www.wampserver.com/</a>.
+</p>
+
+<p>
+    Après installation, l'URL <code>http://localhost</code> (ouverte dans un navigateur sur la même machine) permet d'accéder à la page d'accueil du serveur local.
+</p>
+
+<p>
+    Le répertoire Web du serveur <code>www</code> est généralement situé dans <code>C:\wamp64</code> :
+</p>
+<ul>
+    <li>pour installer le tutoriel sur votre machine, dézippez le simplement et placer le répertoire <code>php_tuto</code> tel que dans le répertoire
+    <code>C:\wamp64\www</code> (le tutoriel sera ainsi accessible à l'URL <code>http://localhost/php_tuto</code>)
+    <!--<li>pour le site 'Cuiteur', il vous suffit de placer son répertoire racine (<code>cuiteur</code>) dans <code>C:\wamp64\www</code>-->
+</ul>
+
+<p>L'application phpMyAdmin est accessible à l'URL <code>http://localhost/phpmyadmin</code>
+
+<h2>Installation de MAMP sous Mac</h2>
+
+<p>
+    Vous pouvez vous procurer le package MAMP à l'URL <a href=" https://www.mamp.info/en/mac/" target="_blank"> https://www.mamp.info/en/mac/</a>.
+</p>
+
+<p>
+    Après installation, l'URL <code>http://localhost</code> (ouverte dans un navigateur sur la même machine) permet d'accéder à la page d'accueil du serveur local.
+</p>
+
+<p>
+    Le répertoire Web du serveur est généralement nommé <code>htdocs</code>.
+</p>
+<ul>
+    <li>pour installer le tutoriel sur votre machine, dézippez le simplement et placer le répertoire <code>php_tuto</code> tel que dans le répertoire
+    <code>htdocs</code> (le tutoriel sera ainsi accessible à l'URL <code>http://localhost/php_tuto</code>)
+    <!--<li>pour le site 'Cuiteur', il vous suffit de placer son répertoire racine (<code>cuiteur</code>) dans <code>htdocs</code>-->
+</ul>
+
+<p> N'oubliez pas de gérer les droits d'accès au répertoire <code>htdocs</code> (et aux fichiers qu'il contient) avec <code>chmod</code> et
+éventuellement <code>chown</code>.
+</p>
+
+<p>L'application phpMyAdmin est accessible à l'URL <code>http://localhost/phpmyadmin</code>
+
+<h3>Affichage des erreurs dans le navigateur</h3>
+
+<p>
+    Pour activer l'affichage de toutes les erreurs PHP dans le navigateur, il faut modifier le fichier de configuration <code>php.ini</code> en fixant :
+</p>
+<ul>
+<li> la directive <code>display_errors</code> à la valeur <code>On</code>
+<li> la directive <code>error_reporting</code> à la valeur <code>E_ALL</code>
+</ul>
+
+<p>
+    Pour localiser le fichier de configuration <code>php.ini</code> à modifier, vous pouvez appeler la fonction 
+    <a href="https://www.php.net/manual/en/function.phpinfo.php" target="_blank">phpinfo()</a> dans un script PHP.
+    La ligne "<strong>Loaded Configuration File</strong>" contient le chemin absolu du fichier de configuration chargé. 
+</p>
+
+<p>
+    Relancez le serveur pour qu'il prenne en compte les modifications du fichier de configuration <code>php.ini</code>.
+</p>
+
+<h2>Installation d'un serveur web apache2 php mariadb phpmyadmin sous Ubuntu</h2>
+
+<p>
+    Nous vous proposons d'installer ces applications en ligne de commandes avec le gestionnaire de paquets <code>apt</code>.
+</p>
+
+
+<h3>Installation proprement dite</h3>
+
+<p>Mettre à jour votre système :<br>
+<code># apt update</code><br>
+<code># apt upgrade</code>
+</p>
+
+<p>Intallation de LAMP :<br>
+<code># apt install apache2 php libapache2-mod-php mariadb-server php-mysql</code>
+</p>
+
+<p>
+À la suite de cette installation, l'URL <code>http://localhost</code> (ouverte dans un navigateur sur la même machine) permet d'accéder à la page <code>/var/www/html/index.html</code>, contenant pas mal d'informations intéressantes.
+</p>
+
+<p>
+La plupart des scripts PHP utilisent des modules de PHP pour bénéficier de certaines fonctionnalités.
+Voici comment installer les modules les plus courants :<br>
+<code># apt install php-curl php-gd php-intl php-json php-mbstring php-xml php-zip php-bcmath</code>
+</p>
+
+<p>
+Vous pouvez ensuite éventuellement sécuriser l'installation du serveur <code>MariaDB</code> avec la commande :<br>
+<code># mariadb-secure-installation</code><br>
+Cela permet notamment de donner un mot de passe à l'utilisateur <code>root</code> du serveur de bases de données <code>MariaDB</code>.
+</p>
+
+<h3>Utilisation de l'hôte virtuel par défaut d'Apache pour HTTP</h3>
+
+
+<p>
+Avec Apache, chaque site ou application web correspond en principe à un hôte virtuel (VirtualHost en anglais).
+
+Chaque hôte virtuel est défini par un fichier de configuration indépendant, qu'on trouve ou qu'on crée dans le répertoire <code>/etc/apache2/sites-available/</code>.
+
+</p>
+
+<p>
+
+L'hôte virtuel par défaut d'Apache pour HTTP a pour répertoire racine <code>/var/www/html</code> et pour fichier de configuration<br> <code>/etc/apache2/sites-available/000-default.conf</code>.
+Pour simplifier, vous pouvez utiliser uniquement cet hôte virtuel. Pour cela, il vous suffit de placer dans le répertoire <code>/var/www/html</code> :
+</p>
+<ul>
+<!--<li> le répertoire <code>cuiteur</code> (le site 'Cuiteur' sera ainsi accessible à l'URL <code>http://localhost/cuiteur</code>), et-->
+<li> le répertoire <code>php_tuto</code> (issu de la décompression de l'archive <code>php_tuto.zip</code>) : le tutoriel est alors accessible à l'URL <code>http://localhost/php_tuto</code>
+</ul>
+
+<p>
+Pour activer l'affichage de toutes les erreurs PHP dans le navigateur, modifiez le fichier de configuration<br> <code>/etc/apache2/sites-available/000-default.conf</code>
+en ajoutant les 2 lignes suivantes à la fin de la section <code>&lt;VirtualHost *:80&gt;</code> (juste avant la ligne <code>&lt;/VirtualHost&gt;</code>) :<br>
+<code>&nbsp;&nbsp;&nbsp;php_flag display_errors On</code><br>
+<code>&nbsp;&nbsp;&nbsp;php_value error_reporting 2147483647</code>
+</p>
+
+
+<h3>Permissions</h3>
+
+<p>Par défaut sur Ubuntu, Apache est exécuté par l'utilisateur <code>www-data</code>, qui appartient au groupe <code>www-data</code>.
+Quand Apache créé un fichier sur l'espace disque (via par exemple un script PHP), celui-ci appartient donc par défaut à l'utilisateur <code>www-data</code> 
+et au groupe <code>www-data</code>. De la même manière, le serveur ne peut accéder qu'au contenu accessible par <code>www-data</code>.<br>
+A vous de gérer les droits et les propriétaires et groupes propriétaires des fichiers avec <code>chmod</code> et <code>chown</code>.
+</p>
+
+<h3>phpMyAdmin</h3>
+
+<p>Intallation de phpMyAdmin :<br>
+<code># apt install phpmyadmin</code>
+</p>
+
+<p>Lors de l'installation, il vous sera posé quelques questions auxquelles il faut répondre avec soin.
+Vous trouverez des informations à ce sujet à l'URL <a href="https://doc.ubuntu-fr.org/phpmyadmin" target="_blank">https://doc.ubuntu-fr.org/phpmyadmin</a>
+</p>
+
+<p>Après installation, l'application phpMyAdmin est accessible à l'URL <code>http://localhost/phpmyadmin</code>
+
+<h3>Commandes utiles</h3>
+
+<p>
+Pour lancer, ou arrêter ou relancer Apache :<br>
+<code># systemctl {start|stop|restart} apache2</code>
+</p>
+
+<p>
+Pour lancer, ou arrêter ou relancer MariaDB :<br>
+<code># systemctl {start|stop|restart} mariadb</code>
+</p>
+
+<p>
+Pour vérifier l'état d'un service (Apache ou MariaDB) :<br>
+<code># systemctl status apache2</code> <br>
+<code># systemctl status mariadb</code>
+</p>
+
+<p>
+Pour tester l'ensemble de la configuration d'Apache :<br>
+<code># apache2ctl -t</code>
+</p>
+
+
+<h3>Infos complémentaires</h3>
+
+<p>
+<a href="https://doc.ubuntu-fr.org/apache2" target="_blank">https://doc.ubuntu-fr.org/apache2</a><br>
+<a href="https://doc.ubuntu-fr.org/lamp" target="_blank">https://doc.ubuntu-fr.org/lamp</a><br>
+<a href="https://doc.ubuntu-fr.org/mariadb" target="_blank">https://doc.ubuntu-fr.org/mariadb</a>
+</p>
+
+</div>
+</body>
+</html>

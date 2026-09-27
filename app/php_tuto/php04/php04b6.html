@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les options</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+		<ul id="MENU-page"></ul>
+
+		<section>
+			<p class="fp-puce">
+				Il est possible de<b> modifier le comportement</b> d'une expression
+				régulière en utilisant des
+				<a href="https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php" target="_blank">options (ou modificateurs)</a>
+				 qui se placent
+				<b>après</b> le délimiteur de fin de modèle.
+			</p>
+			<p class="fp-puce">Les
+				<a href="https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php" target="_blank">options</a>
+				peuvent être multiples : il suffit
+				de les indiquer les unes à la suite des autres, sans aucun
+				sépérateur.</p>
+
+			<figure>
+				<img src="../phpimg/regexp.png" width="331" height="154">
+				<figcaption>syntaxe d'une expression régulière</figcaption>
+			</figure>
+
+			<p class="fp-bottom0">Quelques options :</p>
+			<ul class="fp-ul-puce">
+				<li>u : le motif et la chaîne examinée traités comme des chaînes encodées en UTF-8</li>
+				<li>i : rend insensible à la casse</li>
+				<li>s : le point reconnaît les sauts de ligne</li>
+				<li>m : la chaîne est multilignes</li>
+				<li>U : rend tous les quantificateurs non gourmands</li>
+				<li>x : permet de commenter les motifs</li>
+			</ul>
+		</section>
+
+		<h3>Insensible à la casse</h3>
+		<section>
+			<p>
+				Cette option force l'expression régulière à<b> ne pas tenir
+					compte des différences majuscules/ minuscules</b> dans sa recherche ou
+				son remplacement.
+			<p>
+				Soit le texte "Les expressions réguliéres sont LES armes de la Force
+				et brisent leS chaînes".<br>Si nous voulons récupèrer tous les "les",
+				nous aurons l'expression :<br> <span class="fp-code">/\bles\b/i</span>
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : option i
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">
+&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Option i');
+
+$txt = 'Les expressions réguliéres sont LES armes de la Force et brisent leS chaînes';
+
+htmlInfo('Tous les "les", insensibles à la casse');
+$exp = '/\\bles\\b/iu';
+
+testerExp($exp, $txt);
+
+htmlFin();
+</textarea>
+			</form>
+
+		</section>
+
+		<h3>Point et saut de ligne</h3>
+		<section>
+			<p>Nous avons vu que le point (.) est un "joker" qui remplace
+				n'importe quel caractère ... sauf le saut de ligne.
+				Si vous travaillez sur des chaînes qui peuvent contenir des sauts de
+				ligne, vos expressions régulières utilisant le point (.) risquent de
+				ne pas fonctionner correctement.</p>
+
+
+			<p>
+				Dans l'exemple suivant, nous voulons récupérer le contenu
+				de tous les éléments <code>li</code> présents dans une page HTML.</p>
+
+			<p>	Plusieurs éléments <code>li</code> peuvent être sur une même ligne.
+				De même, le contenu d'un élément <code>li</code> peut être écrit sur plusieurs
+				lignes. Cela ne posera aucun problème de rendu pour le navigateur.
+				Par contre notre expression régulière ne fonctionnera
+				pas tant que nous n'aurons pas ajouté l'option s, et que nous n'aurons
+				pas spécifié que le quantificateur <code>*</code> n'est pas gourmand.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : options s
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true">&lt;?php
+require('bib_fonctions.php');
+
+// syntaxe nowdoc
+$html = &lt;&lt;&lt; '_HTML_'
+&lt;!DOCTYPE html&gt;
+&lt;html lang="fr"&gt;
+	&lt;head&gt;
+		&lt;meta charset="utf-8"&gt;
+		&lt;title&gt;Liste non ordonnée&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;p&gt;Pour mon anniversaire, je veux :&lt;/p&gt;
+		&lt;ul&gt;
+			&lt;li&gt;un X-Wing rouge&lt;/li&gt;&lt;li&gt;un sabre-laser&lt;/li&gt;
+			&lt;li&gt;un chapeau
+			de Gandalf&lt;/li&gt;
+			&lt;li&gt;de l'herbe à pipe
+			de la Comté.&lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+_HTML_;
+
+htmlDebut('Option s');
+
+htmlInfo('Gestion des sauts de ligne');
+$exp = '#&lt;li&gt;.*?&lt;/li&gt;#us';
+
+testerExpHtml($exp, $html);
+
+htmlFin();
+</textarea>
+			</form>
+			<p>Pour bien voir la différence, enlevez l'option <code>s</code> de l'expression
+				régulière ou le point d'interrogation <code>?</code> .</p>
+		</section>
+
+		<a id="multiligne"></a>
+		<h3>Multiligne</h3>
+		<section>
+			<p>
+				Les assertions de début et fin de chaîne (<code>^</code> et <code>$</code>) sont très
+				interressantes car elles <b>accélèrent</b> beaucoup le traitement
+				des expressions régulières. Pourtant quand la chaîne à traiter est
+				multiligne, ce qui peut arriver quand on traite des données contenues dans des fichiers,
+				l'ancrage <code>^</code> se trouvera avant le premier caractère de la
+				chaîne (i.e. au début de la première ligne du fichier), et l'ancrage <code>$</code> se
+				trouvera à la fin de la chaîne (i.e. à la fin de la dernière ligne
+				du fichier). Les assertions <code>^</code> et <code>$</code> ne nous seront alors, en l'état, pas d'une grande
+				utilité.
+			</p>
+			<p>Imaginons un fichier exporté à partir d'Excel (ou de n'importe
+				quel logiciel qui fasse de l'export CSV - Comma Separated Value). Le
+				fichier contient une liste de livres (oui, ayant trait à Star Wars,
+				mais comment avez-vous deviné ?). Chaque ligne du fichier est
+				composée de 4 champs séparés par des point-virgules(;) : un numéro,
+				un nom de série, un titre, un auteur.</p>
+
+			<p class="fp-code fp-petit">
+				1042;ACADEMIE JEDI;1 LA QUETE DES JEDI;KEVIN J. ANDERSON<br>
+				1043;ACADEMIE JEDI;2 SOMBRE DISCIPLE;KEVIN J. ANDERSON<br>
+				1044;ACADEMIE JEDI;3 LES CHAMPIONS DE LA FORCE;KEVIN J. ANDERSON<br>
+				1013;FILM;EPISODE I : LA MENACE FANTOME;TERRY BROOKS<br>
+				1014;EPISODE I : JOURNAL;AMIDALA;JUDE WATSON<br> 1015;EPISODE I
+				: JOURNAL;PLANETE REBELLE;GREG BEAR<br> 1016;FILM;EPISODE II :
+				L'ATTAQUE DES CLONES;R.A. SALVATORE<br> 1017;FILM;EPISODE II
+				(VERSION JUNIOR);PATRICIA C. WREDE<br> 1022;FILM;EPISODE IV :
+				UN NOUVEL ESPOIR;GEORGE LUCAS<br> 1023;FILM;EPISODE V :
+				L'EMPIRE CONTRE-ATTAQUE;DONALD F. GLUT<br> 1024;FILM;LES OMBRES
+				DE L'EMPIRE;STEVE PERRY<br> 1025;FILM;EPISODE VI : LE RETOUR DU
+				JEDI;JAMES KAHN<br> 1038;LE JEDI FOU;1 L'HERITIER DE
+				L'EMPIRE;TIMOTHY ZAHN<br> 1039;LE JEDI FOU;2 LA BATAILLE DES
+				JEDI;TIMOTHY ZAHN<br> 1040;LE JEDI FOU;3 L'ULTIME
+				COMMANDEMENT;TIMOTHY ZAHN<br> 1045;-;LES ENFANTS DU
+				JEDI;BARBARA HAMBLY<br> 1046;-;LE SABRE NOIR;KEVIN J. ANDERSON<br>
+				1047;-;LA PLANETE DU CREPUSCULE;BARBARA HAMBLY<br> 1059;JEUNES
+				CHEVALIERS JEDI;1 LES ENFANTS DE LA FORCE;ANDERSON<br>
+				1060;JEUNES CHEVALIERS JEDI;2 LES CADETS DE L'OMBRE;ANDERSON<br>
+				1061;LES JEUNES CHEVALIERS JEDI;3 GENERATION PERDUE;ANDERSON<br>
+				1062;JEUNES CHEVALIERS JEDI;4 LES SABRES DE LUMIERE;ANDERSON<br>
+				1063;JEUNES CHEVALIERS JEDI;5 LE CHEVALIER DE LA NUIT;ANDERSON<br>
+				1076;LES AGENTS DU CHAOS;1 LA COLERE DU HEROS;JAMES LUCENO<br>
+				1077;LES AGENTS DU CHAOS;2 L'ECLIPSE DES JEDI;JAMES LUCENO
+			<p>
+				Si nous voulons rechercher les lignes dont le champ titre contient
+				le mot JEDI, nous pourrions utiliser l'expression régulière :<br>
+				<span class="fp-code">/^\d+;[^;]+;[^;]*JEDI[^;]*;.*/</span><br>
+				Mais l'ancrage <code>^</code> en début d'expression correspond ici uniquement au début de la
+				première ligne, et donc ce modèle ne permet de rechercher le mot JEDI que dans
+				le troisième champ de la première ligne.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : option m
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true"
+					rows="55" cols="55">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Option m');
+
+$txt = "1042;ACADEMIE JEDI;1 LA QUETE DES JEDI;KEVIN J. ANDERSON
+1043;ACADEMIE JEDI;2 SOMBRE DISCIPLE;KEVIN J. ANDERSON
+1044;ACADEMIE JEDI;3 LES CHAMPIONS DE LA FORCE;KEVIN J. ANDERSON
+1013;FILM;EPISODE I : LA MENACE FANTOME;TERRY BROOKS
+1014;EPISODE I : JOURNAL;AMIDALA;JUDE WATSON
+1015;EPISODE I : JOURNAL;PLANETE REBELLE;GREG BEAR
+1016;FILM;EPISODE II : L'ATTAQUE DES CLONES;R.A. SALVATORE
+1017;FILM;EPISODE II (VERSION JUNIOR);PATRICIA C. WREDE
+1022;FILM;EPISODE IV : UN NOUVEL ESPOIR;GEORGE LUCAS
+1023;FILM;EPISODE V : L'EMPIRE CONTRE-ATTAQUE;DONALD F. GLUT
+1024;FILM;LES OMBRES DE L'EMPIRE;STEVE PERRY
+1025;FILM;EPISODE VI : LE RETOUR DU JEDI;JAMES KAHN
+1038;LE JEDI FOU;1 L'HERITIER DE L'EMPIRE;TIMOTHY ZAHN
+1039;LE JEDI FOU;2 LA BATAILLE DES JEDI;TIMOTHY ZAHN
+1040;LE JEDI FOU;3 L'ULTIME COMMANDEMENT;TIMOTHY ZAHN
+1045;-;LES ENFANTS DU JEDI;BARBARA HAMBLY
+1046;-;LE SABRE NOIR;KEVIN J. ANDERSON
+1047;-;LA PLANETE DU CREPUSCULE;BARBARA HAMBLY
+1059;JEUNES CHEVALIERS JEDI;1 LES ENFANTS DE LA FORCE;ANDERSON
+1060;JEUNES CHEVALIERS JEDI;2 LES CADETS DE L'OMBRE;ANDERSON
+1061;LES JEUNES CHEVALIERS JEDI;3 GENERATION PERDUE;ANDERSON
+1062;JEUNES CHEVALIERS JEDI;4 LES SABRES DE LUMIERE;ANDERSON
+1063;JEUNES CHEVALIERS JEDI;5 LE CHEVALIER DE LA NUIT;ANDERSON
+1076;LES AGENTS DU CHAOS;1 LA COLERE DU HEROS;JAMES LUCENO
+1077;LES AGENTS DU CHAOS;2 L'ECLIPSE DES JEDI;JAMES LUCENO";
+
+htmlInfo('Les lignes dont le titre contient JEDI');
+$exp = '/^\\d+;[^;]+;[^;]*JEDI[^;]*;.*/u';
+
+testerExp($exp, $txt);
+
+htmlFin();
+</textarea>
+			</form>
+			<p>
+				Si nous
+				ajoutons l'option <code>m</code> à l'expression :<br> <span class="fp-code">/^\d+;[^;]+;[^;]*JEDI[^;]*;.*/<span
+					class="fp-rouge">m</span></span><br> nous demandons que
+					l'assertion <code>^</code> soit vraie à chaque début de <b>ligne</b>.
+			<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : options m
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true"
+					rows="55" cols="55">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Option m');
+
+$txt = "1042;ACADEMIE JEDI;1 LA QUETE DES JEDI;KEVIN J. ANDERSON
+1043;ACADEMIE JEDI;2 SOMBRE DISCIPLE;KEVIN J. ANDERSON
+1044;ACADEMIE JEDI;3 LES CHAMPIONS DE LA FORCE;KEVIN J. ANDERSON
+1013;FILM;EPISODE I : LA MENACE FANTOME;TERRY BROOKS
+1014;EPISODE I : JOURNAL;AMIDALA;JUDE WATSON
+1015;EPISODE I : JOURNAL;PLANETE REBELLE;GREG BEAR
+1016;FILM;EPISODE II : L'ATTAQUE DES CLONES;R.A. SALVATORE
+1017;FILM;EPISODE II (VERSION JUNIOR);PATRICIA C. WREDE
+1022;FILM;EPISODE IV : UN NOUVEL ESPOIR;GEORGE LUCAS
+1023;FILM;EPISODE V : L'EMPIRE CONTRE-ATTAQUE;DONALD F. GLUT
+1024;FILM;LES OMBRES DE L'EMPIRE;STEVE PERRY
+1025;FILM;EPISODE VI : LE RETOUR DU JEDI;JAMES KAHN
+1038;LE JEDI FOU;1 L'HERITIER DE L'EMPIRE;TIMOTHY ZAHN
+1039;LE JEDI FOU;2 LA BATAILLE DES JEDI;TIMOTHY ZAHN
+1040;LE JEDI FOU;3 L'ULTIME COMMANDEMENT;TIMOTHY ZAHN
+1045;-;LES ENFANTS DU JEDI;BARBARA HAMBLY
+1046;-;LE SABRE NOIR;KEVIN J. ANDERSON
+1047;-;LA PLANETE DU CREPUSCULE;BARBARA HAMBLY
+1059;JEUNES CHEVALIERS JEDI;1 LES ENFANTS DE LA FORCE;ANDERSON
+1060;JEUNES CHEVALIERS JEDI;2 LES CADETS DE L'OMBRE;ANDERSON
+1061;LES JEUNES CHEVALIERS JEDI;3 GENERATION PERDUE;ANDERSON
+1062;JEUNES CHEVALIERS JEDI;4 LES SABRES DE LUMIERE;ANDERSON
+1063;JEUNES CHEVALIERS JEDI;5 LE CHEVALIER DE LA NUIT;ANDERSON
+1076;LES AGENTS DU CHAOS;1 LA COLERE DU HEROS;JAMES LUCENO
+1077;LES AGENTS DU CHAOS;2 L'ECLIPSE DES JEDI;JAMES LUCENO";
+
+htmlInfo('Les lignes dont le titre contient JEDI');
+$exp = '/^\\d+;[^;]+;[^;]*JEDI[^;]*;.*/mu';
+
+testerExp($exp, $txt);
+
+htmlFin();
+</textarea>
+			</form>
+
+			<p>En ajoutant l'option m, nous trouvons bien les 5 lignes contenant
+				le mot JEDI dans le champ titre.
+			<p>
+				Vous le savez déjà, les options peuvent être cumulées. Par exemple, nous
+				pourrions ajouter l'option i pour ignorer la casse et avoir
+				l'expression régulière suivante :<br> <span class="fp-code">/^\d+;[^;]+;[^;]*<span
+					class="fp-rouge">jedi</span>[^;]*;.*/<span class="fp-rouge">mi</span></span>
+		</section>
+
+		<h3>Expression non gourmande</h3>
+		<section>
+			<p>Nous avons vu précédemment comment rendre un quantificateur
+				non gourmand. L'option U (U majuscule - Ungreedy) rend tous les
+				quantificateurs d'une expression non gourmands.
+			<p>
+				<span class="fp-code">/&lt;a href=".+?"&gt;.*?&lt;\/a&gt;/s</span><br>
+				et<br> <span class="fp-code">/&lt;a
+					href=".+"&gt;.*&lt;\/a&gt;/s<span class="fp-rouge">U</span>
+				</span><br> sont équivalentes.
+		</section>
+
+		<h3>Commentaires</h3>
+		<section>
+			<p>
+				Avec l'option x, tous les caractères d'espacement sont ignorés, sauf
+				s'ils sont dans une classe ou s'ils sont échappés. Tous les caractères après un
+				# (non echappé et en dehors d'une classe) sont ignorés jusqu'à une
+				nouvelle ligne. <br> En clair, l'option x permet de mettre des
+				commentaires dans une expression régulière :
+			<p>
+				<span class="fp-code">/^\d+;[^;]+;[^;]*JEDI[^;]*;.*/m</span>
+			<p>est équivalent à :
+			<p class="fp-code">
+				/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Délimiteur de l'expression<br>
+				^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# ancrage de début de ligne (car option m)<br>
+				\d+&nbsp;&nbsp;&nbsp;&nbsp;# un ou plusieurs chiffres décimaux<br>
+				;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# un caractère littéral ;<br>
+				[^;]+&nbsp;&nbsp;# un ou plusieurs caractères qui ne peuvent pas<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# être un ;<br>
+				;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# un caractère littéral ;<br>
+				[^;]*&nbsp;&nbsp;# 0 ou plusieurs caractères qui ne peuvent pas<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# être un ;<br>
+				JEDI&nbsp;&nbsp;&nbsp;# chaîne littérale JEDI<br>
+				[^;]*&nbsp;&nbsp;# 0 ou plusieurs caractères qui ne peuvent pas<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# être un ;<br>
+				;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# un caractère littéral ;<br>
+				.*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 0 ou plusieurs caractères qui ne peuvent pas<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# être un saut de ligne<br>
+				/m<span class="fp-rouge">x</span>
+			</p>
+
+						<form action="" method="post" class="TEST-form">
+				<a class="TEST-lien"
+					onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_16.html')"
+					title="Afficher la bibliothéque de fonctions"></a> <a
+					class="TEST-lien-exp" title="Afficher un résumé des expressions"
+					onclick="top.FP.Voir.showPLUS('php04/resume.html')"></a>
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : options x
+				</div>
+				<textarea name="txtCode" class="TEST-textarea" data-wrap="true"
+					rows="55" cols="55">&lt;?php
+require('bib_fonctions.php');
+
+htmlDebut('Option x');
+
+$txt = "1042;ACADEMIE JEDI;1 LA QUETE DES JEDI;KEVIN J. ANDERSON
+1043;ACADEMIE JEDI;2 SOMBRE DISCIPLE;KEVIN J. ANDERSON
+1044;ACADEMIE JEDI;3 LES CHAMPIONS DE LA FORCE;KEVIN J. ANDERSON
+1013;FILM;EPISODE I : LA MENACE FANTOME;TERRY BROOKS
+1014;EPISODE I : JOURNAL;AMIDALA;JUDE WATSON
+1015;EPISODE I : JOURNAL;PLANETE REBELLE;GREG BEAR
+1016;FILM;EPISODE II : L'ATTAQUE DES CLONES;R.A. SALVATORE
+1017;FILM;EPISODE II (VERSION JUNIOR);PATRICIA C. WREDE
+1022;FILM;EPISODE IV : UN NOUVEL ESPOIR;GEORGE LUCAS
+1023;FILM;EPISODE V : L'EMPIRE CONTRE-ATTAQUE;DONALD F. GLUT
+1024;FILM;LES OMBRES DE L'EMPIRE;STEVE PERRY
+1025;FILM;EPISODE VI : LE RETOUR DU JEDI;JAMES KAHN
+1038;LE JEDI FOU;1 L'HERITIER DE L'EMPIRE;TIMOTHY ZAHN
+1039;LE JEDI FOU;2 LA BATAILLE DES JEDI;TIMOTHY ZAHN
+1040;LE JEDI FOU;3 L'ULTIME COMMANDEMENT;TIMOTHY ZAHN
+1045;-;LES ENFANTS DU JEDI;BARBARA HAMBLY
+1046;-;LE SABRE NOIR;KEVIN J. ANDERSON
+1047;-;LA PLANETE DU CREPUSCULE;BARBARA HAMBLY
+1059;JEUNES CHEVALIERS JEDI;1 LES ENFANTS DE LA FORCE;ANDERSON
+1060;JEUNES CHEVALIERS JEDI;2 LES CADETS DE L'OMBRE;ANDERSON
+1061;LES JEUNES CHEVALIERS JEDI;3 GENERATION PERDUE;ANDERSON
+1062;JEUNES CHEVALIERS JEDI;4 LES SABRES DE LUMIERE;ANDERSON
+1063;JEUNES CHEVALIERS JEDI;5 LE CHEVALIER DE LA NUIT;ANDERSON
+1076;LES AGENTS DU CHAOS;1 LA COLERE DU HEROS;JAMES LUCENO
+1077;LES AGENTS DU CHAOS;2 L'ECLIPSE DES JEDI;JAMES LUCENO";
+
+htmlInfo('Les lignes dont le titre contient JEDI');
+
+$exp =
+'/     # Délimiteur de l\'expression
+^      # ancrage de début de ligne (car option m)
+\\d+   # un ou plusieurs chiffres décimaux
+;      # un caractère littéral ;
+[^;]+  # un ou plusieurs caractères qui ne peuvent pas
+       # être un ;
+;      # un caractère littéral ;
+[^;]*  # 0 ou plusieurs caractères qui ne peuvent pas
+       # être un ;
+JEDI   # chaîne littérale JEDI
+[^;]*  # 0 ou plusieurs caractères qui ne peuvent pas
+       # être un ;
+;      # un caractère littéral ;
+.*     # 0 ou plusieurs caractères qui ne peuvent pas
+       # être un saut de ligne
+/mxu';
+
+testerExp($exp, $txt);
+
+htmlFin();
+</textarea>
+			</form>
+		</section>
+	</div>
+	<footer></footer>
+</body>
+</html>

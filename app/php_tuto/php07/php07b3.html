@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Bibliothèques de fonctions</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<p class="fp-rappel">
+			Rappel : si vous travaillez sur votre ordinateur personnel, vous
+			devez avoir <a href="../exemple/tuto_init_bd.sql" download>créer
+				la base de données de test</a> pour que les exemples puissent être
+			utilisés.
+		</p>
+
+		<p class="fp-puce">La connexion à la base de données doit être
+			faite dans chaque script qui va utiliser cette base. Il faut donc la
+			centraliser dans une fonction placée dans une bibliothèque pour que
+			toute modification en soit simplifiée. Les identifiants de connexion
+			seront en effet différents selon que l'on est en phase de
+			développement, sur notre serveur (personnel ou de l'entreprise), ou
+			en phase de production (le site est accessible depuis le Web et sur
+			le serveur d'un hébergeur).</p>
+
+		<p class="fp-puce fp-bottom0">Pour faire correctement les choses,
+			il faut avoir 2 fichiers :</p>
+		<ul class="fp-ul-puce">
+			<li>un fichier avec les fonctions de gestion de la base,</li>
+			<li>un fichier avec les paramètres de notre application (et en
+				particulier les paramètres concernant la base de données).</li>
+		</ul>
+
+		<p>
+			Nous utiliserons notre bibliothèque (<span class="fp-code">bib_fonctions.php</span>)
+			pour y mettre notre fonction de connexion ainsi qu'une fonction gérant les erreurs liées à la communication avec la base de données; et un nouveau fichier (<span
+				class="fp-code">bib_params.php</span>) pour y mettre les paramètres
+			de notre application.
+		</p>
+
+		<p>
+			<b>Contenu du fichier <span class="fp-code">bib_params.php</span></b>
+		</p>
+
+		<pre data-code="PHP">
+&lt;?php
+//
+// Paramètres de l'application
+//
+
+/* Une des façons les plus simples de définir des paramètres
+ * est de définir des constantes car elles sont "superglobales"
+ */
+
+// Phase de développement (TRUE) ou de production (FALSE)
+// Permet d'afficher des messages de débuggage (TRUE)
+define('IS_DEV', TRUE);
+
+// Paramètres base de données
+define('BD_SERVER', 'mariadb-hostname');
+define('BD_USER', 'tuto_user');
+define('BD_PASS', 'tuto_pass');
+define('BD_NAME', 'php_tuto');</pre>
+
+		<p>
+			<b>Nouvelles fonctions dans le fichier <span class="fp-code">bib_fonctions.php</span></b>
+		</p>
+
+		<pre data-code="PHP">
+//________________________________________________
+/**
+ *  Ouverture de la connexion à la base de données en gérant
+ *  les erreurs.
+ *
+ *  En cas d'erreur de connexion, une page "propre" avec un
+ *  message d'erreur adéquat est affiché ET le script est arrêté.
+ *
+ *  @return mysqli  objet connecteur à la base de données
+ */
+function bdConnect(): mysqli {
+    // pour forcer la levée de l'exception mysqli_sql_exception
+    // si la connexion échoue
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    try{
+        $conn = mysqli_connect(BD_SERVER, BD_USER, BD_PASS, BD_NAME);
+    }
+    catch(mysqli_sql_exception $e){
+        $err['titre'] = 'Erreur de connexion';
+        $err['code'] = $e-&gt;getCode();
+        // $e-&gt;getMessage() est encodée en ISO-8859-1, il faut
+        // la convertir en UTF-8
+        $err['message'] = mb_convert_encoding($e-&gt;getMessage(),
+                                            'UTF-8', 'ISO-8859-1');
+        $err['appels'] = $e-&gt;getTraceAsString(); //Pile d'appels
+        $err['autres'] = array('Paramètres' =&gt;
+                                'BD_SERVER : '. BD_SERVER
+								 ."\n".'BD_USER : '. BD_USER
+								 ."\n".'BD_PASS : '. BD_PASS
+							     ."\n".'BD_NAME : '. BD_NAME);
+        bdErreurExit($err); // ==&gt; ARRET DU SCRIPT
+    }
+    try{
+        //mysqli_set_charset() définit le jeu de caractères
+        //par défaut à utiliser lors de l'envoi
+        //de données depuis et vers le serveur de base de données.
+        mysqli_set_charset($conn, 'utf8');
+        return $conn;     // ===&gt; Sortie connexion OK
+    }
+    catch(mysqli_sql_exception $e){
+        $err['titre'] = 'Erreur lors de la définition du charset';
+        $err['code'] = $e-&gt;getCode();
+        $err['message'] = mb_convert_encoding($e-&gt;getMessage(),
+                                            'UTF-8', 'ISO-8859-1');
+        $err['appels'] = $e-&gt;getTraceAsString();
+        bdErreurExit($err); // ==&gt; ARRET DU SCRIPT
+    }
+}
+//________________________________________________
+/**
+ * Arrêt du script si erreur de base de données
+ *
+ * Affichage d'un message d'erreur, puis arrêt du script
+ * Fonction appelée quand une erreur 'base de données'
+ * se produit:
+ *      - lors de la phase de connexion au serveur MySQL
+ *      - ou lorsque l'envoi d'une requête échoue
+ *
+ * @param array    $err    Informations utiles pour le débogage
+ *
+ * @return void
+ */
+function bdErreurExit(array $err):void {
+    ob_end_clean(); // Suppression de tout ce qui a pu
+                    // être déja généré
+
+    echo    '&lt;!DOCTYPE html&gt;&lt;html lang="fr"&gt;&lt;head&gt;',
+            '&lt;meta charset="UTF-8"&gt;',
+            '&lt;title&gt;Erreur',
+            IS_DEV ? ' base de données': '', '&lt;/title&gt;',
+            '&lt;/head&gt;&lt;body&gt;';
+    if (IS_DEV){
+        // Affichage de toutes les infos contenues dans $err
+        echo    '&lt;h4&gt;', $err['titre'], '&lt;/h4&gt;',
+                '&lt;pre&gt;',
+                    '&lt;strong&gt;Erreur mysqli&lt;/strong&gt; : ',
+                    $err['code'], "\n",
+                    $err['message'], "\n";
+        if (isset($err['autres'])){
+            echo "\n";
+            foreach($err['autres'] as $cle =&gt; $valeur){
+                echo    '&lt;strong&gt;', $cle, '&lt;/strong&gt; :', "\n",
+						$valeur, "\n";
+            }
+        }
+        echo    "\n",
+                '&lt;strong&gt;Pile des appels de fonctions :&lt;/strong&gt;',
+                "\n", $err['appels'],
+                '&lt;/pre&gt;';
+    }
+    else {
+        echo 'Une erreur s\'est produite';
+    }
+
+    echo    '&lt;/body&gt;&lt;/html&gt;';
+
+    if (! IS_DEV){
+        // Mémorisation des erreurs dans un fichier de log
+        $fichier = @fopen('error.log', 'a');
+        if($fichier){
+            fwrite($fichier, '['.date('d/m/Y').' '.date('H:i:s')."]\n");
+            fwrite($fichier, $err['titre']."\n");
+            fwrite($fichier, "Erreur mysqli : {$err['code']}\n");
+            fwrite($fichier, "{$err['message']}\n");
+            if (isset($err['autres'])){
+                foreach($err['autres'] as $cle =&gt; $valeur){
+                    fwrite($fichier,"{$cle} :\n{$valeur}\n");
+                }
+            }
+            fwrite($fichier,"Pile des appels de fonctions :\n");
+            fwrite($fichier, "{$err['appels']}\n\n");
+            fclose($fichier);
+        }
+    }
+    exit(1);        // ==&gt; ARRET DU SCRIPT
+}
+</pre>
+
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_08.html')"
+				title="Afficher la bibliothéque de fonctions"></a> <a
+				class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : connexion au serveur de BdD avec bibliothèque
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Nombre de livres');
+
+$bd = bdConnect();
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT count(*) FROM livres';
+$r = mysqli_query($bd, $sql);
+
+//-- Traitement -------------------------------------
+$enr = mysqli_fetch_row($r);
+
+echo 'Il y a ', $enr[0], ' livres dans notre base';
+
+// Libération de la mémoire associée au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p>Si vous travaillez sur votre ordinateur personnel, pour simuler une panne de votre serveur de base de données, vous pouvez
+			l'arrêter (sans arrêter bien sûr le serveur Web), et tester à nouveau ce script.</p>
+
+
+		<p class="fp-bottom0"> Commentaires :</p>
+		<ul class="fp-ul-puce">
+		<li>
+	Lorsqu'une <b>erreur</b> se produit lors
+	des appels de <a href="https://www.php.net/manual/en/mysqli.construct.php" target="_blank">mysqli_connect()</a> ou
+	de
+	<a href="https://www.php.net/manual/en/mysqli.set-charset.php" target="_blank">mysqli_set_charset()</a>,
+	une exception
+	<a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank">mysqli_sql_exception</a> est levée et attrappée
+	dans le bloc <span class="fp-code">catch</span> correspondant; ce qui entraîne toujours, dans notre notre code, l'affichage d'une <b>page propre</b> et un <span style="color:red"><b>arrêt</b></span> du script.<br>
+
+	L'appel des méthodes <code>getCode()</code> et <code>getMessage()</code> pour l'objet
+	<a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank">mysqli_sql_exception</a>
+	permet de connaître respectivement le <span style="color:red"><b>numéro</b></span> et le <span style="color:red"><b>message de l'erreur</b></span>, et donc de décrire la nature de l'erreur rencontrée.
+
+			<b><span style="color:red">Il est essentiel de toujours récupérer</span></b> ces informations quand une connexion au
+			serveur MySQL (ou MariaDB) échoue. Par conséquent, vous <span style="color:red"><b>devez toujours utiliser la fonction <span class="fp-code">bdConnect()</span>
+			pour vous connecter au serveur de bases de données</span></b>.
+
+			<li>
+	Notez également l'appel de la méthode <code>getTraceAsString()</code> qui renvoie une chaîne de caractères décrivant la pile d'appels au moment où l'exception
+	<a href="https://www.php.net/manual/en/class.mysqli-sql-exception.php" target="_blank">mysqli_sql_exception</a> est levée.
+
+		</li>
+
+
+
+		<li>
+			Quand la connexion réussit, l'appel de la fonction
+			<a href="https://www.php.net/manual/en/mysqli.set-charset.php" target="_blank">mysqli_set_charset()</a>
+			définit le jeu de caractères par défaut à utiliser lors de l'envoi de données
+			depuis et vers le serveur de base de données.
+		</li>
+
+		<li>
+		La fonction <span class="fp-code">bdErreurExit()</span> assure une gestion des erreurs différente suivant que le site est en phase de développement, ou en phase de production en utilisant la constante <span class="fp-code">IS_DEV</span> :
+		<ul class="fp-ul-puce">
+			<li> en phase de développement, on affiche, dans une page "propre", un maximum d'informations (<b>numéro</b>, <b>message de l'erreur</b>, <b>pile d'appels</b>, <b>paramètres de connexion</b>) pour faciliter le travail de débuggage du développeur.
+			<li> en phrase de prodution, un simple message "Une erreur s'est produite" est envoyée au navigateur, notamment, pour ne pas envoyer à un éventuel
+			pirate des informations qu'il pourrait utiliser pour attaquer notre site; et les informations liées à l'erreur sont mémorisées dans un fichier
+			de log.
+		</ul>
+		</li>
+
+		</ul>
+
+
+
+	</div>
+	<footer></footer>
+</body>
+</html>

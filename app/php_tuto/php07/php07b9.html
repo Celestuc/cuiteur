@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Présentation d'une sélection</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+</head>
+<body>
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<!--
+		<p class="fp-rappel">
+			Rappel : si vous travaillez sur votre ordinateur personnel, vous
+			devez avoir <a onclick="top.FP.Voir.showPLUS('exemple/initbase.php')">créer
+				la base de données de test</a> pour que les exemples puissent être
+			utilisés.
+		</p>
+		-->
+
+		<p class="fp-puce">Pour présenter les résultats d'une sélection
+			multiple on utilise généralement une table HTML comme dans l'exemple
+			ci-dessous. La table est bien sûr mise en forme et "stylée" avec CSS.</p>
+
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_10.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : liste alphabétique des auteurs
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Liste des auteurs');
+
+echo '&lt;style&gt;
+		.tab-bd {
+			border-collapse: collapse;
+			border-spacing: 0;
+			margin: 0 auto;
+			min-width: 340px;
+			}
+		.tab-bd tr:nth-child(odd) {
+			background: #eee;
+			}
+		.tab-bd tr:first-child {
+			background: #ccc;
+			font-weight: bold;
+			}
+		.tab-bd td {
+			border: 1px solid #ddd;
+			padding: 2px;
+			}&lt;/style&gt;';
+
+$bd = bdConnect();
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT auNom, auPrenom, auPays
+		FROM auteurs
+		ORDER BY auNom, auPrenom';
+		
+$r = bdSendRequest($bd, $sql);
+
+//-- Traitement -------------------------------------
+echo '&lt;table class="tab-bd"&gt;',
+	'&lt;tr&gt;&lt;td&gt;Nom&lt;/td&gt;&lt;td&gt;Prénom&lt;/td&gt;&lt;td&gt;Pays&lt;/td&gt;&lt;/tr&gt;';
+
+while ($enr = mysqli_fetch_assoc($r)) {
+	$enr = tabProtegerSorties($enr);
+	echo '&lt;tr&gt;',
+		'&lt;td&gt;', $enr['auNom'], '&lt;/td&gt;', 
+		'&lt;td&gt;', $enr['auPrenom'], '&lt;/td&gt;', 
+		'&lt;td&gt;', $enr['auPays'], '&lt;/td&gt;',
+		'&lt;/tr&gt;';
+}
+
+echo '&lt;/table&gt;';
+
+// Libération de la mémoire associée au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-inter2 fp-puce">
+			Si vous testez la validité du code HTML généré par le script ci-dessus
+			avec le <a href="https://validator.w3.org" target="_blank">validateur W3C</a>, vous constaterez
+			qu'il n'est pas valide. L'erreur suivante est détectée :<br>
+			<span class="fp-code">Element style not allowed as child of element body in this context.</span>
+		</p>
+
+		<p class="fp-remarque">
+			Rappel : pour visualiser le code HTML généré par un script, faire un clic droit sur la page, et sélectionner
+			"Code source de la page".
+		</p>
+
+		<p class="fp-puce">
+			Pour ne pas avoir un script qui, comme le précédent, intégre "brutalement" du code CSS
+			au milieu du code HTML, nous pouvons modifier dans <span
+				class="fp-code">bib_fonctions.php</span> la fonction <span
+				class="fp-code">htmlDebut()</span> pour qu'elle accepte comme second
+			paramètre éventuel le chemin  vers un fichier contenant une feuille de
+			styles CSS :
+		</p>
+		<pre data-code="PHP">
+/**
+ * Envoie à la sortie standard le début du code HTML d'une page
+ *
+ * @param string	$titre	Titre de la page
+ * @param ?string	$css	Fichier CSS éventuel
+ *
+ * @return void
+ */
+function htmlDebut(string $titre, ?string $css = null): void {
+	$titre = htmlentities($titre, ENT_QUOTES, 'UTF-8');
+
+	$css = ($css) ? "&lt;link rel='stylesheet' type='text/css' href='$css'&gt;" : '';
+
+	echo '&lt;!DOCTYPE html&gt;',
+		'&lt;html lang=&quot;fr&quot;&gt;',
+			'&lt;head&gt;',
+				'&lt;meta charset="UTF-8"&gt;',
+				'&lt;title&gt;', $titre, '&lt;/title&gt;',
+				$css,
+				'&lt;style&gt;',
+				'body {	font-size: 13px;', 
+						'font-family: Verdana, sans-serif}',
+				'h3 {	font-size: 15px;',
+						'margin: 0 0 15px 0;', 
+						'padding: 5px 0;', 
+						'text-align: center;', 
+						'background: #FFF5AB}',
+				'h4 {	font-size: 13px;',
+						'margin: 1em 0 0 0;',
+						'padding: 3px;',
+						'background: #ebebeb}',
+				'label {display: block;',
+						'font-weight:', 
+						'bold;margin-top: 10px;}',						
+				'&lt;/style&gt;',
+			'&lt;/head&gt;',
+			'&lt;body&gt;',
+				'&lt;h3&gt;', $titre, '&lt;/h3&gt;';
+}</pre>
+
+		<p>Le code du fichier bd.css :</p>
+		<pre>
+.tab-bd {
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin: 0 auto;
+	min-width: 340px;
+	}
+.tab-bd tr:nth-child(odd) {
+	background: #eee;
+	}
+.tab-bd tr:first-child {
+	background: #ccc;
+	font-weight: bold;
+	}
+.tab-bd td {
+	border: 1px solid #ddd;
+	padding: 2px;
+	vertical-align: top;	
+	}</pre>
+
+		<p>Et le résultat :</p>
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_11.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : liste alphabétique des auteurs
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Liste des auteurs', 'bd.css');
+
+$bd = bdConnect();
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT auNom, auPrenom, auPays
+		FROM auteurs
+		ORDER BY auNom, auPrenom';
+		
+$r = bdSendRequest($bd, $sql);
+
+//-- Traitement -------------------------------------
+echo '&lt;table class="tab-bd"&gt;',
+	'&lt;tr&gt;&lt;td&gt;Nom&lt;/td&gt;&lt;td&gt;Prénom&lt;/td&gt;&lt;td&gt;Pays&lt;/td&gt;&lt;/tr&gt;';
+
+while ($enr = mysqli_fetch_assoc($r)) {
+	$enr = tabProtegerSorties($enr);
+	echo '&lt;tr&gt;',
+		'&lt;td&gt;', $enr['auNom'], '&lt;/td&gt;', 
+		'&lt;td&gt;', $enr['auPrenom'], '&lt;/td&gt;', 
+		'&lt;td&gt;', $enr['auPays'], '&lt;/td&gt;',
+		'&lt;/tr&gt;';
+}
+
+echo '&lt;/table&gt;';
+
+// Libération de la mémoire associée au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+
+		<p class="fp-inter2 fp-puce">
+			De la même que vous avons déplacé le code CSS du script, nous
+			pouvons déplacer le code HTML qui s'occupe de la table dans 2
+			nouvelles fonctions de notre bibliothèque <span class="fp-code">bib_fonctions.php</span>.
+		</p>
+
+		<p>
+			La fonction <span class="fp-code">htmlLigne()</span> va générer le code
+			HTML d'affichage d'une ligne d'une table. A noter que nous utilisons
+			une boucle <span class="fp-code">foreach</span> pour prendre en
+			compte aussi bien des tableaux avec indices numériques que des tableaux
+			associatifs.
+		</p>
+
+		<pre data-code="PHP">
+/**
+ * Envoie à la sortie standard une ligne d'une table HTML
+ *
+ * @param array		$elts	Elements à afficher dans les colonnes
+ *
+ * @return void
+ */
+function htmlLigne(array $elts) : void {
+	echo '&lt;tr&gt;';
+
+	foreach ($elts as $elt) {
+		echo '&lt;td&gt;', $elt, '&lt;/td&gt;';
+	}
+
+	echo '&lt;/tr&gt;';
+}</pre>
+
+		<p>
+			La fonction <span class="fp-code">htmlEnteteTable()</span> va générer le code
+			HTML d'affichage de l'en-tete d'une table.
+		</p>
+
+		<pre data-code="PHP">
+/**
+ * Envoie à la sortie standard l'en-tête d'une table HTML
+ *
+ * @param array		$titres	Titres de colonnes de la table
+ * @param ?string	$css	Classe CSS éventuelle de la table
+ *
+ * @return void
+ */
+function htmlEnteteTable(array $titres, ?string $css = null)
+                                                     : void {
+	echo '&lt;table', ($css === null) ? '&gt;' : " class='$css'&gt;";
+	
+	htmlLigne($titres);
+}</pre>
+
+
+		<p>Et le résultat :</p>
+		<form action="" method="post" class="TEST-form">
+			<a class="TEST-lien"
+				onclick="top.FP.Voir.showPLUS('exemple/bib_fonctions_12.html')"
+				title="Afficher la bibliothéque de fonctions"></a>
+			<a class="TEST-lien-bd" title="Afficher le schéma de la base"
+				onclick="top.FP.Voir.showPLUS('exemple/php_tuto_bd.html')"></a>
+			<div class="TEST-titre">
+				<strong>Exemple</strong> : liste alphabétique des auteurs
+			</div>
+			<textarea name="txtCode" class="TEST-textarea">
+&lt;?php
+ob_start();
+require('bib_params.php');
+require('bib_fonctions.php');
+
+htmlDebut('Liste des auteurs', 'bd.css');
+
+$bd = bdConnect();
+
+//-- Requête ----------------------------------------
+$sql = 'SELECT auNom, auPrenom, auPays
+		FROM auteurs
+		ORDER BY auNom, auPrenom';
+		
+$r = bdSendRequest($bd, $sql);
+
+//-- Traitement -------------------------------------
+htmlEnteteTable(['Nom', 'Prénom', 'Pays'], 'tab-bd');
+
+while ($enr = mysqli_fetch_assoc($r)) {
+	$enr = tabProtegerSorties($enr);
+	htmlLigne($enr);
+}
+
+echo '&lt;/table&gt;';
+
+// Libération de la mémoire associée au résultat de la requête
+mysqli_free_result($r);
+//-- Déconnexion ------------------------------------
+mysqli_close($bd);
+
+htmlFin();
+</textarea>
+		</form>
+
+	</div>
+	<footer></footer>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Les fonctions</title>
+<link rel="stylesheet" href="../_local/codemirror.css">
+<script src="../_local/codemirror_pour_php.js"></script>
+
+<link rel="stylesheet" href="../_core/def.css">
+<script>
+	if (top.FP) {
+		document.addEventListener('DOMContentLoaded', top.FP.initPage, false);
+	} else {
+		location.replace('../index.html?x=' + encodeURI(location.href));
+	}
+</script>
+
+</head>
+<body>
+
+	<div id="MENU-top"></div>
+	<nav id="MENU-tuto"></nav>
+
+	<div id="PAGE-tuto">
+		<header></header>
+
+		<ul id="MENU-page"></ul>
+
+		<p>
+			Il est possible de déclarer les types des paramètres formels et de la valeur de retour
+			dans l'en-tête d'une fonction.
+		</p>
+		<p>
+			Nous vous recommandons de
+			<strong>toujours le faire</strong>.
+		</p>
+
+		<h3>Syntaxe des déclarations de type</h3>
+		<section>
+
+					<pre data-code="PHP">
+function fct (type1 $param1, type2 $param2) : typeRetour {
+  // corps de la fonction
+}</pre>
+		<p class="fp-puce">
+		Les types des paramètres formels, et le type de la valeur de retour sont indiqués
+		dans l'en-tête de la fonction. Le type de chaque paramètre formel est tout simplement indiqué avant son nom.
+		Le type de la valeur de retour (ici <span class="fp-code">typeRetour</span>) suit la parenthèse fermante à la
+		fin de la liste des paramètres formels, et est précédé du caractère <span class="fp-code">&nbsp;:&nbsp;</span> (deux points).
+		</p>
+
+		<p class="fp-puce">
+			Les types simples utilisables sont les suivants :
+			<span class="fp-code">bool</span>, <span class="fp-code">float</span>, <span class="fp-code">int</span>,
+			<span class="fp-code">string</span>, <span class="fp-code">array</span>, <span class="fp-code">object</span>,
+			<span class="fp-code">mixed</span>.<br>
+			Le type <span class="fp-code">mixed</span> permet de spécifier que le paramètre ou la valeur de retour peuvent être de n'importe quel type.
+		</p>
+
+		<p class="fp-remarque">
+			Il est également possible d'utiliser pour le type d'un paramètre formel, ou pour le type de la valeur de retour d'une fonction
+			le nom d'une classe ou d'une interface. Cette possibilité n'est pas traitée dans ce tutoriel.
+		</p>
+
+
+		</section>
+
+
+		<h3>Conversion dans le type indiqué</h3>
+		<section>
+
+			<p class="fp-puce">	Dans l'en-tête d'une fonction, quand une déclaration de type précède le
+			nom formel d'un paramètre, les valeurs effectivement transmises sont
+			<strong>converties</strong> dans le type spécifié à l’entrée dans
+			la fonction (i.e. lors de son appel).
+			</p>
+
+			<p class="fp-puce">
+				De même, quand le type de la valeur de retour est indiquée dans l'en-tête d'une fonction, le résultat retourné
+				est <strong>converti</strong> dans le type indiqué.
+			</p>
+
+
+
+			<p class="fp-puce">
+				Si ces conversions échouent, une <a href="https://www.php.net/manual/en/class.typeerror.php" target="_blank">TypeError</a>
+				est lancée : il s'agit d'une erreur fatale qui arrête immédiatement le script.
+			</p>
+
+			
+			<p>
+				Le tableau suivant donne le résultat de ces conversions réalisées par PHP à l'entrée ou à la sortie d'une fonction pour les 4 types scalaires.
+			</p>
+<table style="text-align: center">
+    <tr>
+		<td rowspan="2">type</td>
+        <td colspan="8">Valeurs effectivement transmises, ou valeurs "retournées"</td>
+    </tr>
+    <tr>
+        <td><b>15</b></td>
+        <td><b>17.2</b></td>
+        <td><b>'15'</b></td>
+        <td><b>'15a'</b></td>
+        <td><b>true</b></td>
+        <td><b>false</b></td>
+        <td><b>null</b></td>
+        <td><b>array(1,2)</b></td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">int</span></td>
+        <td>15</td>
+        <td style="color:orange">17 (*)</td>
+        <td>15</td>
+        <td><b style="color:red">TypeError</b></td>
+        <td>1</td>
+        <td>0</td>
+        <td><b style="color:red">TypeError</b></td>
+        <td><b style="color:red">TypeError</b></td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">float</span></td>
+        <td>15</td>
+        <td>17.2</td>
+        <td>15</td>
+        <td><b style="color:red">TypeError</b></td>
+        <td>1</td>
+        <td>0</td>
+        <td><b style="color:red">TypeError</b></td>
+        <td><b style="color:red">TypeError</b></td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">string</span></td>
+        <td>'15'</td>
+        <td>'17.2'</td>
+        <td>'15'</td>
+        <td>'15a'</td>
+        <td>'1'</td>
+        <td>''</td>
+        <td><b style="color:red">TypeError</b></td>
+        <td><b style="color:red">TypeError</b></td>
+    </tr>
+    <tr>
+        <td><span class="fp-code">bool</span></td>
+        <td>true</td>
+        <td>true</td>
+        <td>true</td>
+        <td>true</td>
+        <td>true</td>
+        <td>false</td>
+        <td><b style="color:red">TypeError</b></td>
+        <td><b style="color:red">TypeError</b></td>
+    </tr>
+</table>
+			<p class="fp-puce">(*) : La conversion d'une valeur réelle non entière en int (ici <span class="fp-code">17.2</span>) déclenche une erreur <i>"Deprecated Implicit conversion from float to int loses precision"</i> qui n'arrête pas le script.
+			</p>
+
+			<p class="fp-remarque">
+				Ces conversions réalisées à l'entrée et à la sortie d'une fonction <b>ne sont pas des transtypages</b>. Par exemple,
+				le transtypage de la chaine <span class="fp-code">'15a'</span> en <span class="fp-code">int</span> donne l'entier
+				<span class="fp-code">15</span> et ne lance pas une <a href="https://www.php.net/manual/en/class.typeerror.php" target="_blank">TypeError</a>.
+			</p>
+
+			<p class="fp-puce">
+				Les résultats du tableau ci-dessus ont été obtenus en utilisant les 2 scripts suivants.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : Déclaration de type des paramètres
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Déclaration de type des paramètres&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function f1 (int $a) : void { // modifiez le type du paramètre
+	var_dump($a);
+}
+
+
+echo '&lt;pre&gt;';
+
+f1(15);
+f1(17.2);
+f1('15');
+f1('15a');
+f1(true);
+f1(false);
+f1(null);
+f1(array(1, 2));
+f1((object)array(1, 2));
+
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p class="fp-remarque">
+				Le type <span class="fp-code">void</span> n'est utilisable que pour le type de la valeur de retour d'une fonction (i.e. il ne
+				l'est pas pour le type d'un paramètre). Il indique que la fonction ne renvoie pas de valeur.
+			</p>
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : Déclaration de type de la valeur de retour
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Déclaration de type de la valeur de retour&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+function f2 (mixed $a): int { // modifiez le type de la valeur
+	return $a;                // de retour
+}
+
+
+echo '&lt;pre&gt;';
+
+var_dump(f2(15));
+var_dump(f2(17.2));
+var_dump(f2('15'));
+var_dump(f2('15a'));
+var_dump(f2(true));
+var_dump(f2(false));
+var_dump(f2(null));
+var_dump(f2(array(1, 2)));
+var_dump(f2((object)array(1, 2)));
+
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		<p class="fp-remarque">
+			Avec le type <span class="fp-code">mixed</span>, il n'y a pas de conversion de type effectuée par PHP. Déclarer qu'un paramètre ou une valeur de retour est du type mixed, est fonctionnellement équivalent à ne pas déclarer de type. L'avantage du type <span class="fp-code">mixed</span> est qu'il permet de déclarer explicitement que le paramètre ou la valeur de retour peuvent être
+			de n'importe quel type.
+		</p>
+
+		<h3>Le type nullable</h3>
+
+		<section>
+
+		<p>
+		Les déclarations de type peuvent être marquées
+		comme <em>nullable</em> en préfixant le nom du type avec un
+		point d'interrogation (<span class="fp-code">?</span> ). Cela signifie que le paramètre, ou la valeur de retour,
+		peuvent être du type spécifié ou égal à <span class="fp-code">NULL</span>.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : le type nullable
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Le type nullable&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+echo '&lt;pre&gt;';
+
+function f1 (?int $a): void{
+	var_dump($a);
+}
+
+f1(null);
+f1('  15   ');
+f1('  15a');
+
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+			<p>  Autre exemple :
+			</p>
+
+			<pre data-code="PHP">
+function f2 (): ?string {
+	if (isset($_GET['id'])){
+		return 'OK';
+	}
+	return null;
+}</pre>
+		</section>
+
+		<a id="union"></a>
+		<h3>Les unions de types</h3>
+
+		<section>
+
+		<p class="fp-puce">
+		Les unions de types permettent de spécifier qu’un
+		paramètre ou une valeur de retour peuvent être d’un des
+		types de l’union.
+		</p>
+
+		<p class="fp-puce">
+		Les unions de types sont spécifiés avec la syntaxe : <span class="fp-code">T1|T2|T3|...</span>
+		</p>
+
+		<p class="fp-puce">
+		Le type <span class="fp-code">null</span> peut faire partie de l’union, ce qui permet de
+		créer une union <em>nullable</em>. Exemple : <span class="fp-code">int|float|null</span>
+		</p>
+
+		<p class="fp-remarque">
+		Le type <span class="fp-code">?T</span> est donc un raccourci du type <span class="fp-code">T|null</span>.
+		</p>
+
+		<p class="fp-remarque">
+		<span class="fp-code">null</span> ne peut pas être utilisé comme un type seul.
+		</p>
+
+		<p class="fp-puce">
+		Le type littéral <span class="fp-code">false</span> peut également être inclus dans une
+		union de type. Ce type littéral a été ajouté pour des raisons "historiques" étant donné que de nombreuses fonctions PHP retournent
+		le valeur booléenne <span class="fp-code">false</span>, au lieu de retourner <span class="fp-code">null</span>. Exemple :
+		la fonction
+		<a href="https://www.php.net/manual/en/function.strpos.php" target="_blank">strpos()</a>
+		</p>
+
+		<p class="fp-remarque">
+		Le type littéral <span class="fp-code">true</span> a également été ajouté dans PHP8.2.
+		</p>
+
+		<p class="fp-remarque">
+		Les types littéraux <span class="fp-code">true</span> et <span class="fp-code">false</span> ne peuvent pas être utilisés ensemble dans une union de types. Il faut utiliser le type <span class="fp-code">bool</span> à la place.
+		</p>
+
+
+
+		<p>  Exemples :
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : unions de types
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Unions de types&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+echo '&lt;pre&gt;';
+
+function f (int|float $a, int|float $b): int|float|false {
+	if ($b == 0){
+		return false;
+	}
+	return $a/$b;
+}
+
+var_dump(f(6, 0));
+var_dump(f(6, 3));
+var_dump(f(6, 4));
+var_dump(f(15.3, 5.1)); // met en évidence les problèmes
+						// de précision qui peuvent
+						// apparaître quand on fait
+						// des calculs avec des réels
+
+
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+
+			<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : unions de types
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Unions de types&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+
+function f (array|string $a): void {
+	if (is_array($a)){
+		foreach($a as $v){
+			echo $v, '&lt;br&gt;';
+		}
+	}
+	else{ //$a est une chaîne
+		echo $a;
+	}
+}
+
+f('test');
+echo '&lt;hr&gt;';
+f(array('one', 'two'));
+
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+
+		<p class="bottom0">
+		Pour les valeurs de type scalaire, si le type de la valeur n’est
+		pas trouvé dans l’union, son type cible est choisi suivant
+		l’ordre de préférence suivant :<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;1. <span class="fp-code">int</span><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;2. <span class="fp-code">float</span><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;3. <span class="fp-code">string</span><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;4. <span class="fp-code">bool</span><br>
+
+		<p>
+		Le type cible choisi est le premier type existant dans l’union
+		dans lequel la valeur peut être convertie sans lancer une
+		<a href="https://www.php.net/manual/en/class.typeerror.php" target="_blank">TypeError</a>.
+		</p>
+
+		<p class="fp-remarque">
+		Il y a une exception à cette règle : si la valeur est une chaîne de caractère numérique et que <span class="fp-code">int</span> et
+		<span class="fp-code">float</span>
+		font partie de l'union, alors le type cible est choisi en fonction des sémantiques de “chaîne numérique”. Par exemple, pour "42"
+		<span class="fp-code">int</span> est choisi, tandis que pour "42.0" <span class="fp-code">float</span> est choisi.
+		</p>
+
+		<form action="" method="post" class="TEST-form">
+				<div class="TEST-titre">
+					<strong>Exemple</strong> : conversions et unions de types
+				</div>
+				<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;&lt;title&gt;Conversions et unions de types&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;?php
+echo '&lt;pre&gt;';
+
+function f (int|float|bool $a): void{
+	var_dump($a);
+}
+
+
+f('  15   ');
+f('17.0  ');
+f('  15a');
+
+echo '&lt;/pre&gt;';
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+			</form>
+
+		<p class="fp-remarque">
+			Le type <span class="fp-code">void</span> ne peut pas faire partie d'une union de types.<br>
+			Rappel : le type <span class="fp-code">void</span> est exclusivement un type de valeur de retour.
+		</p>
+
+		<p class="fp-remarque">
+			Le type <span class="fp-code">mixed</span> est équivalent à l'union de types :
+			<span class="fp-code"> object|resource|array|string|int|float|bool|null</span>.<br>
+			Rappel : le type <span class="fp-code">mixed</span> indique que le paramètre ou la valeur de retour peuvent être de n’importe quel
+			type.
+		</p>
+
+
+		</section>
+
+
+		<a id="exo_declaration_type"></a>
+		<h3 class="fp-exo">Exercice : fonction calculer</h3>
+		<section>
+			<p>
+				Modifiez la fonction <span class="fp-code">calculer()</span> de
+				l'exercice précédent en ajoutant des déclarations de type pour les paramètres formels
+				et pour la valeur de retour.
+			</p>
+
+			<p class="fp-solution">
+				<a onclick="top.FP.Voir.showSolution('exo_declaration_type_solu', 1)">Une
+					solution possible</a>
+			</p>
+
+			<div id="exo_declaration_type_solu" class="BLOC-solution">
+				<form action="" method="post" class="TEST-form">
+					<div class="TEST-titre">
+						<strong>Exercice</strong> : valeur de retour
+					</div>
+					<textarea name="txtCode" class="TEST-textarea">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+  &lt;head&gt;
+    &lt;title&gt;Calculer&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+&lt;?php
+function calculer(string $operateur,
+                  int|float ...$operandes): int|float|string {
+	$n = count($operandes);
+	if ($n == 0){
+		return 'Pas d\'opérande.';
+	}
+
+	if ($operateur == '+') {
+		$resultat = 0;
+	} elseif ($operateur == '*') {
+		$resultat = 1;
+	} else {
+		return 'L\'operateur "'. $operateur .
+		   '" n\'est pas supporté.';
+	}
+
+
+	for ($i = 0; $i &lt; $n; $i++) {
+		($operateur == '+') ? $resultat += $operandes[$i]
+		                    : $resultat *= $operandes[$i];
+
+	}
+	return $resultat;
+}
+
+echo '&lt;hr&gt;', calculer('+', 1, 2 ,3, 4.4);
+
+echo '&lt;hr&gt;', calculer('*', 1, 2, 3, 4);
+
+echo '&lt;hr&gt;', calculer('+', 4);
+
+echo '&lt;hr&gt;', calculer('+');
+
+echo '&lt;hr&gt;', calculer('-', 1, 2, 3, 4);
+
+echo '&lt;hr&gt;', calculer(true, 1, 2, 3, 4);
+
+echo '&lt;hr&gt;', calculer('+', 1, 'deux', 3);
+?&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</textarea>
+				</form>
+
+
+			<p class="fp-puce">
+				Dans le corps de la fonction, cela ne sert plus à rien de vérifier que les
+				opérandes sont bien numériques
+				(avec la fonction
+				<a href="https://www.php.net/manual/en/function.is-numeric" target="_blank">is_numeric()</a>)
+				. Si on tente d'appeler la fonction <span class="fp-code">calculer()</span> en lui transmettant
+				un opérande non numérique, une <a href="https://www.php.net/manual/en/class.typeerror.php" target="_blank">TypeError</a>
+				est déclenchée. En transtypant la chaîne <span class="fp-code">'deux'</span> en <span class="fp-code">float</span> avant l'appel de la fonction, l'erreur fatale disparaît.
+			</p>
+
+			<p class="fp-puce">
+				La conversion de type de la valeur booléenne <span class="fp-code">true</span> en <span class="fp-code">string</span>
+				donne la chaîne <span class="fp-code">'1'</span> qui est différente des chaînes <span class="fp-code">'+'</span> et
+				<span class="fp-code">'*'</span>. Dans le corps de la fonction, pour comparer le paramètre
+				<span class="fp-code">$operateur</span> aux chaînes littérales <span class="fp-code">'+'</span> et
+				<span class="fp-code">'*'</span>, on peut se contenter d'utiliser l'opérateur de comparaison d'égalité
+				(qui réalise une comparaison <strong>non stricte</strong>), puisque la conversion de type est, si besoin, réalisée à l'entrée dans la fonction, et que l'on est certain, dans le corps de la fonction, que l'opérateur <span class="fp-code">==</span> est utilisé pour 2 <span class="fp-code">string</span>, dont l'une n'est pas numérique : une comparaison lexicographique est donc réalisée.
+			</p>
+
+			</div>
+
+
+
+		</section>
+
+	</div>
+	<footer></footer>
+</body>
+</html>
