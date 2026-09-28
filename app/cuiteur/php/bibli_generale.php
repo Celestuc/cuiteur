@@ -7,7 +7,7 @@
  * Les noms des fonctions respectent la notation camel case.
  *
  * Ils commencent en général par un terme définisant le "domaine" de la fonction :
- *  aff   la fonction affiche du code html / texte destiné au navigateur
+ *  aff   la fonction affiche (avec echo) du code html / texte destiné au navigateur
  *  html  la fonction renvoie du code html / texte avec une instruction return à la fonction appelante
  *  bd    la fonction gère la base de données
  *
@@ -25,6 +25,7 @@ if (IS_DEV){
     ini_set('display_startup_errors', '1');
     error_reporting( E_ALL );
 }
+
 
 //____________________________________________________________________________
 /**
@@ -159,121 +160,156 @@ function bdSendRequest(mysqli $bd, string $sql): mysqli_result|bool {
     }
 }
 
-
-function affDebut(string $titre,string $css ='style.css') :void{
-    echo    '<!DOCTYPE html>',
-            '<html lang="fr">',
-            '<head>',
-                '<meta charset="utf-8">',
-                '<title>',$titre,'</title>',
-                '<link rel="stylesheet" type="text/css" href="',$css,'">',
-            '</head>',
-            '<body>';
+//_______________________________________________________________
+/**
+ * Affichage du début de la page HTML (jusqu'au tag ouvrant de l'élément body).
+ *
+ * @param  string   $titre       le titre de la page
+ * @param  ?string  $stylesheet  le chemin vers la feuille de style
+ *
+ * @return void
+ */
+function affDebut(string $titre, ?string $stylesheet = null) : void {
+    echo
+        '<!doctype html>',
+        '<html lang="fr">',
+        '<head>',
+            '<title>', $titre, '</title>',
+            '<meta charset="UTF-8">',
+            $stylesheet !== null ? "<link rel='stylesheet' type='text/css' href='$stylesheet'>" : '',
+        '</head>',
+        '<body>';
 }
 
-function affFin(){ 
-    echo    '</body>',
-            '</html>';
+//_______________________________________________________________
+/**
+ * Affichage de la fin de la page HTML.
+ *
+ * @return void
+ */
+function affFin() : void {
+    echo
+        '</body></html>';
 }
 
-
-function affTeteUt(){
-    echo    '<h1>Liste des utilisateurs de Cuiteur</h1>';
-}
-
-function affTeteBl(){
-    echo    '<h1>Les blablas de jobs</h1>';
-}
-
-function affListeUt(array $liste){
-    echo    '<h2>Utilisateur ', $liste['utID'],'</h2>',
-            '<ul>',
-                '<li>Pseudo: ',$liste['utPseudo'],'</li>',
-                '<li>PrenomNom: ',$liste['utPrenomNom'],'</li>',
-                '<li>Ville: ',$liste['utVille'],'</li>',
-                '<li>Mail: ',$liste['utMail'],'</li>',
-                '<li>Bio: ',$liste['utBio'],'</li>',
-                '<li>DateNaissance: ',affConvertDate($liste['utDateNaissance']),'</li>',
-                '<li>DateInscription: ',affConvertDate($liste['utDateInscription']),'</li>',
-                '<li>Civilite: ',$liste['utCivilite'],'</li>',
-            '</ul>';
-}
-
-function convertDate(string $date){
-    $anne=substr($date,0,4);
-    $mois=(int)substr($date,4,2);
-    $jour=(int)substr($date,6,2);
-
-
-
-
-    switch ($mois){
-        case 1 :
-           $moisStr='Janvier';
-           break;
-        case 2 :
-            $moisStr='Février';
-            break;
-        case 3 :
-            $moisStr='Mars';
-            break;
-        case 4 :
-            $moisStr='Avril';
-            break;
-        case 5 :
-            $moisStr='Mai';
-            break;
-        case 6 :
-            $moisStr='Juin';
-            break;
-        case 7 :
-            $moisStr='Juillet';
-            break;
-        case 8 :
-            $moisStr='Aout';
-            break;
-        case 9 :
-            $moisStr='Septembre';
-            break;
-        case 10 :
-            $moisStr='Octobre';
-            break;
-        case 11 :
-            $moisStr='Novembre';
-            break;
-        case 12 :
-            $moisStr='Décembre';
-            break;
-        default:
-            $moisStr='Janvier';
+//___________________________________________________________________
+/**
+ *  Protection des sorties (code HTML généré à destination du client).
+ *
+ *  Fonction à appeler pour toutes les chaines provenant de :
+ *      - de saisies de l'utilisateur (formulaires)
+ *      - de la bdD
+ *  Permet de se protéger contre les attaques XSS (Cross site scripting)
+ *  Convertit tous les caractères éligibles en entités HTML, notamment :
+ *      - les caractères ayant une signification spéciales en HTML (<, >, ...)
+ *      - les caractères accentués
+ *
+ *  Si on lui transmet un tableau, la fonction renvoie un tableau où toutes les chaines
+ *  qu'il contient sont protégées, les autres données du tableau ne sont pas modifiées.
+ *
+ * @param  array|string  $content   la chaine à protéger ou un tableau contenant des chaines à protéger
+ *
+ * @return array|string             la chaîne protégée ou le tableau
+ */
+function htmlProtegerSorties(array|string $content): array|string {
+    if (is_array($content)) {
+        foreach ($content as &$value) {
+            if (is_array($value) || is_string($value)){
+                $value = htmlProtegerSorties($value);
+            }
+        }
+        unset ($value); // à ne pas oublier (de façon générale)
+        return $content;
     }
-return $jour .' '. $moisStr .' '. $anne;
-
+    // $content est de type string
+    return htmlentities($content, ENT_QUOTES, encoding:'UTF-8');
 }
 
-function convertHeure(string $heure){
-    $heure=substr($heure,0,5);
-    $heure=str_replace(':','h',$heure);
-    return $heure;
+
+//___________________________________________________________________
+/**
+ * Renvoie un tableau contenant le nom des mois (utile pour certains affichages)
+ *
+ * @return array    Tableau à indices numériques contenant les noms des mois
+ */
+function getArrayMonths() : array {
+    return array('janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
 }
 
-function affListeBl(array $liste){
-    if ($liste == null){
-        echo 'L\'utilisateur n\'a pas envoyer de message';
+
+//_______________________________________________________________
+/**
+* Transformation d'une date au format AAAAMMJJ vers le format JJ mois AAAA (1 janvier 2026)
+*
+* Aucune vérification n'est faite sur la validité de la date car
+* on considère que c'est bien une date valide sous la forme AAAAMMJJ
+*
+* @param  int       $amj    La date sous la forme AAAAMMJJ
+*
+* @return string            La date sous la forme JJ mois AAAA
+*/
+function dateFormat(int $amj):string {
+    $jj = (int)substr($amj, -2);
+    $mm = (int)substr($amj, -4, 2);
+
+    return $jj.' '.getArrayMonths()[$mm-1].' '.substr($amj, 0, -4); //fonctionne même si l'année est inférieure à 1000
+}
+
+
+//___________________________________________________________________
+/**
+ * Teste si une valeur est une valeur entière
+ *
+ * @param   mixed    $x     valeur à tester
+ *
+ * @return  bool     true si valeur entiere, false sinon
+ */
+function estEntier(mixed $x):bool {
+    return is_numeric($x) && ($x == (int) $x);
+}
+
+//_______________________________________________________________
+/**
+* Transformation d'une heure au format HH:MM:SS vers le format HHhMM (exemple : 9h08)
+*
+*
+* @param    string  $heure  L'heure sous la forme HH:MM:SS
+*
+* @return   string          L'heure sous la forme HHhMM
+*/
+function heureFormat(string $heure):string {
+
+    $h = (int)substr($heure, 0, 2);
+    $m = substr($heure, 3, 2);
+    if (! estEntier($m)){ //$heure est une chaîne provenant de la BdD, donc méfiance
+        $m = '00';
     }
-    else{
-        $pseudo    = htmlspecialchars($liste['utPseudo'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $texte     = htmlspecialchars($liste['blTexte'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $prenomNom = htmlspecialchars($liste['utPrenomNom'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-
-        echo    '<ul>','<li>'
-                ,'<Strong>',$pseudo,'</Strong>',' ',$prenomNom,
-                '<br>',$texte,
-                '<br>',convertDate($liste['blDate']),' à ',
-                convertHeure($liste['blHeure']),
-                '</li>','</ul>';
-    }
+    return "{$h}h{$m}";
 }
 
 
+//_______________________________________________________________
+/**
+* Retourne le code HTML d'un élément a
+*
+* @param string     $url            url du lien
+* @param string     $supportLien    support du lien
+* @param array      $queryString    couples 'cle=valeur' présents dans la query string
+* @param ?string    $title          info bulle
+*
+* @return string    Le code HTML du lien
+*
+*/
+function htmlLien(string $url, string $supportLien, array $queryString = [], ?string $title=null){
+    $title = ($title !== null) ? " title='$title'" : '';
+    $queryStringStr = '';
+    if (count($queryString) > 0){
+        $queryStringStr = '?';
+        foreach($queryString as $cle => $val){
+            $queryStringStr .= "$cle=". urlencode($val) .'&';
+        }
+        $queryStringStr = substr($queryStringStr, 0, -1);
+    }
+    return "<a href='{$url}{$queryStringStr}'{$title}>{$supportLien}</a>";
+}
 

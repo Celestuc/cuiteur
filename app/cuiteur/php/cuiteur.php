@@ -9,50 +9,20 @@ ob_start();
 
 $bd = bdConnect();
 
-define('ID_USER_CONNECTER', 7);
+// génération de la page
+affDebutMenuInfos('Accueil');
+affFormPublier();
+$blablas = bdGetBlablas();
 
-affDebut('Cuiteur | Accueil','../styles/cuiteur.css');
+mysqli_close($bd); // fermée dès que possible
 
-affDebutMenuInfos('Accueil', true);
+affBlablas($blablas);
+affPiedFin();
 
-echo '<section>',
-        '<h2>Publication d\'un nouveau blabla</h2>',
-        '<form action="cuiteur.php" method="post">',
-            '<textarea name="txtMessage"></textarea>',
-            '<footer>',
-                '<input type="submit" name="btnPublier" value="Publier">',
-            '</footer>',
-        '</form>',
-      '</section>';
+// facultatif car fait automatiquement par PHP
+ob_end_flush();
 
-$sql = $sql = "
-    (
-        SELECT b.blID, b.blTexte, b.blDate, b.blHeure, b.blIDParent, b.blIDAuteur , u.utPseudo, u.utPrenomNom,
-               (SELECT COUNT(*) FROM blabla rep WHERE rep.blIDParent = b.blID) AS nbReponses
-        FROM blabla b
-        INNER JOIN utilisateur u ON b.blIDAuteur = u.utID
-        WHERE b.blIDAuteur = " . ID_USER_CONNECTER . "
-    )
-    UNION
-    (
-        SELECT b.blID, b.blTexte, b.blDate, b.blHeure, b.blIDParent, b.blIDAuteur, u.utPseudo, u.utPrenomNom,
-               (SELECT COUNT(*) FROM blabla rep WHERE rep.blIDParent = b.blID) AS nbReponses
-        FROM blabla b
-        INNER JOIN utilisateur u ON b.blIDAuteur = u.utID
-        INNER JOIN estabonne a ON b.blIDAuteur = a.eaIDUtilisateur
-        WHERE a.eaIDAbonne = " . ID_USER_CONNECTER . "
-    )
-    ORDER BY blDate DESC, blHeure DESC
-";
-$res = bdSendRequest($bd, $sql);
 
-affBlablas($res);
-mysqli_free_result($res);
 
-echo    '</main>',
-        '<footer>',
-            '&copy; Licence Informatique - Septembre 2026 - Tous droits réservés',
-        '</footer>',
-    '</div>';
 
-affFin();
+
