@@ -10,19 +10,9 @@ ob_start();
 $bd = bdConnect();
 
 // génération de la page
-affDebutMenuInfos('Accueil'); 
-affFormPublier();
-$blablas = bdGetBlablas();
+affDebutMenuInfos('Reponses');
 
-mysqli_close($bd); // fermée dès que possible
+echo 'bonjour'. htmlspecialchars($_GET["blID"]);
 
-affBlablas($blablas);
 affPiedFin();
-
-// facultatif car fait automatiquement par PHP
-ob_end_flush();
-
-
-
-
 

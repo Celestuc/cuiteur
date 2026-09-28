@@ -165,7 +165,7 @@ function htmlAvatar(int $id, string $pseudo) : string{
 /**
  * Affiche le code HTML d'un blabla
  *
- * @param  array  $t    tableau associatif contenant les caractéristiques d'un blabla
+ * @param  array  $t    tableau associatif contenant les caractéristiques d'un blabla dont les clés sont égales aux champs de la clause SELECT de la fonction bdGetBlablas()
  *
  * @return void
  */
@@ -240,6 +240,8 @@ function bdGetBlablas() : array {
 
             ORDER BY blID1 DESC';
 
+// WHERE blID=IDblablas
+
     $res = bdSendRequest($GLOBALS['bd'], $sql);
     $tab = [];
     while($t = mysqli_fetch_assoc($res)){
@@ -248,3 +250,13 @@ function bdGetBlablas() : array {
     mysqli_free_result($res);
     return $tab;
 }
+
+
+function affBlablasInit(array $t) : void{
+    echo    '<section>',
+                '<h2>Blabla initial</h2>',affUtilisateur($t['utID'], $t['utPseudo'], $t['utPrenomNom']);
+            '</section>';
+
+}
+
+function affReponse(){}
