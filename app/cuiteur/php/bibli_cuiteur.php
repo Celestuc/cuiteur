@@ -11,6 +11,12 @@ define('BD_PASS', 'cuiteur_pass'); // mot de passe de l'utilisateur de la base
 
 define('UT_ID_CONNECTE', 7);  // à supprimer dans le projet
 
+// constantes utilisées pour le paramètre $type de la fonction bdGetBlablas()
+define('BLABLAS_CUITEUR', 1);
+define('BLABLAS_REPONSES', 2);
+define('BLABLA_INITIAL', 3);
+
+
 //_______________________________________________________________
 /**
  * Affichage du début de la page HTML, du menu et du bloc d'informations
@@ -40,6 +46,7 @@ function affDebutMenuInfos(string $titre, bool $connecte = true) : void {
     }
     echo    '<main>';
 }
+
 
 //_______________________________________________________________
 /**
@@ -112,60 +119,69 @@ _HTML_;
 
 //_______________________________________________________________
 /**
- * Affichage du formulaire de publication d'un nouveau blabla
+ * Affichage du formulaire de publication d'un nouveau blabla (blabla original ou réponse)
+ *
+ * @param   string  $titre          titre h2 de la section
  *
  * @return void
  */
-function affFormPublier(): void{
+function affFormPublier(string $titre): void{
     echo
     '<section>',
-        '<h2>Publication d\'un nouveau blabla</h2>',
-        '<form action="cuiteur.php" method="post">',
+        '<h2>', $titre, '</h2>',
+        '<form action="', basename($_SERVER['PHP_SELF']), '" method="post">',
             '<textarea name="txtMessage"></textarea>',
             '<footer><input type="submit" name="btnPublier" value="Publier"></footer>',
         '</form>',
     '</section>';
 }
 
+
 //_______________________________________________________________
 /**
  * Affiche l'avatar, le pseudo sous la forme d'un lien vers la page utilisateur.php, et le prénom et le nom de l'utilisateur
  *
- * @param  int      $id         identifiant de l'utilisateur
- * @param  string   $pseudo     pseudo de l'utilisateur
- * @param  string   $prenomNom  prénom et nom de l'utilisateur
+ * @param   int     $id         identifiant de l'utilisateur
+ * @param   string  $pseudo     pseudo de l'utilisateur
+ * @param   string  $prenomNom  prénom et nom de l'utilisateur
  *
  * @return void
  */
 function affUtilisateur(int $id, string $pseudo, string $prenomNom) : void{
     $pseudoProtege = htmlProtegerSorties($pseudo);
-    echo    htmlAvatar($id, $pseudo), '@',
+    echo    htmlAvatar($id, $pseudo, $prenomNom), '@',
             htmlLien('utilisateur.php', "<strong>$pseudoProtege</strong>", ['utID'=> $id], "Voir le profil et les blablas de @$pseudoProtege"), ' ',
             htmlProtegerSorties($prenomNom);
 }
 
 //_______________________________________________________________
 /**
-/**
  * Retourne le code HTML d'un avatar
  *
- * @param int       $id             identifiant de l'utilisateur
- * @param string    $pseudo         pseudo de l'utilisateur
+ * @param   int     $id         identifiant de l'utilisateur
+ * @param   string  $pseudo     pseudo de l'utilisateur
+ * @param   string  $prenomNom  prénom et nom de l'utilisateur
  *
  * @return string   Code HTML
 */
-function htmlAvatar(int $id, string $pseudo) : string{
-    $refImage = "../upload/{$id}.jpg";
+function htmlAvatar(int $id, string $pseudo, string $prenomNom) : string{
+    if (!is_file("../upload/{$id}.jpg")) {
+        $prenomNom = trim($prenomNom);
+        $lettre = mb_strlen($prenomNom, encoding:'UTF-8') > 0 ?
+                  htmlProtegerSorties(mb_strtoupper(mb_substr($prenomNom, 0, 1, encoding:'UTF-8'), encoding:'UTF-8')) : '?';
+        return "<span class='avatar'>$lettre</span>";
+    }
     $pseudoProtege = htmlProtegerSorties($pseudo);
+    $refImage = "../upload/{$id}.jpg";
     return "<img src='{$refImage}' alt='avatar @{$pseudoProtege}' class='avatar'>";
 }
-
 
 //_______________________________________________________________
 /**
  * Affiche le code HTML d'un blabla
  *
- * @param  array  $t    tableau associatif contenant les caractéristiques d'un blabla dont les clés sont égales aux champs de la clause SELECT de la fonction bdGetBlablas()
+ * @param  array  $t    tableau associatif contenant les caractéristiques d'un blabla
+ *                      dont les clés sont égales aux champs de la clause SELECT de la fonction bdGetBlablas()
  *
  * @return void
  */
@@ -210,53 +226,103 @@ function affBlablas(array $blablas) : void{
 
 //_______________________________________________________________
 /**
-* Envoie la requête SQL au serveur de BdD permettant de récupérer les caractéristiques des blablas du fil de l'utilisateur connecté
+* Sélectionne dans la BdD le ou les blablas à afficher.
 *
-* @return  tableau à indices numériques de blablas (les caractéristiques de chaque blabla sont mémorisées dans un tableau associatif)
+* @param int  $type       Indique quels sont le ou les blablas à sélectionner :
+*                           - BLABLAS_CUITEUR pour les blablas du fil de l'utilisateur connecté (page cuiteur.php)
+*                           - BLABLAS_REPONSES pour les réponses à un blabla initial (page reponses.php)
+*                           - BLABLA_INITIAL pour sélectionner les informations d'un blabla précis (blabla initial
+*                             de la page reponses.php)
+* @param int  $cle        Clé utilisée dans le select suivant $type, soit
+*                           - non utilisée quand $type = BLABLAS_CUITEUR
+*                           - ID du blabla initial quand $type = BLABLAS_REPONSES ou BLABLA_INITIAL
+*
+* @return   ?array        - tableau à indices numériques de blablas (les caractéristiques de chaque blabla
+*                           sont mémorisées dans un tableau associatif) quand $type = BLABLAS_CUITEUR ou BLABLAS_REPONSES
+*                         - quand $type = BLABLA_INITIAL, tableau associatif contenant les caractéristiques du blabla
+*                           initial, ou null si le blabla initial n'existe pas
 */
-function bdGetBlablas() : array {
+function bdGetBlablas(int $type, ?int $cle = null) : ?array {
+
+    //-----------------------------------------------------------
+    // Factorisation d'éléments communs
 
     // La clause SELECT des requêtes est identique partout.
     // => on la met dans une variable. En cas de modification des
     // champs sélectionnés, il y a un seul endroit à modifier.
-
     $select = 'SELECT   b1.blID as blID1, b1.blTexte as blTexte1, b1.blDate as blDate1, b1.blHeure as blHeure1,
                         utID, utPseudo,utPrenomNom, COUNT(b2.blID) AS NB_REPONSES';
 
-    $sql=  "$select
-            FROM    ((utilisateur INNER JOIN blabla as b1 ON b1.blIDAuteur = utID)
-            LEFT OUTER JOIN blabla AS b2 ON b2.blIDParent = b1.blID)
-            WHERE   utID = " . UT_ID_CONNECTE . " AND b1.blIDParent IS NULL
-            GROUP BY b1.blID
+    switch ($type) {
+    case BLABLAS_CUITEUR :
+        $utID = UT_ID_CONNECTE;
+        $sql = "$select
+                FROM    ((utilisateur INNER JOIN blabla as b1 ON b1.blIDAuteur = utID)
+                LEFT OUTER JOIN blabla AS b2 ON b2.blIDParent = b1.blID)
+                WHERE   utID = $utID AND b1.blIDParent IS NULL
+                GROUP BY b1.blID
+                UNION
+                $select
+                FROM    (((utilisateur INNER JOIN blabla as b1 ON b1.blIDAuteur = utID)
+                INNER JOIN estabonne ON eaIDAbonne = b1.blIDAuteur)
+                LEFT OUTER JOIN blabla AS b2 ON b2.blIDParent = b1.blID)
+                WHERE   eaIDUtilisateur = $utID AND b1.blIDParent IS NULL
+                GROUP BY b1.blID
+                ORDER BY blID1 DESC";
+        break;
+    case BLABLAS_REPONSES:
+        $sql = "$select
+                FROM    ((utilisateur INNER JOIN blabla as b1 ON b1.blIDAuteur = utID)
+                LEFT OUTER JOIN blabla AS b2 ON b2.blIDParent = b1.blID)
+                WHERE   b1.blIDParent = $cle
+                GROUP BY b1.blID
+                ORDER BY blID1 DESC";
+        break;
 
-            UNION
+    case BLABLA_INITIAL:
+        $sql = "$select
+                FROM    ((utilisateur INNER JOIN blabla as b1 ON b1.blIDAuteur = utID)
+                LEFT OUTER JOIN blabla AS b2 ON b2.blIDParent = b1.blID)
+                WHERE   b1.blID = $cle
+                GROUP BY b1.blID"; // nécessaire pour que la requête renvoie aucun enregistrement quand le blabla n'existe pas
+        break;
 
-            $select
-            FROM    (((utilisateur INNER JOIN blabla as b1 ON b1.blIDAuteur = utID)
-            INNER JOIN estabonne ON eaIDAbonne = b1.blIDAuteur)
-            LEFT OUTER JOIN blabla AS b2 ON b2.blIDParent = b1.blID)
-            WHERE   eaIDUtilisateur = " . UT_ID_CONNECTE . ' AND b1.blIDParent IS NULL
-            GROUP BY b1.blID
-
-            ORDER BY blID1 DESC';
-
-// WHERE blID=IDblablas
+    default:
+        return null;
+    }
 
     $res = bdSendRequest($GLOBALS['bd'], $sql);
-    $tab = [];
-    while($t = mysqli_fetch_assoc($res)){
-        $tab[] = $t;
+    if ($type == BLABLA_INITIAL){
+        // Dans ce cas, $res (objet de type mysqli_result) contient 1 ligne ou 0 ligne.
+        // Il n'est donc pas nécessaire d'utiliser une boucle while($t = mysqli_fetch_assoc($res)) pour
+        // accéder à toutes les lignes. Un seul appel de mysqli_fetch_assoc() suffit.
+        // mysqli_fetch_assoc() renvoie null si le blabla initial n'existe pas dans la base de données.
+        $tab = mysqli_fetch_assoc($res);
+    }
+    else {
+        $tab = [];
+        while($t = mysqli_fetch_assoc($res)){
+            $tab[] = $t;
+        }
     }
     mysqli_free_result($res);
     return $tab;
 }
 
-
-function affBlablasInit(array $t) : void{
-    echo    '<section>',
-                '<h2>Blabla initial</h2>',affUtilisateur($t['utID'], $t['utPseudo'], $t['utPrenomNom']);
-            '</section>';
-
+//_______________________________________________________________
+/**
+ * Affichage d'un message d'erreur dans une section.
+ *
+ * @param  string  $msg    le message d'erreur à afficher.
+ * @param  string  $titre  titre h2 dans la section
+ *
+ * @return void
+ */
+function affSectionErreur(string $message, string $titre = 'Oups, il y a eu une erreur...') : void {
+    echo
+        '<section>',
+            '<h2>', $titre, '</h2>',
+            '<p class="erreur">', $message, '</p>',
+        '</section>';
 }
 
-function affReponse(){}

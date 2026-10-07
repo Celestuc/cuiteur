@@ -26,7 +26,6 @@ if (IS_DEV){
     error_reporting( E_ALL );
 }
 
-
 //____________________________________________________________________________
 /**
  * Arrêt du script si erreur de base de données
@@ -287,7 +286,6 @@ function heureFormat(string $heure):string {
     return "{$h}h{$m}";
 }
 
-
 //_______________________________________________________________
 /**
 * Retourne le code HTML d'un élément a
@@ -313,3 +311,43 @@ function htmlLien(string $url, string $supportLien, array $queryString = [], ?st
     return "<a href='{$url}{$queryStringStr}'{$title}>{$supportLien}</a>";
 }
 
+//___________________________________________________________________
+/**
+ * Contrôle des clés présentes dans les tableaux $_GET ou $_POST - piratage ?
+ *
+ * Soit $cles l'ensemble des clés contenues dans $_GET ou $_POST
+ * L'ensemble des clés obligatoires doit être inclus dans $cles.
+ * De même $cles doit être inclus dans l'ensemble des clés autorisées,
+ * formé par l'union de l'ensemble des clés facultatives et de
+ * l'ensemble des clés obligatoires. Si ces 2 conditions sont
+ * vraies, la fonction renvoie true, sinon, elle renvoie false.
+ * Dit autrement, la fonction renvoie false si une clé obligatoire
+ * est absente ou si une clé non autorisée est présente; elle
+ * renvoie true si "tout va bien"
+ *
+ * @param string    $tabGlobal          'post' ou 'get'
+ * @param array     $clesObligatoires   tableau à indices numériques contenant les clés qui doivent
+ *                                      obligatoirement être présentes
+ * @param array     $clesFacultatives   tableau à indices numériques contenant les clés facultatives
+ *
+ * @return bool                         true si les paramètres sont corrects, false sinon
+ */
+function parametresControle(string $tabGlobal, array $clesObligatoires, array $clesFacultatives = []): bool{
+    $cles = array_keys(strtolower($tabGlobal) == 'post' ? $_POST : $_GET);
+
+    // vérifie que toutes les clés obligatoires sont présentes
+    foreach($clesObligatoires as $v){
+        if (! in_array($v, $cles)){
+            return false;
+        }
+    }
+
+    $clesAutorisees = array_merge($clesObligatoires, $clesFacultatives);
+    // vérifie qu'il n'y a pas de clés non autorisées
+    foreach($cles as $v){
+        if (! in_array($v, $clesAutorisees)){
+            return false;
+        }
+    }
+    return true;
+}

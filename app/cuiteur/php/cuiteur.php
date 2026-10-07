@@ -9,14 +9,14 @@ ob_start();
 
 $bd = bdConnect();
 
-// génération de la page
-affDebutMenuInfos('Accueil'); 
-affFormPublier();
-$blablas = bdGetBlablas();
+affDebutMenuInfos('Accueil');
+affFormPublier('Publication d\'un nouveau blabla');
+$blablas = bdGetBlablas(BLABLAS_CUITEUR);
 
 mysqli_close($bd); // fermée dès que possible
 
 affBlablas($blablas);
+
 affPiedFin();
 
 // facultatif car fait automatiquement par PHP

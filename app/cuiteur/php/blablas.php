@@ -7,7 +7,7 @@ require_once('bibli_generale.php');
 // bufferisation des sorties
 ob_start();
 
-$bd = bdConnect(); 
+$bd = bdConnect();
 
 $id = 7;
 
